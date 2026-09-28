@@ -1,0 +1,329 @@
+/*
+  Vista: Ficha Técnica de Vehículo (listado + panel de detalle).
+*/
+
+/* ---------- Columna de listado ---------- */
+.list-header {
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.list-header h1 {
+  font-size: 15px;
+  margin-bottom: var(--space-3);
+}
+
+.vehicle-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.vehicle-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  text-align: left;
+  margin-bottom: 2px;
+}
+.vehicle-card:hover {
+  background: var(--bg-surface-alt);
+}
+.vehicle-card.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft-border);
+}
+
+.vehicle-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--navy-800);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vehicle-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vehicle-thumb svg {
+  width: 20px;
+  height: 20px;
+  color: var(--text-on-navy-muted);
+}
+
+.vehicle-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.vehicle-card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.vehicle-plate {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.vehicle-km {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.vehicle-model {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin: 2px 0 var(--space-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Panel de detalle ---------- */
+.detail-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Encabezado con foto (hero) */
+.detail-hero {
+  overflow: hidden;
+}
+.hero-top {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+.hero-photo {
+  width: 176px;
+  height: 132px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(155deg, var(--navy-800), var(--navy-600));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-photo svg {
+  width: 40px;
+  height: 40px;
+  color: rgba(255, 255, 255, 0.5);
+}
+.hero-photo .btn-photo {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(10, 17, 32, 0.72);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.hero-photo .btn-photo svg {
+  width: 15px;
+  height: 15px;
+  color: #fff;
+}
+
+.hero-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.hero-plate-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.hero-plate {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.hero-subtitle {
+  font-size: 14.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.hero-tags {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-1);
+  flex-wrap: wrap;
+}
+.hero-tag {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.hero-tag svg {
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+}
+
+.hero-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.hero-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface-alt);
+}
+.hero-toolbar .spacer {
+  flex: 1;
+}
+
+/* Grillas de datos */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5) var(--space-6);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.detail-columns {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Tarjeta de Comodato */
+.comodato-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.comodato-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--border-strong);
+  background: var(--bg-surface-alt);
+  flex-wrap: wrap;
+}
+.comodato-empty p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 420px;
+}
+.comodato-empty strong {
+  display: block;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.comodato-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5) var(--space-6);
+}
+.comodato-note {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-alt);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1180px) {
+  .detail-wrap {
+    padding: var(--space-5);
+  }
+  .detail-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-top {
+    flex-direction: column;
+  }
+  .hero-photo {
+    width: 100%;
+    height: 160px;
+  }
+  .hero-actions {
+    width: 100%;
+  }
+  .hero-actions .btn {
+    flex: 1;
+  }
+  .info-grid,
+  .comodato-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+  .card-body {
+    padding: var(--space-5);
+  }
+}
+
+@media (max-width: 480px) {
+  .info-grid,
+  .comodato-summary {
+    grid-template-columns: 1fr;
+  }
+  .detail-wrap {
+    padding: var(--space-4);
+  }
+}

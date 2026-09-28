@@ -1,0 +1,188 @@
+/*
+  Layout general de la aplicación (app shell).
+  Estructura: topbar arriba + sidebar / listado / contenido en grilla.
+  Se adapta a escritorio, tablet y celular.
+*/
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-areas:
+    "topbar topbar"
+    "sidebar main";
+  transition: grid-template-columns 0.18s ease;
+}
+
+@media (min-width: 861px) {
+  .app-shell.is-sidebar-collapsed {
+    grid-template-columns: var(--sidebar-w-collapsed) 1fr;
+  }
+}
+
+.app-topbar {
+  grid-area: topbar;
+}
+
+.app-sidebar {
+  grid-area: sidebar;
+}
+
+.app-main {
+  grid-area: main;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Fuera del flujo del grid en todos los tamaños; sólo se muestra en mobile/tablet */
+.sidebar-scrim {
+  display: none;
+  position: fixed;
+  inset: var(--topbar-h) 0 0 0;
+  background: rgba(10, 17, 32, 0.4);
+  z-index: 45;
+}
+.sidebar-scrim.is-visible {
+  display: block;
+}
+
+/* Contenido de "main" con patrón maestro-detalle: listado + panel de detalle */
+.master-detail {
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--list-w) 1fr;
+  min-width: 0;
+}
+
+.md-list {
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.md-detail {
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--bg-app);
+}
+
+/* Botón hamburguesa: visible en tablet y celular (expande el sidebar) */
+/* Selector calificado con .btn para pesar más que la regla base .btn { display: inline-flex } */
+.btn.btn-hamburger {
+  display: none;
+}
+@media (max-width: 1180px) {
+  .btn.btn-hamburger {
+    display: inline-flex;
+  }
+}
+
+/* Botón "volver al listado" en el panel de detalle: sólo en mobile */
+.btn.btn-back-list {
+  display: none;
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1180px) {
+  .app-shell {
+    grid-template-columns: var(--sidebar-w-collapsed) 1fr;
+  }
+  .app-sidebar .nav-label,
+  .app-sidebar .sidebar-brand-text,
+  .app-sidebar .sidebar-footer,
+  .app-sidebar .nav-chevron,
+  .app-sidebar .nav-sublist,
+  .app-sidebar .eyebrow {
+    display: none;
+  }
+  .app-sidebar .nav-group-title {
+    justify-content: center;
+  }
+  .app-sidebar.is-expanded {
+    position: fixed;
+    top: var(--topbar-h);
+    bottom: 0;
+    left: 0;
+    width: var(--sidebar-w);
+    z-index: 40;
+    box-shadow: var(--shadow-lg);
+  }
+  .app-sidebar.is-expanded .nav-label,
+  .app-sidebar.is-expanded .sidebar-brand-text,
+  .app-sidebar.is-expanded .sidebar-footer,
+  .app-sidebar.is-expanded .nav-chevron,
+  .app-sidebar.is-expanded .eyebrow {
+    display: revert;
+  }
+  .app-sidebar.is-expanded .nav-group.is-open .nav-sublist {
+    display: block;
+  }
+  .app-sidebar.is-expanded .nav-group-title {
+    justify-content: flex-start;
+  }
+
+  .master-detail {
+    grid-template-columns: 260px 1fr;
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main";
+  }
+  .app-sidebar {
+    position: fixed;
+    top: var(--topbar-h);
+    bottom: 0;
+    left: 0;
+    width: 84%;
+    max-width: 300px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: var(--shadow-lg);
+  }
+  .app-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .app-sidebar .nav-label,
+  .app-sidebar .sidebar-brand-text,
+  .app-sidebar .sidebar-footer,
+  .app-sidebar .nav-chevron,
+  .app-sidebar .eyebrow {
+    display: revert;
+  }
+  .app-sidebar .nav-group-title {
+    justify-content: flex-start;
+  }
+  .app-sidebar .nav-group.is-open .nav-sublist {
+    display: block;
+  }
+
+  .master-detail {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+  .md-list {
+    border-right: none;
+  }
+
+  /* Patrón maestro-detalle en mobile: se muestra una columna por vez */
+  .master-detail.showing-detail .md-list {
+    display: none;
+  }
+  .master-detail:not(.showing-detail) .md-detail {
+    display: none;
+  }
+  .btn.btn-back-list {
+    display: inline-flex;
+  }
+}

@@ -1,0 +1,74 @@
+<aside class="app-sidebar" id="appSidebar">
+  <nav class="sidebar-scroll scrollbar-thin">
+    <p class="eyebrow" style="padding:0 var(--space-3) var(--space-2);color:var(--text-on-navy-muted)">Módulos del sistema</p>
+
+    <div class="nav-group is-open <%= activeModulo === 'vehiculos' ? 'is-active' : '' %>">
+      <button class="nav-group-title" type="button" data-nav-toggle>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5V8.8c0-.6.4-1.1 1-1.3l7-2.3c.3-.1.7-.1 1 0l7 2.3c.6.2 1 .7 1 1.3v7.7"/><path d="M3 16.5h18M6 16.5V12m12 4.5V12M9.5 16.5V12h5v4.5"/><circle cx="6" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/></svg>
+        <span class="nav-label">Vehículos</span>
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="nav-sublist">
+        <a href="/vehiculos" class="<%= activeItem === 'inventario' ? 'is-active' : '' %>">Inventario de vehículos</a>
+        <a href="/vehiculos/alta" class="<%= activeItem === 'alta' ? 'is-active' : '' %>">Alta de Vehículo</a>
+        <a href="/vehiculos/asignar" class="<%= activeItem === 'asignar' ? 'is-active' : '' %>">Asignar a Chofer</a>
+        <a href="/vehiculos/kilometraje" class="<%= activeItem === 'kilometraje' ? 'is-active' : '' %>">Carga de Kilometraje</a>
+      </div>
+    </div>
+
+    <a href="/choferes" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="nav-label">Plantilla Choferes</span>
+    </a>
+
+    <a href="/mantenimientos" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l1 1 5.3-5.3a4 4 0 0 1 5.4-5.4z"/><path d="M15.5 8.5L18 6l1-3 2 2-3 1z"/></svg>
+      <span class="nav-label">Mantenimientos</span>
+    </a>
+
+    <a href="/herramientas" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-6M4 9V3M12 21v-10M12 7V3M20 21v-4M20 13V3"/><path d="M2 15h4M8 7h8M18 17h4"/></svg>
+      <span class="nav-label">Herramientas Locales</span>
+    </a>
+
+    <a href="/siniestros" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span class="nav-label">Siniestros / Seguros</span>
+    </a>
+
+    <a href="/alertas" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="nav-label">Panel de Alertas</span>
+    </a>
+
+    <a href="/reportes" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+      <span class="nav-label">Reportes y Análisis</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <p class="eyebrow" style="padding:0 var(--space-3) var(--space-2);color:var(--text-on-navy-muted)">Administración</p>
+
+    <a href="/accesos" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+      <span class="nav-label">Control de Acceso</span>
+    </a>
+
+    <a href="/auditoria" class="nav-link">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l5 5v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 12l2 2 4-4"/></svg>
+      <span class="nav-label">Log de Auditoría</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-status">
+      <span class="dot"></span>
+      <span class="sidebar-footer-text">Sistema operativo con normalidad</span>
+    </div>
+    <button class="btn-collapse" id="btnCollapse" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span class="sidebar-footer-text">Contraer menú</span>
+    </button>
+  </div>
+</aside>
+<div class="sidebar-scrim" id="sidebarScrim"></div>
