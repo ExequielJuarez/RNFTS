@@ -17,25 +17,54 @@
       </div>
     </div>
 
-    <a href="/choferes" class="nav-link <%= activeModulo === 'choferes' ? 'is-active' : '' %>">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span class="nav-label">Plantilla Choferes</span>
-    </a>
+    <div class="nav-group <%= activeModulo === 'choferes' ? 'is-open is-active' : '' %>">
+      <button class="nav-group-title" type="button" data-nav-toggle>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="nav-label">Plantilla Choferes</span>
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="nav-sublist">
+        <a href="/choferes" class="<%= activeItem === 'choferes-listado' ? 'is-active' : '' %>">Plantilla de Choferes</a>
+        <a href="/choferes/nuevo" class="<%= activeItem === 'choferes-alta' ? 'is-active' : '' %>">Alta de Chofer</a>
+      </div>
+    </div>
 
-    <a href="/mantenimientos" class="nav-link <%= activeModulo === 'mantenimientos' ? 'is-active' : '' %>">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l1 1 5.3-5.3a4 4 0 0 1 5.4-5.4z"/><path d="M15.5 8.5L18 6l1-3 2 2-3 1z"/></svg>
-      <span class="nav-label">Mantenimientos</span>
-    </a>
+    <div class="nav-group <%= activeModulo === 'mantenimientos' ? 'is-open is-active' : '' %>">
+      <button class="nav-group-title" type="button" data-nav-toggle>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l1 1 5.3-5.3a4 4 0 0 1 5.4-5.4z"/><path d="M15.5 8.5L18 6l1-3 2 2-3 1z"/></svg>
+        <span class="nav-label">Mantenimientos</span>
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="nav-sublist">
+        <a href="/mantenimientos" class="<%= activeItem === 'mantenimientos-listado' ? 'is-active' : '' %>">Listado de Mantenimientos</a>
+        <a href="/mantenimientos/nuevo" class="<%= activeItem === 'mantenimientos-nuevo' ? 'is-active' : '' %>">Registrar Mantenimiento</a>
+      </div>
+    </div>
 
-    <a href="/herramientas" class="nav-link <%= activeModulo === 'herramientas' ? 'is-active' : '' %>">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-6M4 9V3M12 21v-10M12 7V3M20 21v-4M20 13V3"/><path d="M2 15h4M8 7h8M18 17h4"/></svg>
-      <span class="nav-label">Herramientas Locales</span>
-    </a>
+    <div class="nav-group <%= activeModulo === 'herramientas' ? 'is-open is-active' : '' %>">
+      <button class="nav-group-title" type="button" data-nav-toggle>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-6M4 9V3M12 21v-10M12 7V3M20 21v-4M20 13V3"/><path d="M2 15h4M8 7h8M18 17h4"/></svg>
+        <span class="nav-label">Herramientas Locales</span>
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="nav-sublist">
+        <a href="/herramientas" class="<%= activeItem === 'herramientas-listado' ? 'is-active' : '' %>">Inventario de Herramientas</a>
+        <a href="/herramientas/nueva" class="<%= activeItem === 'herramientas-nueva' ? 'is-active' : '' %>">Cargar Herramienta</a>
+        <a href="/herramientas/repuestos" class="<%= activeItem === 'herramientas-repuestos' ? 'is-active' : '' %>">Catálogo de Repuestos</a>
+      </div>
+    </div>
 
-    <a href="/siniestros" class="nav-link <%= activeModulo === 'siniestros' ? 'is-active' : '' %>">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
-      <span class="nav-label">Siniestros / Seguros</span>
-    </a>
+    <div class="nav-group <%= activeModulo === 'siniestros' ? 'is-open is-active' : '' %>">
+      <button class="nav-group-title" type="button" data-nav-toggle>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span class="nav-label">Siniestros / Seguros</span>
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="nav-sublist">
+        <a href="/siniestros" class="<%= activeItem === 'siniestros-listado' ? 'is-active' : '' %>">Listado de Siniestros</a>
+        <a href="/siniestros/nuevo" class="<%= activeItem === 'siniestros-nuevo' ? 'is-active' : '' %>">Registrar Siniestro</a>
+      </div>
+    </div>
 
     <a href="/alertas" class="nav-link <%= activeModulo === 'alertas' ? 'is-active' : '' %>">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
@@ -50,10 +79,17 @@
     <div class="sidebar-divider"></div>
     <p class="eyebrow" style="padding:0 var(--space-3) var(--space-2);color:var(--text-on-navy-muted)">Administración</p>
 
-    <a href="/accesos" class="nav-link <%= activeModulo === 'accesos' ? 'is-active' : '' %>">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
-      <span class="nav-label">Control de Acceso</span>
-    </a>
+    <div class="nav-group <%= activeModulo === 'accesos' ? 'is-open is-active' : '' %>">
+      <button class="nav-group-title" type="button" data-nav-toggle>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+        <span class="nav-label">Control de Acceso</span>
+        <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="nav-sublist">
+        <a href="/accesos/usuarios" class="<%= activeItem === 'accesos-usuarios' ? 'is-active' : '' %>">Usuarios</a>
+        <a href="/accesos/roles" class="<%= activeItem === 'accesos-roles' ? 'is-active' : '' %>">Roles y Permisos</a>
+      </div>
+    </div>
 
     <a href="/auditoria" class="nav-link <%= activeModulo === 'auditoria' ? 'is-active' : '' %>">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l5 5v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 12l2 2 4-4"/></svg>

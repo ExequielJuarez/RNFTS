@@ -124,11 +124,11 @@ router.get("/vehiculos/:patente", (req, res, next) => {
 
 router.get("/choferes", (req, res) => {
   const choferes = choferMockService.listar();
-  res.render("choferes/ficha", { choferes, chofer: choferes[0], mostrarDetalle: false });
+  res.render("choferes/ficha", { choferes, chofer: choferes[0], mostrarDetalle: false, activeItem: "choferes-listado" });
 });
 
 router.get("/choferes/nuevo", (req, res) => {
-  res.render("choferes/carga", { titulo: "Cargar Chofer" });
+  res.render("choferes/carga", { titulo: "Cargar Chofer", activeItem: "choferes-alta" });
 });
 
 router.post("/choferes/nuevo", (req, res) => {
@@ -138,7 +138,7 @@ router.post("/choferes/nuevo", (req, res) => {
 router.get("/choferes/:id/editar", (req, res, next) => {
   const chofer = choferMockService.obtenerPorId(req.params.id);
   if (!chofer) return next();
-  res.render("choferes/editar", { titulo: "Editar Chofer", chofer });
+  res.render("choferes/editar", { titulo: "Editar Chofer", chofer, activeItem: "choferes-listado" });
 });
 
 router.post("/choferes/:id/editar", (req, res, next) => {
@@ -164,14 +164,14 @@ router.get("/choferes/:id", (req, res, next) => {
   const chofer = choferMockService.obtenerPorId(req.params.id);
   if (!chofer) return next();
 
-  res.render("choferes/ficha", { choferes, chofer, mostrarDetalle: true });
+  res.render("choferes/ficha", { choferes, chofer, mostrarDetalle: true, activeItem: "choferes-listado" });
 });
 
 // ===================== MANTENIMIENTOS =====================
 
 router.get("/mantenimientos", (req, res) => {
   const ordenes = mantenimientoMockService.listar();
-  res.render("mantenimientos/ficha", { ordenes, orden: ordenes[0], mostrarDetalle: false });
+  res.render("mantenimientos/ficha", { ordenes, orden: ordenes[0], mostrarDetalle: false, activeItem: "mantenimientos-listado" });
 });
 
 router.get("/mantenimientos/nuevo", (req, res) => {
@@ -180,6 +180,7 @@ router.get("/mantenimientos/nuevo", (req, res) => {
     vehiculos: vehiculoMockService.listar(),
     repuestos: mantenimientoMockService.listarRepuestos(),
     patenteSeleccionada: req.query.patente || "",
+    activeItem: "mantenimientos-nuevo",
   });
 });
 
@@ -197,18 +198,22 @@ router.get("/mantenimientos/:id", (req, res, next) => {
   const ordenes = mantenimientoMockService.listar();
   const orden = mantenimientoMockService.obtenerPorId(req.params.id);
   if (!orden) return next();
-  res.render("mantenimientos/ficha", { ordenes, orden, mostrarDetalle: true });
+  res.render("mantenimientos/ficha", { ordenes, orden, mostrarDetalle: true, activeItem: "mantenimientos-listado" });
 });
 
 // ===================== HERRAMIENTAS =====================
 
 router.get("/herramientas", (req, res) => {
   const herramientas = herramientaMockService.listar();
-  res.render("herramientas/ficha", { herramientas, herramienta: herramientas[0], mostrarDetalle: false });
+  res.render("herramientas/ficha", { herramientas, herramienta: herramientas[0], mostrarDetalle: false, activeItem: "herramientas-listado" });
 });
 
 router.get("/herramientas/nueva", (req, res) => {
-  res.render("herramientas/carga", { titulo: "Cargar Herramienta", sectores: herramientaMockService.listarSectores() });
+  res.render("herramientas/carga", {
+    titulo: "Cargar Herramienta",
+    sectores: herramientaMockService.listarSectores(),
+    activeItem: "herramientas-nueva",
+  });
 });
 
 router.post("/herramientas/nueva", (req, res) => {
@@ -216,7 +221,11 @@ router.post("/herramientas/nueva", (req, res) => {
 });
 
 router.get("/herramientas/repuestos", (req, res) => {
-  res.render("herramientas/repuestos", { titulo: "Catálogo de Repuestos", repuestos: mantenimientoMockService.listarRepuestos() });
+  res.render("herramientas/repuestos", {
+    titulo: "Catálogo de Repuestos",
+    repuestos: mantenimientoMockService.listarRepuestos(),
+    activeItem: "herramientas-repuestos",
+  });
 });
 
 router.post("/herramientas/repuestos", (req, res) => {
@@ -230,7 +239,12 @@ router.post("/herramientas/repuestos/:id/eliminar", (req, res) => {
 router.get("/herramientas/:id/editar", (req, res, next) => {
   const herramienta = herramientaMockService.obtenerPorId(req.params.id);
   if (!herramienta) return next();
-  res.render("herramientas/editar", { titulo: "Editar Herramienta", herramienta, sectores: herramientaMockService.listarSectores() });
+  res.render("herramientas/editar", {
+    titulo: "Editar Herramienta",
+    herramienta,
+    sectores: herramientaMockService.listarSectores(),
+    activeItem: "herramientas-listado",
+  });
 });
 
 router.post("/herramientas/:id/editar", (req, res, next) => {
@@ -242,7 +256,7 @@ router.post("/herramientas/:id/editar", (req, res, next) => {
 router.get("/herramientas/:id/prestamo", (req, res, next) => {
   const herramienta = herramientaMockService.obtenerPorId(req.params.id);
   if (!herramienta) return next();
-  res.render("herramientas/prestamo", { titulo: "Registrar Préstamo", herramienta });
+  res.render("herramientas/prestamo", { titulo: "Registrar Préstamo", herramienta, activeItem: "herramientas-listado" });
 });
 
 router.post("/herramientas/:id/prestamo", (req, res, next) => {
@@ -267,13 +281,13 @@ router.get("/herramientas/:id", (req, res, next) => {
   const herramientas = herramientaMockService.listar();
   const herramienta = herramientaMockService.obtenerPorId(req.params.id);
   if (!herramienta) return next();
-  res.render("herramientas/ficha", { herramientas, herramienta, mostrarDetalle: true });
+  res.render("herramientas/ficha", { herramientas, herramienta, mostrarDetalle: true, activeItem: "herramientas-listado" });
 });
 
 // ===================== SINIESTROS =====================
 
 router.get("/siniestros", (req, res) => {
-  res.render("siniestros/listado", { siniestros: siniestroMockService.listar() });
+  res.render("siniestros/listado", { siniestros: siniestroMockService.listar(), activeItem: "siniestros-listado" });
 });
 
 router.get("/siniestros/nuevo", (req, res) => {
@@ -281,6 +295,7 @@ router.get("/siniestros/nuevo", (req, res) => {
     titulo: "Registrar Siniestro",
     vehiculos: vehiculoMockService.listar(),
     choferes: choferMockService.listar(),
+    activeItem: "siniestros-nuevo",
   });
 });
 
@@ -297,7 +312,7 @@ router.post("/siniestros/:id/resolver", (req, res, next) => {
 router.get("/siniestros/:id", (req, res, next) => {
   const siniestro = siniestroMockService.obtenerPorId(req.params.id);
   if (!siniestro) return next();
-  res.render("siniestros/detalle", { siniestro });
+  res.render("siniestros/detalle", { siniestro, activeItem: "siniestros-listado" });
 });
 
 // ===================== ALERTAS =====================
@@ -345,7 +360,11 @@ router.get("/alertas/:id", (req, res, next) => {
 router.get("/accesos", (req, res) => res.redirect("/accesos/usuarios"));
 
 router.get("/accesos/usuarios", (req, res) => {
-  res.render("accesos/usuarios", { usuarios: usuarioMockService.listarUsuarios(), roles: usuarioMockService.listarRoles() });
+  res.render("accesos/usuarios", {
+    usuarios: usuarioMockService.listarUsuarios(),
+    roles: usuarioMockService.listarRoles(),
+    activeItem: "accesos-usuarios",
+  });
 });
 
 router.get("/accesos/usuarios/nuevo", (req, res) => {
@@ -354,6 +373,7 @@ router.get("/accesos/usuarios/nuevo", (req, res) => {
     roles: usuarioMockService.listarRoles(),
     permisos: usuarioMockService.PERMISOS,
     permisosAdmin: usuarioMockService.PERMISOS_ADMIN,
+    activeItem: "accesos-usuarios",
   });
 });
 
@@ -370,6 +390,7 @@ router.get("/accesos/usuarios/:id/editar", (req, res, next) => {
     roles: usuarioMockService.listarRoles(),
     permisos: usuarioMockService.PERMISOS,
     permisosAdmin: usuarioMockService.PERMISOS_ADMIN,
+    activeItem: "accesos-usuarios",
   });
 });
 
@@ -383,13 +404,19 @@ router.get("/accesos/roles", (req, res) => {
   res.render("accesos/roles", {
     roles: usuarioMockService.listarRoles(),
     permisosCatalogo: usuarioMockService.PERMISOS.concat(usuarioMockService.PERMISOS_ADMIN),
+    activeItem: "accesos-roles",
   });
 });
 
 router.get("/accesos/roles/:id/editar", (req, res, next) => {
   const rol = usuarioMockService.obtenerRol(req.params.id);
   if (!rol) return next();
-  res.render("accesos/rol-editar", { titulo: "Configurar Rol", rol, permisos: usuarioMockService.PERMISOS });
+  res.render("accesos/rol-editar", {
+    titulo: "Configurar Rol",
+    rol,
+    permisos: usuarioMockService.PERMISOS,
+    activeItem: "accesos-roles",
+  });
 });
 
 router.post("/accesos/roles/:id/editar", (req, res, next) => {
