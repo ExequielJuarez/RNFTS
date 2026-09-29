@@ -6,6 +6,7 @@ const choferMockService = require("../services/choferMockService");
 const mantenimientoMockService = require("../services/mantenimientoMockService");
 const herramientaMockService = require("../services/herramientaMockService");
 const siniestroMockService = require("../services/siniestroMockService");
+const alertaMockService = require("../services/alertaMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -295,6 +296,46 @@ router.get("/siniestros/:id", (req, res, next) => {
   const siniestro = siniestroMockService.obtenerPorId(req.params.id);
   if (!siniestro) return next();
   res.render("siniestros/detalle", { siniestro });
+});
+
+// ===================== ALERTAS =====================
+
+router.get("/alertas", (req, res) => {
+  const alertas = alertaMockService.listar();
+  const vehiculos = vehiculoMockService.listar();
+  const choferes = choferMockService.listar();
+
+  const resumen = {
+    licVencidas: alertas.filter((a) => a.tipo === "licencia_vencida").length,
+    licProximas: alertas.filter((a) => a.tipo === "licencia_proxima").length,
+    docsVencidas: alertas.filter((a) => a.tipo === "documentacion_vencida").length,
+    mantProximos: alertas.filter((a) => a.tipo === "mantenimiento_proximo").length,
+  };
+
+  const estadisticas = {
+    vehiculos: {
+      disponible: vehiculos.filter((v) => v.estado === "DISPONIBLE").length,
+      uso: vehiculos.filter((v) => v.estado === "EN_USO").length,
+      baja: vehiculos.filter((v) => v.estado === "BAJA").length,
+    },
+    choferes: {
+      activo: choferes.filter((c) => c.estado === "Activo").length,
+      inactivo: choferes.filter((c) => c.estado !== "Activo").length,
+    },
+  };
+
+  res.render("alertas/listado", { alertas, resumen, estadisticas });
+});
+
+router.post("/alertas/:id/leer", (req, res) => {
+  const alerta = alertaMockService.marcarLeida(req.params.id);
+  res.json({ ok: Boolean(alerta) });
+});
+
+router.get("/alertas/:id", (req, res, next) => {
+  const alerta = alertaMockService.obtenerPorId(req.params.id);
+  if (!alerta) return next();
+  res.render("alertas/detalle", { alerta, ruta: alertaMockService.rutaEntidad(alerta) });
 });
 
 module.exports = router;

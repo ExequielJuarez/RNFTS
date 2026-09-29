@@ -1,0 +1,69 @@
+<%- include('../partials/head', { titulo: alerta.label }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'alertas' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap" style="max-width:760px">
+
+      <a href="/alertas" class="btn btn-sm btn-outline" style="align-self:flex-start">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver al panel de alertas
+      </a>
+
+      <div class="card">
+        <div class="card-header" style="align-items:flex-start">
+          <div>
+            <span class="card-title" style="font-size:18px"><%= alerta.label %></span>
+            <p style="font-size:13px; color:var(--text-secondary); margin-top:4px">
+              Generada el <%= new Date(alerta.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' }) %>
+              a las <%= new Date(alerta.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) %>
+            </p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:var(--space-2); align-items:flex-end">
+            <span class="badge badge-<%= alerta.prioridad === 'alta' ? 'danger' : (alerta.prioridad === 'media' ? 'warning' : 'info') %>">Prioridad <%= alerta.prioridad %></span>
+            <span class="badge badge-<%= alerta.leida ? 'success' : 'warning' %>" id="badge-estado"><%= alerta.leida ? 'Leída' : 'Nueva' %></span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="background:var(--bg-surface-alt); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-5)">
+            <span class="field-label">Descripción del Evento</span>
+            <p style="margin-top:var(--space-2); font-size:15px; font-weight:500"><%= alerta.mensaje %></p>
+          </div>
+
+          <div class="info-grid">
+            <div>
+              <span class="field-label">Entidad Afectada</span>
+              <span class="field-value">
+                <% if (ruta) { %><a href="<%= ruta %>"><%= alerta.entidadNombre %> →</a><% } else { %><%= alerta.entidadNombre %><% } %>
+              </span>
+            </div>
+            <div><span class="field-label">Tipo de Registro</span><span class="field-value"><%= alerta.entidadTipo %></span></div>
+            <div><span class="field-label">Origen de la Alerta</span><span class="field-value">Sistema (Automático)</span></div>
+          </div>
+
+          <div class="form-actions" style="margin-top:var(--space-6); padding-top:var(--space-5); border-top:1px solid var(--border-subtle)">
+            <% if (ruta) { %><a href="<%= ruta %>" class="btn btn-outline">Ver <%= alerta.entidadTipo %></a><% } %>
+            <% if (!alerta.leida) { %><button id="btn-marcar-leida" data-id="<%= alerta.id %>" class="btn btn-primary">✓ Marcar como leída</button><% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  var btn = document.getElementById('btn-marcar-leida');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      fetch('/alertas/' + btn.dataset.id + '/leer', { method: 'POST' }).then(function () {
+        var badge = document.getElementById('badge-estado');
+        badge.className = 'badge badge-success';
+        badge.textContent = 'Leída';
+        btn.remove();
+      });
+    });
+  }
+</script>

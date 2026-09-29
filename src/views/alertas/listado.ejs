@@ -1,0 +1,201 @@
+<%- include('../partials/head', { titulo: 'Panel de Alertas' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'alertas' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Alertas y Estado Operacional</h1>
+          <p>Control y seguimiento de notificaciones automáticas del sistema.</p>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <button class="stat-card" data-filtro-tipo="licencia_vencida">
+          <span class="stat-card-label">Licencias Vencidas</span>
+          <span class="stat-card-value" style="color:var(--danger)"><%= resumen.licVencidas %></span>
+        </button>
+        <button class="stat-card" data-filtro-tipo="licencia_proxima">
+          <span class="stat-card-label">Próximas a vencer</span>
+          <span class="stat-card-value" style="color:var(--warning)"><%= resumen.licProximas %></span>
+        </button>
+        <button class="stat-card" data-filtro-tipo="documentacion_vencida">
+          <span class="stat-card-label">Docs. Vencida (RTO/Seg)</span>
+          <span class="stat-card-value" style="color:var(--danger)"><%= resumen.docsVencidas %></span>
+        </button>
+        <button class="stat-card" data-filtro-tipo="mantenimiento_proximo">
+          <span class="stat-card-label">Mantenimiento Próximo</span>
+          <span class="stat-card-value" style="color:var(--warning)"><%= resumen.mantProximos %></span>
+        </button>
+      </div>
+
+      <%
+        const vehTotal = estadisticas.vehiculos.disponible + estadisticas.vehiculos.uso + estadisticas.vehiculos.baja;
+        const chofTotal = estadisticas.choferes.activo + estadisticas.choferes.inactivo;
+      %>
+      <div class="chart-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Estado General de Vehículos</span></div>
+          <div class="card-body donut-row">
+            <div class="donut" id="donutVehiculos" data-values="<%= estadisticas.vehiculos.disponible %>,<%= estadisticas.vehiculos.uso %>,<%= estadisticas.vehiculos.baja %>" data-colors="var(--success),var(--info),var(--danger)">
+              <div class="donut-total"><strong><%= vehTotal %></strong><span>Total</span></div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--success)"></span>Disponibles<span class="donut-legend-value"><%= estadisticas.vehiculos.disponible %></span></div>
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--info)"></span>En Uso<span class="donut-legend-value"><%= estadisticas.vehiculos.uso %></span></div>
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--danger)"></span>Baja<span class="donut-legend-value"><%= estadisticas.vehiculos.baja %></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Disponibilidad de Choferes</span></div>
+          <div class="card-body donut-row">
+            <div class="donut" id="donutChoferes" data-values="<%= estadisticas.choferes.activo %>,<%= estadisticas.choferes.inactivo %>" data-colors="var(--accent),var(--neutral)">
+              <div class="donut-total"><strong><%= chofTotal %></strong><span>Total</span></div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--accent)"></span>Activos<span class="donut-legend-value"><%= estadisticas.choferes.activo %></span></div>
+              <div class="donut-legend-item"><span class="donut-legend-dot" style="background:var(--neutral)"></span>Inactivos<span class="donut-legend-value"><%= estadisticas.choferes.inactivo %></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body filter-bar" style="align-items:flex-end">
+          <div class="form-group" style="grid-column:span 2"><label>Buscar</label><input type="search" id="filtro-buscar" placeholder="Chofer, vehículo..."></div>
+          <div class="form-group"><label>Fecha desde</label><input type="date" id="filtro-desde"></div>
+          <div class="form-group"><label>Fecha hasta</label><input type="date" id="filtro-hasta"></div>
+          <div class="form-group">
+            <label>Tipo de alerta</label>
+            <select id="filtro-tipo">
+              <option value="">Todos</option>
+              <option value="licencia_vencida">Licencia vencida</option>
+              <option value="licencia_proxima">Licencia próxima</option>
+              <option value="documentacion_vencida">Documentación vencida</option>
+              <option value="mantenimiento_proximo">Mantenimiento próximo</option>
+              <option value="siniestro_activo">Siniestro activo</option>
+              <option value="vehiculo_fuera_servicio">Fuera de servicio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="filtro-estado">
+              <option value="">Todas</option>
+              <option value="no_leida">No leídas</option>
+              <option value="leida">Leídas</option>
+            </select>
+          </div>
+          <button type="button" id="btn-limpiar" class="btn btn-outline">Limpiar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" style="min-width:820px">
+            <thead><tr><th>Tipo</th><th>Descripción</th><th>Entidad</th><th>Fecha</th><th>Prioridad</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="alertas-tbody">
+              <% alertas.forEach(function (a) { %>
+                <tr class="alerta-row"
+                  data-tipo="<%= a.tipo %>"
+                  data-estado="<%= a.leida ? 'leida' : 'no_leida' %>"
+                  data-fecha="<%= a.fecha.slice(0, 10) %>"
+                  data-buscar="<%= (a.mensaje + ' ' + a.entidadNombre).toLowerCase() %>"
+                  style="<%= a.leida ? 'opacity:.65' : '' %>">
+                  <td class="is-primary"><%= a.label %></td>
+                  <td style="max-width:280px"><%= a.mensaje %></td>
+                  <td><span class="badge badge-neutral"><%= a.entidadNombre %></span></td>
+                  <td><%= new Date(a.fecha).toLocaleDateString('es-AR') %></td>
+                  <td><span class="badge badge-<%= a.prioridad === 'alta' ? 'danger' : (a.prioridad === 'media' ? 'warning' : 'info') %>"><%= a.prioridad %></span></td>
+                  <td><span class="badge badge-<%= a.leida ? 'success' : 'warning' %>"><%= a.leida ? 'Leída' : 'Nueva' %></span></td>
+                  <td>
+                    <div style="display:flex; gap:var(--space-2); justify-content:flex-end">
+                      <% if (!a.leida) { %><button class="btn btn-sm btn-outline btn-marcar-leida" data-id="<%= a.id %>">✓ Leída</button><% } %>
+                      <a href="/alertas/<%= a.id %>" class="btn btn-sm btn-outline">Abrir</a>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <p class="table-empty" id="sin-resultados" style="display:none">No hay alertas que coincidan con los filtros aplicados.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  // Donut en CSS puro (conic-gradient) — sin dependencias externas
+  document.querySelectorAll('.donut').forEach(function (donut) {
+    var values = donut.dataset.values.split(',').map(Number);
+    var colors = donut.dataset.colors.split(',');
+    var total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var acc = 0;
+    var stops = values.map(function (v, i) {
+      var start = (acc / total) * 360;
+      acc += v;
+      var end = (acc / total) * 360;
+      return colors[i] + ' ' + start + 'deg ' + end + 'deg';
+    });
+    donut.style.background = values.some(Boolean)
+      ? 'conic-gradient(' + stops.join(', ') + ')'
+      : 'var(--border-subtle)';
+  });
+
+  document.getElementById('alertas-tbody').addEventListener('click', function (e) {
+    var btn = e.target.closest('.btn-marcar-leida');
+    if (!btn) return;
+    fetch('/alertas/' + btn.dataset.id + '/leer', { method: 'POST' }).then(function () {
+      var fila = btn.closest('tr');
+      fila.style.opacity = '.65';
+      fila.dataset.estado = 'leida';
+      btn.remove();
+    });
+  });
+
+  var filas = Array.from(document.querySelectorAll('.alerta-row'));
+  var filtroBuscar = document.getElementById('filtro-buscar');
+  var filtroDesde = document.getElementById('filtro-desde');
+  var filtroHasta = document.getElementById('filtro-hasta');
+  var filtroTipo = document.getElementById('filtro-tipo');
+  var filtroEstado = document.getElementById('filtro-estado');
+  var sinResultados = document.getElementById('sin-resultados');
+
+  function aplicarFiltros() {
+    var buscar = filtroBuscar.value.toLowerCase().trim();
+    var visibles = 0;
+    filas.forEach(function (fila) {
+      var ok = true;
+      if (buscar && !fila.dataset.buscar.includes(buscar)) ok = false;
+      if (filtroTipo.value && fila.dataset.tipo !== filtroTipo.value) ok = false;
+      if (filtroEstado.value && fila.dataset.estado !== filtroEstado.value) ok = false;
+      if (filtroDesde.value && fila.dataset.fecha < filtroDesde.value) ok = false;
+      if (filtroHasta.value && fila.dataset.fecha > filtroHasta.value) ok = false;
+      fila.style.display = ok ? '' : 'none';
+      if (ok) visibles++;
+    });
+    sinResultados.style.display = visibles === 0 ? '' : 'none';
+    document.querySelectorAll('[data-filtro-tipo]').forEach(function (card) {
+      card.classList.toggle('is-active', card.dataset.filtroTipo === filtroTipo.value && filtroTipo.value !== '');
+    });
+  }
+  [filtroBuscar, filtroDesde, filtroHasta, filtroTipo, filtroEstado].forEach(function (el) { el.addEventListener('input', aplicarFiltros); });
+
+  document.getElementById('btn-limpiar').addEventListener('click', function () {
+    filtroBuscar.value = ''; filtroDesde.value = ''; filtroHasta.value = ''; filtroTipo.value = ''; filtroEstado.value = '';
+    aplicarFiltros();
+  });
+
+  document.querySelectorAll('[data-filtro-tipo]').forEach(function (card) {
+    card.addEventListener('click', function () {
+      filtroTipo.value = card.dataset.filtroTipo;
+      aplicarFiltros();
+    });
+  });
+</script>
