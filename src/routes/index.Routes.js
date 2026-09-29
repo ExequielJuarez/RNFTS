@@ -5,6 +5,7 @@ const vehiculoMockService = require("../services/vehiculoMockService");
 const choferMockService = require("../services/choferMockService");
 const mantenimientoMockService = require("../services/mantenimientoMockService");
 const herramientaMockService = require("../services/herramientaMockService");
+const siniestroMockService = require("../services/siniestroMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -264,6 +265,36 @@ router.get("/herramientas/:id", (req, res, next) => {
   const herramienta = herramientaMockService.obtenerPorId(req.params.id);
   if (!herramienta) return next();
   res.render("herramientas/ficha", { herramientas, herramienta, mostrarDetalle: true });
+});
+
+// ===================== SINIESTROS =====================
+
+router.get("/siniestros", (req, res) => {
+  res.render("siniestros/listado", { siniestros: siniestroMockService.listar() });
+});
+
+router.get("/siniestros/nuevo", (req, res) => {
+  res.render("siniestros/nuevo", {
+    titulo: "Registrar Siniestro",
+    vehiculos: vehiculoMockService.listar(),
+    choferes: choferMockService.listar(),
+  });
+});
+
+router.post("/siniestros/nuevo", (req, res) => {
+  res.redirect("/siniestros");
+});
+
+router.post("/siniestros/:id/resolver", (req, res, next) => {
+  const siniestro = siniestroMockService.obtenerPorId(req.params.id);
+  if (!siniestro) return next();
+  res.redirect("/siniestros/" + siniestro.id);
+});
+
+router.get("/siniestros/:id", (req, res, next) => {
+  const siniestro = siniestroMockService.obtenerPorId(req.params.id);
+  if (!siniestro) return next();
+  res.render("siniestros/detalle", { siniestro });
 });
 
 module.exports = router;

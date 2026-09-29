@@ -213,19 +213,6 @@
   flex: 1;
 }
 
-/* Grillas de datos */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-5) var(--space-6);
-}
-
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
-  align-items: start;
-}
 
 .detail-columns {
   display: grid;
@@ -308,12 +295,8 @@
   .hero-actions .btn {
     flex: 1;
   }
-  .info-grid,
   .comodato-summary {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .two-col {
-    grid-template-columns: 1fr;
   }
   .card-body {
     padding: var(--space-5);
@@ -321,7 +304,6 @@
 }
 
 @media (max-width: 480px) {
-  .info-grid,
   .comodato-summary {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,99 @@
+<%- include('../partials/head', { titulo: 'Siniestro #' + siniestro.id }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'siniestros' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap" style="max-width:920px">
+
+      <div class="page-header-row">
+        <div>
+          <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; margin-bottom:4px;">
+            <h1 style="margin:0">Siniestro #<%= siniestro.id %></h1>
+            <span class="badge badge-<%= siniestro.estado === 'RESUELTO' ? 'success' : 'warning' %>"><%= siniestro.estado === 'RESUELTO' ? 'Resuelto' : 'En Proceso' %></span>
+          </div>
+          <p>Registrado el <%= new Date(siniestro.fechaRegistro).toLocaleDateString('es-AR') %></p>
+        </div>
+        <div class="page-header-actions">
+          <a href="/siniestros" class="btn btn-outline">Volver</a>
+          <% if (siniestro.estado !== 'RESUELTO') { %>
+            <form action="/siniestros/<%= siniestro.id %>/resolver" method="post" onsubmit="return confirm('¿Cerrar este caso? El vehículo y chofer quedarán disponibles.')">
+              <button type="submit" class="btn btn-accent">Cerrar Caso</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Vehículo Involucrado</span></div>
+          <div class="card-body">
+            <div><span class="field-label">Patente</span><span class="field-value" style="font-size:18px; color:var(--accent)"><%= siniestro.patente %></span></div>
+            <div style="margin-top:var(--space-3)"><span class="field-label">Marca / Modelo</span><span class="field-value"><%= siniestro.vehiculoMarca %></span></div>
+            <a href="/vehiculos/<%= siniestro.patente %>" style="display:inline-flex; margin-top:var(--space-3); font-size:13px; font-weight:700; color:var(--accent)">Ver ficha del vehículo →</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Chofer al Mando</span></div>
+          <div class="card-body">
+            <% if (siniestro.choferNombre) { %>
+              <div><span class="field-label">Nombre</span><span class="field-value"><%= siniestro.choferNombre %></span></div>
+              <div style="margin-top:var(--space-3)"><span class="field-label">DNI</span><span class="field-value"><%= siniestro.choferDni %></span></div>
+            <% } else { %>
+              <p class="table-empty">Sin chofer asignado (estacionado).</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Datos del Hecho</span></div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div><span class="field-label">Fecha del Siniestro</span><span class="field-value"><%= new Date(siniestro.fecha).toLocaleDateString('es-AR') %></span></div>
+            <div><span class="field-label">Ubicación</span><span class="field-value"><%= siniestro.ubicacion %></span></div>
+          </div>
+          <div style="margin-top:var(--space-4)"><span class="field-label">Descripción de lo ocurrido</span><p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;"><%= siniestro.descripcion %></p></div>
+          <% if (siniestro.danosVehiculo) { %>
+            <div style="margin-top:var(--space-4)"><span class="field-label">Daños en el vehículo</span><p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;"><%= siniestro.danosVehiculo %></p></div>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (siniestro.tercero) { %>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Terceros Involucrados</span></div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div><span class="field-label">Vehículo Tercero</span><span class="field-value"><%= siniestro.tercero.vehiculo %></span></div>
+              <div><span class="field-label">Seguro del Tercero</span><span class="field-value"><%= siniestro.tercero.seguro %></span></div>
+              <div><span class="field-label">Conductor Tercero</span><span class="field-value"><%= siniestro.tercero.conductor %></span></div>
+              <div><span class="field-label">Contacto</span><span class="field-value"><%= siniestro.tercero.contacto %></span></div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Archivos y Evidencia</span></div>
+        <div class="card-body">
+          <% if (siniestro.archivos.length) { %>
+            <% siniestro.archivos.forEach(function (a) { %>
+              <div class="alert-item is-info" style="margin-bottom:var(--space-2)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6m-6 4h6M9 8h1"/><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M6 3h8l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg>
+                <span><%= a %></span>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="table-empty">Sin archivos adjuntos.</p>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

@@ -184,6 +184,9 @@
 }
 
 /* ---------- Tablas ---------- */
+.table-scroll {
+  overflow-x: auto;
+}
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -306,6 +309,85 @@
   display: block;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+/* ---------- Grillas de datos (fichas y detalles) ---------- */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5) var(--space-6);
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Página completa (listados sin maestro-detalle) ---------- */
+.page-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.page-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.page-header-row h1 {
+  font-size: 22px;
+  margin-bottom: var(--space-1);
+}
+.page-header-row p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+.page-header-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 760px) {
+  .page-wrap {
+    padding: var(--space-4);
+  }
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .page-header-actions {
+    width: 100%;
+  }
+  .page-header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 /* ---------- Estado vacío ---------- */

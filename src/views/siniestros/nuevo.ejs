@@ -1,0 +1,87 @@
+<%- include('../partials/head', { titulo: 'Registrar Siniestro', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'siniestros' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/siniestros" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Siniestros
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Registrar Siniestro / Accidente</h1>
+          <p>Completá los datos del incidente para iniciar el seguimiento del seguro.</p>
+        </div>
+      </div>
+
+      <form action="/siniestros/nuevo" method="post" enctype="multipart/form-data">
+        <section class="form-section">
+          <h2>Datos Principales</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vehículo Involucrado <span class="req">*</span></label>
+              <select name="patente" required>
+                <option value="">Seleccione vehículo...</option>
+                <% vehiculos.forEach(function (v) { %><option value="<%= v.patente %>"><%= v.patente %> - <%= v.marca %> <%= v.modelo %></option><% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Chofer al Mando</label>
+              <select name="chofer_id">
+                <option value="">Seleccione chofer...</option>
+                <% choferes.forEach(function (c) { %><option value="<%= c.id %>"><%= c.nombre %> <%= c.apellido %> (DNI: <%= c.dni %>)</option><% }) %>
+              </select>
+              <span class="field-hint">Opcional si estaba estacionado</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha del Siniestro <span class="req">*</span></label><input type="date" name="fecha" id="fecha_siniestro" required></div>
+            <div class="form-group"><label>Ubicación del Hecho <span class="req">*</span></label><input type="text" name="ubicacion" placeholder="Ej: Av. Belgrano y Urquiza" required></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Detalles del Hecho</h2>
+          <div class="form-group"><label>Descripción de lo ocurrido <span class="req">*</span></label><textarea name="descripcion" placeholder="Describí cómo sucedió el siniestro..." required></textarea></div>
+          <div class="form-group"><label>Daños en nuestro vehículo</label><textarea name="danos_vehiculo" placeholder="Ej: Rotura de óptica delantera derecha y paragolpes"></textarea></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Terceros Involucrados</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Vehículo Tercero</label><input type="text" name="tercero_vehiculo" placeholder="Ej: AB123CD - VW Gol"></div>
+            <div class="form-group"><label>Seguro del Tercero</label><input type="text" name="tercero_seguro" placeholder="Ej: La Caja Seguros"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Conductor Tercero</label><input type="text" name="tercero_conductor" placeholder="Nombre completo"></div>
+            <div class="form-group"><label>Contacto (Teléfono)</label><input type="text" name="tercero_contacto" placeholder="Teléfono del tercero"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Subir Archivos y Evidencia</h2>
+          <p style="font-size:13px; color:var(--text-secondary); margin-bottom:var(--space-3)">Fotos del choque, denuncia policial escaneada o cartas del seguro (podés subir varios PDF, JPG o PNG).</p>
+          <div class="upload-box">
+            <label for="archivos">Haga clic aquí para subir los archivos</label>
+            <span>Múltiples archivos permitidos</span>
+            <input type="file" id="archivos" name="archivos" multiple>
+          </div>
+          <div class="upload-preview" data-preview-for="archivos">Sin archivos seleccionados</div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/siniestros" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn" style="background:var(--danger); color:#fff;">Registrar Siniestro</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>document.getElementById('fecha_siniestro').max = new Date().toISOString().split('T')[0];</script>
