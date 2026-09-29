@@ -1,0 +1,102 @@
+<%- include('../partials/head', { titulo: 'Editar ' + vehiculo.patente, estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: 'inventario' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Vehículos
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Editar Vehículo</h1>
+          <p>Modificá los datos del vehículo seleccionado.</p>
+        </div>
+        <a href="/mantenimientos/nuevo?patente=<%= vehiculo.patente %>" class="btn btn-outline">+ Registrar Mantenimiento</a>
+      </div>
+
+      <form action="/vehiculos/<%= vehiculo.patente %>/editar" method="post">
+
+        <section class="form-section">
+          <h2>Información Básica <span class="tag-muted">(bloqueada por seguridad)</span></h2>
+          <div class="form-group"><label>Patente</label><input type="text" value="<%= vehiculo.patente %>" readonly class="readonly-field"></div>
+          <div class="form-group"><label>Tipo de Vehículo</label><input type="text" value="<%= vehiculo.tipo %>" readonly class="readonly-field"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Marca</label><input type="text" value="<%= vehiculo.marca %>" readonly class="readonly-field"></div>
+            <div class="form-group"><label>Modelo</label><input type="text" value="<%= vehiculo.modelo %>" readonly class="readonly-field"></div>
+          </div>
+          <div class="form-group is-small"><label>Año</label><input type="number" value="<%= vehiculo.anio %>" readonly class="readonly-field"></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Información Técnica <span class="tag-muted">(bloqueada por seguridad)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Chasis</label><input type="text" value="<%= vehiculo.chasis %>" readonly class="readonly-field"></div>
+            <div class="form-group"><label>Número de Motor</label><input type="text" value="<%= vehiculo.motor %>" readonly class="readonly-field"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Combustible</label><input type="text" value="<%= vehiculo.combustible %>" readonly class="readonly-field"></div>
+            <div class="form-group"><label>Transmisión</label><input type="text" value="<%= vehiculo.transmision %>" readonly class="readonly-field"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Documentación Legal <span class="tag-editable">(editable)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Cédula</label><input name="cedula_numero" type="text" value="<%= vehiculo.documentacion.cedula %>"></div>
+            <div class="form-group"><label>Titular / Empresa</label><input name="cedula_titular" type="text" value="<%= vehiculo.documentacion.titular %>"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Compañía de Seguro</label><input name="seguro_compania" type="text" value="<%= vehiculo.documentacion.seguroCompania %>"></div>
+            <div class="form-group"><label>Vencimiento del Seguro</label><input name="seguro_vencimiento" type="date"></div>
+          </div>
+          <div class="form-group is-small"><label>Vencimiento RTO / VTV</label><input name="rto_vencimiento" type="date"></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Estado y Ubicación <span class="tag-editable">(editable)</span></h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estado <span class="req">*</span></label>
+              <select name="estado">
+                <option value="DISPONIBLE" <%= vehiculo.estado === 'DISPONIBLE' ? 'selected' : '' %>>Disponible</option>
+                <option value="EN_USO" <%= vehiculo.estado === 'EN_USO' ? 'selected' : '' %>>En uso</option>
+                <option value="BAJA" <%= vehiculo.estado === 'BAJA' ? 'selected' : '' %>>Baja</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Kilometraje <span class="req">*</span></label><input name="km" type="number" min="0" value="<%= vehiculo.km %>"></div>
+          </div>
+          <div class="form-group">
+            <label>Distrito</label>
+            <select name="distrito">
+              <% ['Centro','Norte','Sur','Este','Oeste'].forEach(function(d) { %>
+                <option value="<%= d %>" <%= vehiculo.distrito === d ? 'selected' : '' %>><%= d %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Observaciones</label><textarea name="observaciones"></textarea></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Fechas</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Alta</label><input type="text" value="<%= vehiculo.fechaAlta %>" readonly class="readonly-field"></div>
+            <div class="form-group"><label>Fecha de Baja <span class="tag-editable">(editable)</span></label><input name="fecha_baja" type="date"></div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

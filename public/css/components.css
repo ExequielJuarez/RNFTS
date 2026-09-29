@@ -251,6 +251,63 @@
 .alert-item.is-info { background: var(--bg-surface-alt); border-color: var(--border-subtle); }
 .alert-item.is-info svg, .alert-item.is-info strong { color: var(--text-secondary); }
 
+/* ---------- Tarjetas de previsualización de selección ---------- */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+.preview-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--border-strong);
+  background: var(--bg-surface-alt);
+}
+.preview-card.is-active {
+  border-style: solid;
+  border-color: var(--accent-soft-border);
+  background: var(--accent-soft);
+}
+.preview-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.preview-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.preview-card-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.preview-card-value {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.preview-card-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 /* ---------- Estado vacío ---------- */
 .empty-state {
   display: flex;

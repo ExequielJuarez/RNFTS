@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: vehiculo.patente, estilosPagina: ['/css/vehiculo-ficha.css'] }) %>
+<%- include('../partials/head', { titulo: vehiculo.patente, estilosPagina: ['/css/master-detail.css'] }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -13,16 +13,17 @@
           <h1>Listado de Vehículos</h1>
           <label class="input-search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input type="search" placeholder="Buscar por patente..." aria-label="Buscar por patente" />
+            <input type="search" placeholder="Buscar por patente..." aria-label="Buscar por patente" data-list-search="#listaVehiculos" />
           </label>
         </div>
 
-        <div class="vehicle-list scrollbar-thin">
+        <div class="vehicle-list scrollbar-thin" id="listaVehiculos">
           <% vehiculos.forEach(function (v) { %>
             <a
               href="/vehiculos/<%= v.patente %>"
               class="vehicle-card <%= v.patente === vehiculo.patente ? 'is-active' : '' %>"
               data-open-detail
+              data-search="<%= (v.patente + ' ' + v.marca + ' ' + v.modelo).toLowerCase() %>"
             >
               <span class="vehicle-thumb">
                 <% if (v.foto) { %>

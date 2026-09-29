@@ -122,6 +122,13 @@
   width: 18px;
   height: 18px;
 }
+.nav-link.is-active {
+  background: rgba(14, 124, 107, 0.18);
+  color: #fff;
+}
+.nav-link.is-active .nav-icon {
+  color: var(--accent);
+}
 
 .sidebar-divider {
   height: 1px;

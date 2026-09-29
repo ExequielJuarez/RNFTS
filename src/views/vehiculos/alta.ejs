@@ -1,0 +1,145 @@
+<%- include('../partials/head', { titulo: 'Cargar Vehículo', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: 'alta' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/vehiculos" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver al listado
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Cargar Vehículo</h1>
+          <p>Completá los datos de la ficha técnica del nuevo vehículo.</p>
+        </div>
+      </div>
+
+      <form action="/vehiculos/alta" method="post" enctype="multipart/form-data">
+
+        <section class="form-section">
+          <h2>Información Básica</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Patente <span class="req">*</span></label><input name="patente" type="text" placeholder="Ej: AB123CD" required></div>
+            <div class="form-group">
+              <label>Tipo de Vehículo <span class="req">*</span></label>
+              <select name="tipo" required>
+                <option value="">Seleccione tipo</option>
+                <option>Camioneta</option>
+                <option>Camión</option>
+                <option>Furgón</option>
+                <option>Utilitario</option>
+                <option>Moto</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Marca <span class="req">*</span></label><input name="marca" type="text" placeholder="Ej: Toyota" required></div>
+            <div class="form-group"><label>Modelo <span class="req">*</span></label><input name="modelo" type="text" placeholder="Ej: Hilux" required></div>
+          </div>
+          <div class="form-group is-small"><label>Año <span class="req">*</span></label><input name="anio" type="number" min="1900" max="2100" placeholder="Ej: 2024" required></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Información Técnica</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Chasis <span class="req">*</span></label><input name="chasis" type="text" placeholder="Ingrese N° de chasis" required></div>
+            <div class="form-group"><label>Número de Motor <span class="req">*</span></label><input name="motor" type="text" placeholder="Ingrese N° de motor" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Combustible</label>
+              <select name="combustible">
+                <option value="">Seleccionar</option>
+                <option>Diesel</option>
+                <option>Nafta</option>
+                <option>Eléctrico</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Transmisión</label>
+              <select name="transmision">
+                <option value="">Seleccionar</option>
+                <option>Manual</option>
+                <option>Automática</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Documentación Legal</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Cédula</label><input name="cedula_numero" type="text" placeholder="Ej: 001234567"></div>
+            <div class="form-group"><label>Titular / Empresa</label><input name="cedula_titular" type="text" placeholder="Ej: Municipalidad" value="Municipalidad Capital"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Compañía de Seguro</label><input name="seguro_compania" type="text" placeholder="Ej: Federación Patronal"></div>
+            <div class="form-group"><label>Vencimiento del Seguro</label><input name="seguro_vencimiento" type="date"></div>
+          </div>
+          <div class="form-group is-small"><label>Vencimiento RTO / VTV</label><input name="rto_vencimiento" type="date"></div>
+
+          <div style="display:flex; flex-direction:column; gap:var(--space-4); margin-top:var(--space-5)">
+            <div class="form-group">
+              <label>Foto de la Cédula</label>
+              <div class="upload-box"><label for="foto_cedula">Haga clic aquí para subir la foto de la cédula</label><span>Formatos aceptados: JPG, PNG</span><input type="file" id="foto_cedula" name="foto_cedula" accept="image/*"></div>
+              <div class="upload-preview" data-preview-for="foto_cedula">Sin imagen seleccionada</div>
+            </div>
+            <div class="form-group">
+              <label>Foto del Título del Vehículo</label>
+              <div class="upload-box"><label for="foto_titulo">Haga clic aquí para subir la foto del título</label><span>Formatos aceptados: JPG, PNG</span><input type="file" id="foto_titulo" name="foto_titulo" accept="image/*"></div>
+              <div class="upload-preview" data-preview-for="foto_titulo">Sin imagen seleccionada</div>
+            </div>
+            <div class="form-group">
+              <label>Foto del Seguro <span class="tag-muted">(Opcional)</span></label>
+              <div class="upload-box"><label for="foto_seguro">Haga clic aquí para subir la foto del seguro</label><span>Formatos aceptados: JPG, PNG</span><input type="file" id="foto_seguro" name="foto_seguro" accept="image/*"></div>
+              <div class="upload-preview" data-preview-for="foto_seguro">Sin imagen seleccionada</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Estado, Ubicación y Alta</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estado Inicial <span class="req">*</span></label>
+              <select name="estado" required>
+                <option value="">Seleccionar</option>
+                <option value="DISPONIBLE">Disponible</option>
+                <option value="EN_USO">En uso</option>
+                <option value="BAJA">Baja</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Kilometraje Actual <span class="req">*</span></label><input name="km" type="number" min="0" placeholder="Ej: 15000" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Distrito</label>
+              <select name="distrito">
+                <option value="">Seleccione un distrito</option>
+                <option>Centro</option>
+                <option>Norte</option>
+                <option>Sur</option>
+                <option>Este</option>
+                <option>Oeste</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Fecha de Alta <span class="req">*</span></label><input name="fecha_alta" type="date" required></div>
+          </div>
+          <div class="form-group"><label>Observaciones</label><textarea name="observaciones" placeholder="Añadí notas adicionales..."></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/vehiculos" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Guardar Vehículo</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

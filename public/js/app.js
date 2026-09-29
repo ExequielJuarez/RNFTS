@@ -97,4 +97,32 @@
   TABLET_QUERY.addEventListener("change", function () {
     closeMobileSidebar();
   });
+
+  // Preview de nombre de archivo en los campos de carga de imágenes/documentos
+  document.querySelectorAll("[data-preview-for]").forEach(function (preview) {
+    var input = document.getElementById(preview.getAttribute("data-preview-for"));
+    if (!input) return;
+    input.addEventListener("change", function () {
+      if (input.files && input.files.length > 0) {
+        preview.textContent = "Archivo seleccionado: " + input.files[0].name;
+        preview.classList.add("has-file");
+      } else {
+        preview.textContent = "Sin imagen seleccionada";
+        preview.classList.remove("has-file");
+      }
+    });
+  });
+
+  // Filtro de texto genérico para columnas de listado (busca en data-search)
+  document.querySelectorAll("[data-list-search]").forEach(function (input) {
+    var container = document.querySelector(input.getAttribute("data-list-search"));
+    if (!container) return;
+    input.addEventListener("input", function () {
+      var term = input.value.trim().toLowerCase();
+      container.querySelectorAll("[data-search]").forEach(function (item) {
+        var haystack = item.getAttribute("data-search").toLowerCase();
+        item.style.display = haystack.indexOf(term) === -1 ? "none" : "";
+      });
+    });
+  });
 })();

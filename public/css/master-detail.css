@@ -1,5 +1,7 @@
 /*
-  Vista: Ficha Técnica de Vehículo (listado + panel de detalle).
+  Patrón maestro-detalle (listado + panel de detalle), compartido por
+  todas las vistas de "ficha" del sistema: vehículos, choferes, etc.
+  Cada vista puede sumar su propio CSS para detalles específicos.
 */
 
 /* ---------- Columna de listado ---------- */

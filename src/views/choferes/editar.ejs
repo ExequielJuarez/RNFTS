@@ -1,0 +1,121 @@
+<%- include('../partials/head', { titulo: 'Editar Chofer', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'choferes' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/choferes/<%= chofer.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Choferes
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Editar Chofer</h1>
+          <p>Modificá los datos de <%= chofer.nombre %> <%= chofer.apellido %>.</p>
+        </div>
+      </div>
+
+      <form action="/choferes/<%= chofer.id %>/editar" method="post" enctype="multipart/form-data">
+
+        <section class="form-section">
+          <h2>Información Básica</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre</label><input name="nombre" type="text" value="<%= chofer.nombre %>"></div>
+            <div class="form-group"><label>Apellido</label><input name="apellido" type="text" value="<%= chofer.apellido %>"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>DNI <span class="tag-muted">(no modificable)</span></label><input name="dni" type="text" value="<%= chofer.dni %>" readonly class="readonly-field"></div>
+            <div class="form-group"><label>Fecha de Nacimiento</label><input name="fechaNacimiento" type="date" value="<%= chofer.fechaNacimientoISO || '' %>"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Teléfono</label><input name="telefono" type="tel" value="<%= chofer.telefono %>"></div>
+            <div class="form-group"><label>E-mail</label><input name="email" type="email" value="<%= chofer.email || '' %>"></div>
+          </div>
+          <div class="form-group"><label>Dirección</label><input name="direccion" type="text" value="<%= chofer.direccion %>"></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Datos Laborales</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Ingreso</label><input name="fechaIngreso" type="date" value="<%= chofer.fechaIngresoISO || '' %>"></div>
+            <div class="form-group">
+              <label>Estado</label>
+              <select name="estado" id="select-estado">
+                <option value="Activo" <%= chofer.estado === 'Activo' ? 'selected' : '' %>>Activo</option>
+                <option value="Inactivo" <%= chofer.estado === 'Inactivo' ? 'selected' : '' %>>Inactivo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" id="grupo-motivo-baja" style="<%= chofer.estado === 'Inactivo' ? '' : 'display:none' %>">
+            <label>Motivo de baja <span class="tag-muted">(requerido al desactivar)</span></label>
+            <textarea name="motivoBaja" rows="3" placeholder="Explicá el motivo por el que se da de baja al chofer..."><%= chofer.motivoBaja || '' %></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Turno</label>
+              <select name="turno">
+                <option value="Mañana" <%= chofer.turno === 'Mañana' ? 'selected' : '' %>>Mañana</option>
+                <option value="Tarde" <%= chofer.turno === 'Tarde' ? 'selected' : '' %>>Tarde</option>
+                <option value="Tarde/Noche" <%= chofer.turno === 'Tarde/Noche' ? 'selected' : '' %>>Tarde/Noche</option>
+                <option value="Noche" <%= chofer.turno === 'Noche' ? 'selected' : '' %>>Noche</option>
+              </select>
+            </div>
+            <div class="form-group"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Datos de Licencia</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Licencia</label><input name="numero_licencia" type="text" value="<%= chofer.licencia.numero %>"></div>
+            <div class="form-group">
+              <label>Categoría de Licencia</label>
+              <select name="categoria">
+                <% ['A','B1','B2','C','D','E','G'].forEach(function(cat) { %>
+                  <option value="<%= cat %>" <%= chofer.licencia.categoria === cat ? 'selected' : '' %>><%= cat %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Emisión</label><input name="fecha_emision" type="date" value="<%= chofer.licencia.emisionISO || '' %>"></div>
+            <div class="form-group"><label>Vencimiento</label><input name="fecha_vencimiento" type="date" value="<%= chofer.licencia.vencimientoISO || '' %>"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Imagen de Perfil <span class="tag-muted">(opcional al editar)</span></h2>
+          <div class="upload-box">
+            <label for="imagen">Subir nueva imagen (reemplaza la actual)</label>
+            <input type="file" id="imagen" name="imagen">
+          </div>
+          <p class="field-hint" style="margin-top:var(--space-2)">Si no subís un archivo nuevo, se mantiene la imagen guardada.</p>
+        </section>
+
+        <div class="form-actions">
+          <a href="/choferes/<%= chofer.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Actualizar Chofer</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  document.getElementById('select-estado').addEventListener('change', function () {
+    var grupo = document.getElementById('grupo-motivo-baja');
+    if (this.value === 'Inactivo') {
+      grupo.style.display = '';
+    } else {
+      grupo.style.display = 'none';
+      grupo.querySelector('textarea').value = '';
+    }
+  });
+</script>

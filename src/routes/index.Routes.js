@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const vehiculoMockService = require("../services/vehiculoMockService");
+const choferMockService = require("../services/choferMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -9,18 +10,95 @@ const usuarioSesion = {
   iniciales: "AS",
 };
 
+// Datos comunes disponibles en toda vista renderizada por este router
+router.use((req, res, next) => {
+  res.locals.usuario = usuarioSesion;
+  res.locals.notificaciones = 21;
+  next();
+});
+
 router.get("/", (req, res) => res.redirect("/vehiculos"));
+
+// ===================== VEHÍCULOS =====================
 
 router.get("/vehiculos", (req, res) => {
   const vehiculos = vehiculoMockService.listar();
   res.render("vehiculos/ficha", {
     titulo: "Inventario de Vehículos",
-    usuario: usuarioSesion,
-    notificaciones: 21,
     vehiculos,
     vehiculo: vehiculos[0],
     mostrarDetalle: false,
   });
+});
+
+router.get("/vehiculos/alta", (req, res) => {
+  res.render("vehiculos/alta", { titulo: "Cargar Vehículo" });
+});
+
+router.post("/vehiculos/alta", (req, res) => {
+  // Persistencia pendiente: por ahora sólo confirma el alta y vuelve al listado.
+  res.redirect("/vehiculos");
+});
+
+router.get("/vehiculos/asignar", (req, res) => {
+  const vehiculosDisponibles = vehiculoMockService.listar().filter((v) => v.estado === "DISPONIBLE");
+  const choferesActivos = choferMockService.listar().filter((c) => c.estado === "Activo");
+
+  const asignaciones = [
+    {
+      id: 1,
+      vehiculo: { patente: "AA001BB", marca: "Toyota Hilux" },
+      chofer: { nombre: "Fernando", apellido: "Gutiérrez" },
+      fechaDesde: "15/1/2024",
+      destino: "Distrito Centro",
+    },
+    {
+      id: 2,
+      vehiculo: { patente: "AF006GG", marca: "Scania R410" },
+      chofer: { nombre: "Silvina", apellido: "Correa" },
+      fechaDesde: "3/6/2025",
+      destino: "Recolección Oeste",
+    },
+  ];
+
+  res.render("vehiculos/asignar", { titulo: "Asignación de Vehículo", vehiculosDisponibles, choferesActivos, asignaciones });
+});
+
+router.post("/vehiculos/asignar", (req, res) => {
+  res.redirect("/vehiculos/asignar");
+});
+
+router.post("/vehiculos/asignaciones/:id/finalizar", (req, res) => {
+  res.redirect("/vehiculos/asignar");
+});
+
+router.get("/vehiculos/kilometraje", (req, res) => {
+  const vehiculos = vehiculoMockService.listar();
+  const historial = [
+    { patente: "AA001BB", fecha: "2026-03-01", km: 78000 },
+    { patente: "AA001BB", fecha: "2026-05-15", km: 83500 },
+    { patente: "AA001BB", fecha: "2026-07-01", km: 88000 },
+    { patente: "AC003DD", fecha: "2026-02-10", km: 38000 },
+    { patente: "AC003DD", fecha: "2026-05-12", km: 41500 },
+    { patente: "AC003DD", fecha: "2026-08-01", km: 45000 },
+  ];
+  res.render("vehiculos/kilometraje", { titulo: "Actualizar Kilometraje", vehiculos, historial });
+});
+
+router.post("/vehiculos/kilometraje", (req, res) => {
+  res.redirect("/vehiculos/kilometraje");
+});
+
+router.get("/vehiculos/:patente/editar", (req, res, next) => {
+  const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
+  if (!vehiculo) return next();
+  res.render("vehiculos/editar", { titulo: "Editar " + vehiculo.patente, vehiculo });
+});
+
+router.post("/vehiculos/:patente/editar", (req, res, next) => {
+  const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
+  if (!vehiculo) return next();
+  res.redirect("/vehiculos/" + vehiculo.patente);
 });
 
 router.get("/vehiculos/:patente", (req, res, next) => {
@@ -30,12 +108,57 @@ router.get("/vehiculos/:patente", (req, res, next) => {
 
   res.render("vehiculos/ficha", {
     titulo: vehiculo.patente,
-    usuario: usuarioSesion,
-    notificaciones: 21,
     vehiculos,
     vehiculo,
     mostrarDetalle: true,
   });
+});
+
+// ===================== CHOFERES =====================
+
+router.get("/choferes", (req, res) => {
+  const choferes = choferMockService.listar();
+  res.render("choferes/ficha", { choferes, chofer: choferes[0], mostrarDetalle: false });
+});
+
+router.get("/choferes/nuevo", (req, res) => {
+  res.render("choferes/carga", { titulo: "Cargar Chofer" });
+});
+
+router.post("/choferes/nuevo", (req, res) => {
+  res.redirect("/choferes");
+});
+
+router.get("/choferes/:id/editar", (req, res, next) => {
+  const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+  res.render("choferes/editar", { titulo: "Editar Chofer", chofer });
+});
+
+router.post("/choferes/:id/editar", (req, res, next) => {
+  const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+  res.redirect("/choferes/" + chofer.id);
+});
+
+router.post("/choferes/:id/activar", (req, res, next) => {
+  const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+  res.redirect("/choferes/" + chofer.id);
+});
+
+router.post("/choferes/:id/desactivar", (req, res, next) => {
+  const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+  res.redirect("/choferes/" + chofer.id);
+});
+
+router.get("/choferes/:id", (req, res, next) => {
+  const choferes = choferMockService.listar();
+  const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+
+  res.render("choferes/ficha", { choferes, chofer, mostrarDetalle: true });
 });
 
 module.exports = router;

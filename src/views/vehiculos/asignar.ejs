@@ -1,0 +1,187 @@
+<%- include('../partials/head', { titulo: 'Asignación de Vehículo', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: 'asignar' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page" style="max-width:1080px">
+
+      <a href="/vehiculos" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Vehículos
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Asignación de Vehículo</h1>
+          <p>Asociá un vehículo a un chofer y definí el período de uso autorizado.</p>
+        </div>
+      </div>
+
+      <form action="/vehiculos/asignar" method="post" id="form-asignacion">
+
+        <section class="form-section">
+          <h2>1. Selección de Entidades</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vehículo <span class="req">*</span></label>
+              <select id="select-vehiculo" name="patente" required>
+                <option value="">— Seleccioná un vehículo disponible —</option>
+                <% vehiculosDisponibles.forEach(function (v) { %>
+                  <option value="<%= v.patente %>" data-modelo="<%= v.marca %> <%= v.modelo %>" data-km="<%= v.km %>"><%= v.patente %> — <%= v.marca %> <%= v.modelo %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Chofer <span class="req">*</span></label>
+              <select id="select-chofer" name="chofer_id" required>
+                <option value="">— Seleccioná un chofer activo —</option>
+                <% choferesActivos.forEach(function (c) { %>
+                  <option value="<%= c.id %>" data-dni="<%= c.dni %>"><%= c.apellido %>, <%= c.nombre %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div class="preview-grid">
+            <div class="preview-card" id="preview-vehiculo">
+              <div class="preview-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5V8.8c0-.6.4-1.1 1-1.3l7-2.3c.3-.1.7-.1 1 0l7 2.3c.6.2 1 .7 1 1.3v7.7"/><path d="M3 16.5h18M6 16.5V12m12 4.5V12M9.5 16.5V12h5v4.5"/></svg>
+              </div>
+              <div>
+                <span class="preview-card-label">Vehículo seleccionado</span>
+                <span class="preview-card-value" id="prev-vehiculo-patente">Ninguno</span>
+                <span class="preview-card-sub" id="prev-vehiculo-info">—</span>
+              </div>
+            </div>
+            <div class="preview-card" id="preview-chofer">
+              <div class="preview-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <span class="preview-card-label">Chofer asignado</span>
+                <span class="preview-card-value" id="prev-chofer-nombre">Ninguno</span>
+                <span class="preview-card-sub" id="prev-chofer-info">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>2. Período de Uso</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de inicio <span class="req">*</span></label><input type="date" id="fecha-desde" name="fecha_desde" required></div>
+            <div class="form-group">
+              <label>Fecha de fin estimada <span class="req">*</span></label>
+              <input type="date" id="fecha-hasta" name="fecha_hasta" required>
+              <span class="field-hint" id="duracion-hint"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>3. Información Adicional</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Destino / Área</label><input type="text" name="destino" placeholder="Ej: Distrito Norte, Obras..."></div>
+            <div class="form-group"><label>Km de salida <span class="tag-muted">(automático)</span></label><input type="number" id="km-salida" name="km_salida" min="0"></div>
+          </div>
+          <div class="form-group"><label>Observaciones</label><textarea name="observaciones" placeholder="Indicá detalles relevantes de la asignación..."></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/vehiculos" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent" id="btn-submit">Confirmar Asignación</button>
+        </div>
+      </form>
+
+      <div class="card" style="margin-top:var(--space-2)">
+        <div class="card-header">
+          <span class="card-title">Asignaciones en Curso</span>
+        </div>
+        <% if (asignaciones.length) { %>
+          <table class="table">
+            <thead><tr><th>Vehículo</th><th>Chofer</th><th>Desde</th><th>Destino</th><th></th></tr></thead>
+            <tbody>
+              <% asignaciones.forEach(function (a) { %>
+                <tr>
+                  <td class="is-primary"><%= a.vehiculo.patente %><div style="font-weight:400; font-size:12px; color:var(--text-muted)"><%= a.vehiculo.marca %></div></td>
+                  <td><%= a.chofer.apellido %>, <%= a.chofer.nombre %></td>
+                  <td><%= a.fechaDesde %></td>
+                  <td><%= a.destino %></td>
+                  <td>
+                    <form action="/vehiculos/asignaciones/<%= a.id %>/finalizar" method="post" onsubmit="return confirm('¿Finalizar esta asignación?')">
+                      <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Terminar Uso</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p class="table-empty">No hay asignaciones activas en este momento.</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  var selectVehiculo = document.getElementById('select-vehiculo');
+  var selectChofer = document.getElementById('select-chofer');
+  var kmSalidaInput = document.getElementById('km-salida');
+  var prevVehiculoCard = document.getElementById('preview-vehiculo');
+  var prevChoferCard = document.getElementById('preview-chofer');
+
+  selectVehiculo.addEventListener('change', function () {
+    var opt = this.options[this.selectedIndex];
+    if (this.value) {
+      var km = opt.dataset.km ? Number(opt.dataset.km) : 0;
+      document.getElementById('prev-vehiculo-patente').textContent = this.value;
+      document.getElementById('prev-vehiculo-info').textContent = opt.dataset.modelo + ' · ' + km.toLocaleString('es-AR') + ' km';
+      prevVehiculoCard.classList.add('is-active');
+      kmSalidaInput.min = km;
+      kmSalidaInput.value = km;
+    } else {
+      document.getElementById('prev-vehiculo-patente').textContent = 'Ninguno';
+      document.getElementById('prev-vehiculo-info').textContent = '—';
+      prevVehiculoCard.classList.remove('is-active');
+    }
+  });
+
+  selectChofer.addEventListener('change', function () {
+    var opt = this.options[this.selectedIndex];
+    if (this.value) {
+      document.getElementById('prev-chofer-nombre').textContent = opt.text.trim();
+      document.getElementById('prev-chofer-info').textContent = 'DNI ' + opt.dataset.dni;
+      prevChoferCard.classList.add('is-active');
+    } else {
+      document.getElementById('prev-chofer-nombre').textContent = 'Ninguno';
+      document.getElementById('prev-chofer-info').textContent = '—';
+      prevChoferCard.classList.remove('is-active');
+    }
+  });
+
+  var fechaDesde = document.getElementById('fecha-desde');
+  var fechaHasta = document.getElementById('fecha-hasta');
+  var durHint = document.getElementById('duracion-hint');
+  var hoy = new Date().toISOString().split('T')[0];
+  fechaDesde.min = hoy; fechaDesde.value = hoy; fechaHasta.min = hoy;
+
+  function calcDuracion() {
+    if (!fechaDesde.value || !fechaHasta.value) { durHint.textContent = ''; return; }
+    var diff = Math.round((new Date(fechaHasta.value) - new Date(fechaDesde.value)) / 86400000);
+    if (diff < 0) { durHint.textContent = 'La fecha de fin debe ser posterior a la de inicio.'; durHint.style.color = 'var(--danger)'; }
+    else { durHint.textContent = 'Tiempo asignado: ' + diff + ' día' + (diff !== 1 ? 's' : '') + '.'; durHint.style.color = 'var(--success)'; }
+  }
+  fechaDesde.addEventListener('change', calcDuracion);
+  fechaHasta.addEventListener('change', calcDuracion);
+
+  var params = new URLSearchParams(window.location.search);
+  var patenteParam = params.get('patente');
+  if (patenteParam) {
+    selectVehiculo.value = patenteParam;
+    selectVehiculo.dispatchEvent(new Event('change'));
+  }
+</script>

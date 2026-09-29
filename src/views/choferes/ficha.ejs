@@ -1,0 +1,193 @@
+<%- include('../partials/head', { titulo: 'Plantilla de Choferes', estilosPagina: ['/css/master-detail.css', '/css/chofer-ficha.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'choferes' }) %>
+
+  <main class="app-main">
+    <div class="master-detail <%= mostrarDetalle ? 'showing-detail' : '' %>" id="masterDetail">
+
+      <!-- ===================== LISTADO ===================== -->
+      <section class="md-list">
+        <div class="list-header" style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3);">
+          <div style="flex:1">
+            <h1 style="margin-bottom:var(--space-3)">Plantilla de Choferes</h1>
+            <label class="input-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="search" placeholder="Buscar por nombre o DNI..." aria-label="Buscar chofer" data-list-search="#listaChoferes" />
+            </label>
+          </div>
+          <a href="/choferes/nuevo" class="btn btn-sm btn-accent" style="flex-shrink:0; margin-top:2px;">+ Nuevo</a>
+        </div>
+
+        <div class="vehicle-list scrollbar-thin" id="listaChoferes">
+          <% choferes.forEach(function (c) { %>
+            <a
+              href="/choferes/<%= c.id %>"
+              class="vehicle-card <%= String(c.id) === String(chofer.id) ? 'is-active' : '' %>"
+              data-open-detail
+              data-search="<%= (c.nombre + ' ' + c.apellido + ' ' + c.dni).toLowerCase() %>"
+            >
+              <span class="vehicle-thumb">
+                <% if (c.foto) { %>
+                  <img src="<%= c.foto %>" alt="" />
+                <% } else { %>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+                <% } %>
+              </span>
+              <span class="vehicle-card-body">
+                <span class="vehicle-card-top">
+                  <span class="vehicle-plate"><%= c.nombre %> <%= c.apellido %></span>
+                </span>
+                <span class="vehicle-model">DNI <%= c.dni %></span>
+                <span style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <span class="badge badge-<%= c.estado === 'Activo' ? 'success' : 'neutral' %>"><%= c.estado %></span>
+                  <span class="badge badge-<%= c.licencia.estadoClase %>">Lic. <%= c.licencia.categoria %></span>
+                </span>
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- ===================== DETALLE ===================== -->
+      <section class="md-detail">
+        <div class="detail-wrap">
+
+          <button class="btn btn-sm btn-ghost btn-back-list" data-back-to-list style="align-self:flex-start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Volver al listado
+          </button>
+
+          <!-- Hero -->
+          <div class="card detail-hero">
+            <div class="hero-top">
+              <div class="hero-avatar"><%= chofer.nombre.charAt(0) %><%= chofer.apellido.charAt(0) %></div>
+
+              <div class="hero-info">
+                <div class="hero-plate-row">
+                  <span class="hero-plate"><%= chofer.nombre %> <%= chofer.apellido %></span>
+                  <span class="badge badge-<%= chofer.estado === 'Activo' ? 'success' : 'neutral' %>"><%= chofer.estado %></span>
+                </div>
+                <p class="hero-subtitle">DNI <%= chofer.dni %> · Turno <%= chofer.turno %></p>
+                <div class="hero-tags">
+                  <span class="hero-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <%= chofer.telefono %>
+                  </span>
+                  <span class="hero-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l2.5 2.5L16 9"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+                    Licencia <%= chofer.licencia.categoria %> · Vence <%= chofer.licencia.fechaVencimiento %>
+                  </span>
+                </div>
+              </div>
+
+              <div class="hero-actions">
+                <button class="btn btn-sm btn-outline">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+                  Imprimir
+                </button>
+                <a href="/choferes/<%= chofer.id %>/editar" class="btn btn-sm btn-outline">Editar</a>
+              </div>
+            </div>
+
+            <div class="hero-toolbar">
+              <% if (chofer.estado === 'Activo') { %>
+                <form action="/choferes/<%= chofer.id %>/desactivar" method="post" onsubmit="return confirm('¿Desactivar a este chofer?');">
+                  <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Desactivar</button>
+                </form>
+              <% } else { %>
+                <form action="/choferes/<%= chofer.id %>/activar" method="post" onsubmit="return confirm('¿Activar a este chofer?');">
+                  <button type="submit" class="btn btn-sm btn-outline" style="color:var(--success); border-color:var(--success-border);">Activar</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+
+          <% if (chofer.estado === 'Inactivo' && chofer.motivoBaja) { %>
+            <div class="alert-item is-warning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+              <span><strong>Motivo de baja</strong><span><%= chofer.motivoBaja %></span></span>
+            </div>
+          <% } %>
+
+          <!-- Datos personales -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+                Datos Personales
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div><span class="field-label">DNI</span><span class="field-value"><%= chofer.dni %></span></div>
+                <div><span class="field-label">Fecha de Nacimiento</span><span class="field-value"><%= chofer.fechaNacimiento %></span></div>
+                <div><span class="field-label">Teléfono</span><span class="field-value"><%= chofer.telefono %></span></div>
+                <div><span class="field-label">E-mail</span><span class="field-value"><%= chofer.email || '—' %></span></div>
+                <div><span class="field-label">Dirección</span><span class="field-value"><%= chofer.direccion %></span></div>
+                <div><span class="field-label">Fecha de Ingreso</span><span class="field-value"><%= chofer.fechaIngreso %></span></div>
+                <div><span class="field-label">Turno</span><span class="field-value"><%= chofer.turno %></span></div>
+                <div><span class="field-label">N° de Licencia</span><span class="field-value"><%= chofer.licencia.numero %></span></div>
+                <div><span class="field-label">Categoría</span><span class="field-value"><%= chofer.licencia.categoria %></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-columns">
+            <div class="stack">
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5V8.8c0-.6.4-1.1 1-1.3l7-2.3c.3-.1.7-.1 1 0l7 2.3c.6.2 1 .7 1 1.3v7.7"/><path d="M3 16.5h18M6 16.5V12m12 4.5V12M9.5 16.5V12h5v4.5"/></svg>
+                    Vehículo Asignado
+                  </span>
+                </div>
+                <div class="card-body">
+                  <% if (chofer.vehiculoAsignado) { %>
+                    <div class="assigned-vehicle">
+                      <div class="assigned-vehicle-plate">
+                        <span>PATENTE</span>
+                        <span><%= chofer.vehiculoAsignado.patente %></span>
+                      </div>
+                      <div>
+                        <span class="field-value" style="display:block"><%= chofer.vehiculoAsignado.marca %> <%= chofer.vehiculoAsignado.modelo %></span>
+                        <span class="field-label">Asignado el <%= chofer.vehiculoAsignado.fechaAsignacion %></span>
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <p class="table-empty">No tiene ningún vehículo asignado actualmente.</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+                  Estado de Licencia
+                </span>
+              </div>
+              <div class="card-body">
+                <div class="alert-item is-<%= chofer.licencia.estadoClase === 'danger' ? 'danger' : (chofer.licencia.estadoClase === 'warning' ? 'warning' : 'info') %>">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                  <span>
+                    <strong><%= chofer.licencia.estadoLabel %></strong>
+                    <span>
+                      Vencimiento: <%= chofer.licencia.fechaVencimiento %>
+                      <% if (chofer.licencia.diasParaVencer >= 0) { %>(<%= chofer.licencia.diasParaVencer %> días restantes)<% } %>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
