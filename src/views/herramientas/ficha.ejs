@@ -1,0 +1,145 @@
+<%- include('../partials/head', { titulo: 'Inventario de Herramientas', estilosPagina: ['/css/master-detail.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'herramientas' }) %>
+
+  <main class="app-main">
+    <div class="master-detail <%= mostrarDetalle ? 'showing-detail' : '' %>" id="masterDetail">
+
+      <!-- ===================== LISTADO ===================== -->
+      <section class="md-list">
+        <div class="list-header" style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3);">
+          <div style="flex:1">
+            <h1 style="margin-bottom:var(--space-3)">Inventario de Herramientas</h1>
+            <label class="input-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="search" placeholder="Buscar código o nombre..." aria-label="Buscar herramienta" data-list-search="#listaHerramientas" />
+            </label>
+          </div>
+          <a href="/herramientas/nueva" class="btn btn-sm btn-accent" style="flex-shrink:0; margin-top:2px;">+ Nueva</a>
+        </div>
+
+        <div class="vehicle-list scrollbar-thin" id="listaHerramientas">
+          <% herramientas.forEach(function (h) { %>
+            <a
+              href="/herramientas/<%= h.id %>"
+              class="vehicle-card <%= String(h.id) === String(herramienta.id) ? 'is-active' : '' %>"
+              data-open-detail
+              data-search="<%= (h.codigoActivo + ' ' + h.nombre).toLowerCase() %>"
+            >
+              <span class="vehicle-card-body">
+                <span class="vehicle-plate"><%= h.codigoActivo %></span>
+                <span class="vehicle-model"><%= h.nombre %> · <%= h.sector %></span>
+                <span style="display:flex; gap:6px; align-items:center;">
+                  <span class="badge badge-<%= h.estadoClase %>"><%= h.estado %></span>
+                  <span class="vehicle-km">Stock: <%= h.stock %></span>
+                </span>
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- ===================== DETALLE ===================== -->
+      <section class="md-detail">
+        <div class="detail-wrap">
+
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); flex-wrap:wrap;">
+            <button class="btn btn-sm btn-ghost btn-back-list" data-back-to-list>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              Volver al listado
+            </button>
+            <% if (herramienta.estado !== 'En uso') { %>
+              <a href="/herramientas/<%= herramienta.id %>/prestamo" class="btn btn-sm btn-primary">Registrar Préstamo</a>
+            <% } else { %>
+              <form action="/herramientas/<%= herramienta.id %>/devolucion" method="post">
+                <button type="submit" class="btn btn-sm btn-accent">✓ Marcar Devuelto</button>
+              </form>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-header" style="align-items:flex-start">
+              <div>
+                <span class="card-title" style="font-size:20px">
+                  <%= herramienta.codigoActivo %>
+                  <span class="badge badge-<%= herramienta.estadoClase %>"><%= herramienta.estado %></span>
+                </span>
+              </div>
+              <div style="display:flex; gap:var(--space-2)">
+                <button class="btn btn-sm btn-outline" onclick="window.print()">Imprimir</button>
+                <a href="/herramientas/<%= herramienta.id %>/editar" class="btn btn-sm btn-outline">Editar</a>
+                <form action="/herramientas/<%= herramienta.id %>/eliminar" method="post" onsubmit="return confirm('¿Eliminar permanentemente esta herramienta?')">
+                  <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Eliminar</button>
+                </form>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div><span class="field-label">Nombre / Modelo</span><span class="field-value"><%= herramienta.nombre %></span></div>
+                <div><span class="field-label">Sector Destino</span><span class="field-value"><%= herramienta.sector %></span></div>
+                <div><span class="field-label">Stock Físico</span><span class="field-value"><%= herramienta.stock %> unidades</span></div>
+                <div><span class="field-label">Combustible / Energía</span><span class="field-value"><%= herramienta.combustibleEnergia || 'N/A' %></span></div>
+                <div><span class="field-label">Fecha de Ingreso</span><span class="field-value"><%= new Date(herramienta.fechaAlta).toLocaleDateString('es-AR') %></span></div>
+                <div><span class="field-label">Responsable Actual</span><span class="field-value" style="color:var(--accent)"><%= herramienta.estado === 'En uso' && herramienta.prestamos[0] ? herramienta.prestamos[0].nombreOperario : 'En Pañol' %></span></div>
+              </div>
+              <div style="margin-top:var(--space-5); padding-top:var(--space-4); border-top:1px dashed var(--border-strong)">
+                <span class="field-label">Observaciones</span>
+                <p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;"><%= herramienta.observaciones || 'Sin observaciones detalladas en la ficha técnica.' %></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-columns">
+            <div class="stack">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Últimos Préstamos Registrados</span></div>
+                <% if (herramienta.prestamos.length) { %>
+                  <table class="table">
+                    <thead><tr><th>Salida</th><th>Devolución</th><th>Operario</th><th>Destino</th><th>Estado</th></tr></thead>
+                    <tbody>
+                      <% herramienta.prestamos.slice(0, 5).forEach(function (p) { %>
+                        <tr>
+                          <td class="is-primary"><%= new Date(p.fechaSalida).toLocaleDateString('es-AR') %></td>
+                          <td><%= p.fechaDevolucionReal ? new Date(p.fechaDevolucionReal).toLocaleDateString('es-AR') : (p.fechaDevolucionEstimada ? new Date(p.fechaDevolucionEstimada).toLocaleDateString('es-AR') : '—') %></td>
+                          <td class="is-primary"><%= p.nombreOperario %></td>
+                          <td><%= p.sectorDestino %></td>
+                          <td><span class="badge badge-<%= p.estadoPrestamo === 'Activo' ? 'warning' : 'success' %>"><%= p.estadoPrestamo %></span></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                <% } else { %>
+                  <p class="table-empty">No hay historial de préstamos para este activo.</p>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><span class="card-title">Alertas de Stock</span></div>
+              <div class="card-body">
+                <% if (herramienta.stock === 0) { %>
+                  <div class="alert-item is-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                    <span><strong>Sin Stock Físico</strong><span>No hay unidades disponibles para préstamo.</span></span>
+                  </div>
+                <% } else if (herramienta.stock <= 2) { %>
+                  <div class="alert-item is-warning">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                    <span><strong>Stock Bajo</strong><span>Quedan solo <%= herramienta.stock %> unidades disponibles en pañol.</span></span>
+                  </div>
+                <% } else { %>
+                  <p class="table-empty">Stock saludable.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

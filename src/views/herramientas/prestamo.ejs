@@ -1,0 +1,45 @@
+<%- include('../partials/head', { titulo: 'Registrar Préstamo', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'herramientas' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/herramientas/<%= herramienta.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a la herramienta
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Registrar Préstamo</h1>
+          <p><%= herramienta.codigoActivo %> · <%= herramienta.nombre %></p>
+        </div>
+      </div>
+
+      <form action="/herramientas/<%= herramienta.id %>/prestamo" method="post">
+        <section class="form-section">
+          <h2>Datos del Préstamo</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Operario Responsable <span class="req">*</span></label><input name="nombre_operario" type="text" placeholder="Nombre y apellido" required></div>
+            <div class="form-group"><label>Sector / Destino <span class="req">*</span></label><input name="sector_destino" type="text" placeholder="Ej: Obras Distrito Norte" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Salida <span class="req">*</span></label><input name="fecha_salida" type="date" required></div>
+            <div class="form-group"><label>Fecha de Devolución Estimada</label><input name="fecha_devolucion_estimada" type="date"></div>
+          </div>
+          <div class="form-group"><label>Observaciones</label><textarea name="observaciones" placeholder="Detalles del préstamo..."></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/herramientas/<%= herramienta.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Confirmar Préstamo</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

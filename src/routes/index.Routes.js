@@ -4,6 +4,7 @@ const router = express.Router();
 const vehiculoMockService = require("../services/vehiculoMockService");
 const choferMockService = require("../services/choferMockService");
 const mantenimientoMockService = require("../services/mantenimientoMockService");
+const herramientaMockService = require("../services/herramientaMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -193,6 +194,76 @@ router.get("/mantenimientos/:id", (req, res, next) => {
   const orden = mantenimientoMockService.obtenerPorId(req.params.id);
   if (!orden) return next();
   res.render("mantenimientos/ficha", { ordenes, orden, mostrarDetalle: true });
+});
+
+// ===================== HERRAMIENTAS =====================
+
+router.get("/herramientas", (req, res) => {
+  const herramientas = herramientaMockService.listar();
+  res.render("herramientas/ficha", { herramientas, herramienta: herramientas[0], mostrarDetalle: false });
+});
+
+router.get("/herramientas/nueva", (req, res) => {
+  res.render("herramientas/carga", { titulo: "Cargar Herramienta", sectores: herramientaMockService.listarSectores() });
+});
+
+router.post("/herramientas/nueva", (req, res) => {
+  res.redirect("/herramientas");
+});
+
+router.get("/herramientas/repuestos", (req, res) => {
+  res.render("herramientas/repuestos", { titulo: "Catálogo de Repuestos", repuestos: mantenimientoMockService.listarRepuestos() });
+});
+
+router.post("/herramientas/repuestos", (req, res) => {
+  res.redirect("/herramientas/repuestos");
+});
+
+router.post("/herramientas/repuestos/:id/eliminar", (req, res) => {
+  res.redirect("/herramientas/repuestos");
+});
+
+router.get("/herramientas/:id/editar", (req, res, next) => {
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.render("herramientas/editar", { titulo: "Editar Herramienta", herramienta, sectores: herramientaMockService.listarSectores() });
+});
+
+router.post("/herramientas/:id/editar", (req, res, next) => {
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.redirect("/herramientas/" + herramienta.id);
+});
+
+router.get("/herramientas/:id/prestamo", (req, res, next) => {
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.render("herramientas/prestamo", { titulo: "Registrar Préstamo", herramienta });
+});
+
+router.post("/herramientas/:id/prestamo", (req, res, next) => {
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.redirect("/herramientas/" + herramienta.id);
+});
+
+router.post("/herramientas/:id/devolucion", (req, res, next) => {
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.redirect("/herramientas/" + herramienta.id);
+});
+
+router.post("/herramientas/:id/eliminar", (req, res, next) => {
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.redirect("/herramientas");
+});
+
+router.get("/herramientas/:id", (req, res, next) => {
+  const herramientas = herramientaMockService.listar();
+  const herramienta = herramientaMockService.obtenerPorId(req.params.id);
+  if (!herramienta) return next();
+  res.render("herramientas/ficha", { herramientas, herramienta, mostrarDetalle: true });
 });
 
 module.exports = router;

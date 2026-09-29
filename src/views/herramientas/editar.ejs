@@ -1,0 +1,66 @@
+<%- include('../partials/head', { titulo: 'Editar Herramienta', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'herramientas' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/herramientas/<%= herramienta.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Inventario
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Editar Herramienta</h1>
+          <p>Modificá los datos del activo seleccionado.</p>
+        </div>
+      </div>
+
+      <form action="/herramientas/<%= herramienta.id %>/editar" method="post">
+        <section class="form-section">
+          <h2>Información Básica</h2>
+          <div class="form-group"><label>Código de Activo / ID <span class="req">*</span></label><input name="codigo_activo" type="text" value="<%= herramienta.codigoActivo %>" required></div>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre de Herramienta / Modelo <span class="req">*</span></label><input name="nombre" type="text" value="<%= herramienta.nombre %>" required></div>
+            <div class="form-group">
+              <label>Sector Destino <span class="req">*</span></label>
+              <select name="sector" required>
+                <% sectores.forEach(function (s) { %><option value="<%= s %>" <%= herramienta.sector === s ? 'selected' : '' %>><%= s %></option><% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Cantidad (Stock Físico) <span class="req">*</span></label><input name="stock" type="number" min="0" value="<%= herramienta.stock %>" required></div>
+            <div class="form-group"><label>Fecha de Ingreso</label><input name="fecha_alta" type="date" value="<%= herramienta.fechaAlta %>"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Estado y Observaciones</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Estado Actual</label>
+              <select name="estado">
+                <% ['Disponible','En uso','En Reparación','Baja'].forEach(function (e) { %>
+                  <option value="<%= e %>" <%= herramienta.estado === e ? 'selected' : '' %>><%= e %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group"><label>Combustible / Energía <span class="tag-muted">(opcional)</span></label><input name="combustible_energia" type="text" value="<%= herramienta.combustibleEnergia || '' %>"></div>
+          </div>
+          <div class="form-group"><label>Observaciones Adicionales</label><textarea name="observaciones"><%= herramienta.observaciones || '' %></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/herramientas/<%= herramienta.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Actualizar Herramienta</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

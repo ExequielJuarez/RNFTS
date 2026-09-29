@@ -1,0 +1,55 @@
+<%- include('../partials/head', { titulo: 'Catálogo de Repuestos', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'herramientas' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/mantenimientos/nuevo" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver al Mantenimiento
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Catálogo de Repuestos</h1>
+          <p>Gestioná el inventario y costos de las piezas utilizadas en el taller.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Inventario Actual</span></div>
+        <table class="table">
+          <thead><tr><th>Nombre / Descripción</th><th>Stock Disponible</th><th>Costo Unit. Referencia</th><th></th></tr></thead>
+          <tbody>
+            <% repuestos.forEach(function (r) { %>
+              <tr>
+                <td class="is-primary"><%= r.nombre %></td>
+                <td><span class="badge badge-info"><%= r.stock %> un.</span></td>
+                <td>$<%= r.costoUnitario.toLocaleString('es-AR', {minimumFractionDigits:2}) %></td>
+                <td style="text-align:right">
+                  <form action="/herramientas/repuestos/<%= r.id %>/eliminar" method="post" onsubmit="return confirm('¿Eliminar este repuesto?')">
+                    <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <div class="card-body">
+          <h3 style="font-size:14px; margin-bottom:var(--space-3)">Agregar Nuevo Repuesto</h3>
+          <form action="/herramientas/repuestos" method="post" style="display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:flex-end; background:var(--bg-surface-alt); padding:var(--space-4); border-radius:var(--radius-md); border:1px dashed var(--border-strong)">
+            <div class="form-group" style="flex:3; min-width:180px"><label>Nombre del Repuesto</label><input type="text" name="nombre" placeholder="Ej: Filtro de Aceite Hilux" required></div>
+            <div class="form-group" style="flex:1; min-width:100px"><label>Stock Inicial</label><input type="number" name="stock" min="0" placeholder="0" required></div>
+            <div class="form-group" style="flex:1.5; min-width:120px"><label>Costo Unitario ($)</label><input type="number" name="costo_unitario" step="0.01" min="0" placeholder="0.00" required></div>
+            <button type="submit" class="btn btn-accent">+ Añadir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
