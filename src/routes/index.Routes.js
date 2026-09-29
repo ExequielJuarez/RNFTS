@@ -8,6 +8,7 @@ const herramientaMockService = require("../services/herramientaMockService");
 const siniestroMockService = require("../services/siniestroMockService");
 const alertaMockService = require("../services/alertaMockService");
 const usuarioMockService = require("../services/usuarioMockService");
+const auditoriaMockService = require("../services/auditoriaMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -395,6 +396,88 @@ router.post("/accesos/roles/:id/editar", (req, res, next) => {
   const rol = usuarioMockService.obtenerRol(req.params.id);
   if (!rol) return next();
   res.redirect("/accesos/roles");
+});
+
+// ===================== AUDITORÍA =====================
+
+router.get("/auditoria", (req, res) => {
+  const registros = auditoriaMockService.listar();
+  const conteo = {};
+  registros.forEach((r) => {
+    conteo[r.accion] = (conteo[r.accion] || 0) + 1;
+  });
+  const coloresAccion = { ALTA: "#1a7f4b", MODIFICACION: "#a3630f", BAJA: "#b3261e", INICIO: "#1d5fbf" };
+  const resumen = Object.keys(conteo).map((accion) => ({
+    accion,
+    cantidad: conteo[accion],
+    color: coloresAccion[accion] || "#8994a3",
+  }));
+
+  res.render("auditoria/index", { registros, resumen });
+});
+
+// ===================== REPORTES =====================
+
+const formatoARS = (n) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n || 0);
+const formatoFechaCorta = (iso) => {
+  if (!iso) return "--/--/----";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+};
+const PALETA_DISTRITOS = ["#0e7c6b", "#1d5fbf", "#a3630f", "#b3261e", "#667085"];
+
+router.get("/reportes", (req, res) => {
+  const hoy = new Date().toISOString().slice(0, 10);
+  const fechaDesde = req.query.fechaDesde || "2026-01-01";
+  const fechaHasta = req.query.fechaHasta || hoy;
+
+  const ordenes = mantenimientoMockService.listar();
+  const vehiculos = vehiculoMockService.listar();
+
+  const costoTotal = ordenes.reduce((acc, o) => acc + o.costoTotal, 0);
+
+  const gastoPorPatente = {};
+  ordenes.forEach((o) => {
+    gastoPorPatente[o.patente] = (gastoPorPatente[o.patente] || 0) + o.costoTotal;
+  });
+  const topVehiculos = Object.entries(gastoPorPatente)
+    .map(([patente, total]) => ({ patente, total, totalFormateado: formatoARS(total) }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5);
+  const maxGastoVehiculo = Math.max(1, ...topVehiculos.map((v) => v.total));
+
+  const conteoDistrito = {};
+  vehiculos.forEach((v) => {
+    conteoDistrito[v.distrito] = (conteoDistrito[v.distrito] || 0) + 1;
+  });
+  const porDistrito = Object.entries(conteoDistrito).map(([distrito, cantidad]) => ({ distrito, cantidad }));
+  const coloresDistrito = porDistrito.map((_, i) => PALETA_DISTRITOS[i % PALETA_DISTRITOS.length]);
+
+  const conteoServicio = {};
+  ordenes.forEach((o) => {
+    conteoServicio[o.tipoServicio] = (conteoServicio[o.tipoServicio] || 0) + 1;
+  });
+  const porTipoServicio = Object.entries(conteoServicio)
+    .map(([tipo, cantidad]) => ({ tipo, cantidad }))
+    .sort((a, b) => b.cantidad - a.cantidad);
+  const maxTipoServicio = Math.max(1, ...porTipoServicio.map((t) => t.cantidad));
+
+  res.render("reportes/index", {
+    fechaDesde,
+    fechaHasta,
+    periodoFormateado: `${formatoFechaCorta(fechaDesde)} al ${formatoFechaCorta(fechaHasta)}`,
+    estadisticas: {
+      costoTotal,
+      costoTotalFormateado: formatoARS(costoTotal),
+      topVehiculos,
+      maxGastoVehiculo,
+      porDistrito,
+      coloresDistrito,
+      totalVehiculos: vehiculos.length,
+      porTipoServicio,
+      maxTipoServicio,
+    },
+  });
 });
 
 module.exports = router;

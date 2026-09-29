@@ -501,6 +501,38 @@
   padding-left: var(--space-4);
 }
 
+/* ---------- Listas de barras horizontales (sin dependencias externas) ---------- */
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.bar-row-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  margin-bottom: 4px;
+}
+.bar-row-head span:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.bar-row-head span:last-child {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.bar-track {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface-sunken);
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
 /* ---------- Estado vacío ---------- */
 .empty-state {
   display: flex;

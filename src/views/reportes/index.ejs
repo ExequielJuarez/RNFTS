@@ -1,0 +1,104 @@
+<%- include('../partials/head', { titulo: 'Reportes y Análisis' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'reportes' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Reportes y Análisis</h1>
+          <p>Métricas financieras y operativas de la flota.</p>
+        </div>
+      </div>
+
+      <form method="get" action="/reportes">
+        <div class="card">
+          <div class="card-body filter-bar" style="align-items:flex-end">
+            <div class="form-group"><label>Fecha Desde</label><input type="date" name="fechaDesde" value="<%= fechaDesde %>"></div>
+            <div class="form-group"><label>Fecha Hasta</label><input type="date" name="fechaHasta" value="<%= fechaHasta %>"></div>
+            <button type="submit" class="btn btn-primary">Generar Reporte</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="stat-grid">
+        <div class="stat-card" style="cursor:default">
+          <div>
+            <span class="stat-card-label">Gasto Total en Mantenimientos</span>
+            <span class="stat-card-value" style="color:var(--danger)"><%= estadisticas.costoTotalFormateado %></span>
+          </div>
+        </div>
+        <div class="stat-card" style="cursor:default">
+          <div>
+            <span class="stat-card-label">Período Analizado</span>
+            <span class="stat-card-value" style="font-size:16px"><%= periodoFormateado %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Top Vehículos con Mayor Gasto</span></div>
+          <div class="card-body">
+            <div class="bar-list">
+              <% estadisticas.topVehiculos.forEach(function (v) { %>
+                <div>
+                  <div class="bar-row-head"><span><%= v.patente %></span><span><%= v.totalFormateado %></span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width:<%= (v.total / estadisticas.maxGastoVehiculo * 100).toFixed(0) %>%; background:var(--danger)"></div></div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Vehículos por Distrito</span></div>
+          <div class="card-body donut-row">
+            <div class="donut" data-values="<%= estadisticas.porDistrito.map(function(d){return d.cantidad}).join(',') %>" data-colors="<%= estadisticas.coloresDistrito.join(',') %>">
+              <div class="donut-total"><strong><%= estadisticas.totalVehiculos %></strong><span>Total</span></div>
+            </div>
+            <div class="donut-legend">
+              <% estadisticas.porDistrito.forEach(function (d, i) { %>
+                <div class="donut-legend-item"><span class="donut-legend-dot" style="background:<%= estadisticas.coloresDistrito[i] %>"></span><%= d.distrito %><span class="donut-legend-value"><%= d.cantidad %></span></div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-header"><span class="card-title">Frecuencia de Tipos de Servicio en Taller</span></div>
+          <div class="card-body">
+            <div class="bar-list">
+              <% estadisticas.porTipoServicio.forEach(function (t) { %>
+                <div>
+                  <div class="bar-row-head"><span><%= t.tipo %></span><span><%= t.cantidad %></span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width:<%= (t.cantidad / estadisticas.maxTipoServicio * 100).toFixed(0) %>%"></div></div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  document.querySelectorAll('.donut').forEach(function (donut) {
+    var values = donut.dataset.values.split(',').map(Number);
+    var colors = donut.dataset.colors.split(',');
+    var total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var acc = 0;
+    var stops = values.map(function (v, i) {
+      var start = (acc / total) * 360;
+      acc += v;
+      var end = (acc / total) * 360;
+      return colors[i] + ' ' + start + 'deg ' + end + 'deg';
+    });
+    donut.style.background = 'conic-gradient(' + stops.join(', ') + ')';
+  });
+</script>
