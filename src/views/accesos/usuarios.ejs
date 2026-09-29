@@ -1,0 +1,70 @@
+<%- include('../partials/head', { titulo: 'Usuarios del Sistema' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'accesos' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Usuarios del Sistema</h1>
+          <p>Listado y gestión de accesos para el personal.</p>
+        </div>
+        <div class="page-header-actions">
+          <a href="/accesos/usuarios/nuevo" class="btn btn-accent">+ Nuevo Usuario</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body filter-bar">
+          <div class="form-group" style="grid-column:span 2"><label>Buscar Usuario</label><input type="search" id="filtro-busqueda" placeholder="Nombre, apellido, usuario..."></div>
+          <div class="form-group">
+            <label>Filtrar por Rol</label>
+            <select id="filtro-rol">
+              <option value="">Todos los roles</option>
+              <% roles.forEach(function (r) { %><option value="<%= r.nombre %>"><%= r.nombre %></option><% }) %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" style="min-width:620px" id="tabla-usuarios">
+            <thead><tr><th>Nombre Completo</th><th>Usuario (Login)</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              <% usuarios.forEach(function (u) { %>
+                <tr class="fila-usuario" data-rol="<%= u.rol.nombre %>" data-buscar="<%= (u.nombre + ' ' + u.apellido + ' ' + u.nombreUsuario).toLowerCase() %>">
+                  <td class="is-primary"><%= u.nombre %> <%= u.apellido %></td>
+                  <td><%= u.nombreUsuario %></td>
+                  <td><span class="badge badge-neutral"><%= u.rol.nombre %></span></td>
+                  <td><span class="badge badge-<%= u.activo ? 'success' : 'danger' %>"><%= u.activo ? 'Activo' : 'Bloqueado' %></span></td>
+                  <td style="text-align:right"><a href="/accesos/usuarios/<%= u.id %>/editar" class="btn btn-sm btn-outline">Editar</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  var filtroBusqueda = document.getElementById('filtro-busqueda');
+  var filtroRol = document.getElementById('filtro-rol');
+  var filas = document.querySelectorAll('.fila-usuario');
+  function filtrar() {
+    var b = filtroBusqueda.value.toLowerCase();
+    var r = filtroRol.value;
+    filas.forEach(function (fila) {
+      var ok = fila.dataset.buscar.includes(b) && (!r || fila.dataset.rol === r);
+      fila.style.display = ok ? '' : 'none';
+    });
+  }
+  filtroBusqueda.addEventListener('input', filtrar);
+  filtroRol.addEventListener('change', filtrar);
+</script>

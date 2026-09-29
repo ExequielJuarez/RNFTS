@@ -7,6 +7,7 @@ const mantenimientoMockService = require("../services/mantenimientoMockService")
 const herramientaMockService = require("../services/herramientaMockService");
 const siniestroMockService = require("../services/siniestroMockService");
 const alertaMockService = require("../services/alertaMockService");
+const usuarioMockService = require("../services/usuarioMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -336,6 +337,64 @@ router.get("/alertas/:id", (req, res, next) => {
   const alerta = alertaMockService.obtenerPorId(req.params.id);
   if (!alerta) return next();
   res.render("alertas/detalle", { alerta, ruta: alertaMockService.rutaEntidad(alerta) });
+});
+
+// ===================== CONTROL DE ACCESO =====================
+
+router.get("/accesos", (req, res) => res.redirect("/accesos/usuarios"));
+
+router.get("/accesos/usuarios", (req, res) => {
+  res.render("accesos/usuarios", { usuarios: usuarioMockService.listarUsuarios(), roles: usuarioMockService.listarRoles() });
+});
+
+router.get("/accesos/usuarios/nuevo", (req, res) => {
+  res.render("accesos/usuario-nuevo", {
+    titulo: "Nuevo Usuario",
+    roles: usuarioMockService.listarRoles(),
+    permisos: usuarioMockService.PERMISOS,
+    permisosAdmin: usuarioMockService.PERMISOS_ADMIN,
+  });
+});
+
+router.post("/accesos/usuarios/nuevo", (req, res) => {
+  res.redirect("/accesos/usuarios");
+});
+
+router.get("/accesos/usuarios/:id/editar", (req, res, next) => {
+  const objetivo = usuarioMockService.obtenerUsuario(req.params.id);
+  if (!objetivo) return next();
+  res.render("accesos/usuario-editar", {
+    titulo: "Editar Usuario",
+    objetivo,
+    roles: usuarioMockService.listarRoles(),
+    permisos: usuarioMockService.PERMISOS,
+    permisosAdmin: usuarioMockService.PERMISOS_ADMIN,
+  });
+});
+
+router.post("/accesos/usuarios/:id/editar", (req, res, next) => {
+  const objetivo = usuarioMockService.obtenerUsuario(req.params.id);
+  if (!objetivo) return next();
+  res.redirect("/accesos/usuarios");
+});
+
+router.get("/accesos/roles", (req, res) => {
+  res.render("accesos/roles", {
+    roles: usuarioMockService.listarRoles(),
+    permisosCatalogo: usuarioMockService.PERMISOS.concat(usuarioMockService.PERMISOS_ADMIN),
+  });
+});
+
+router.get("/accesos/roles/:id/editar", (req, res, next) => {
+  const rol = usuarioMockService.obtenerRol(req.params.id);
+  if (!rol) return next();
+  res.render("accesos/rol-editar", { titulo: "Configurar Rol", rol, permisos: usuarioMockService.PERMISOS });
+});
+
+router.post("/accesos/roles/:id/editar", (req, res, next) => {
+  const rol = usuarioMockService.obtenerRol(req.params.id);
+  if (!rol) return next();
+  res.redirect("/accesos/roles");
 });
 
 module.exports = router;

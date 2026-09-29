@@ -1,0 +1,43 @@
+<%- include('../partials/head', { titulo: 'Matriz de Roles' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'accesos' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Matriz de Roles</h1>
+          <p>Visualización de los niveles de acceso configurados en el sistema.</p>
+        </div>
+      </div>
+
+      <% var etiquetaPermiso = function (clave) { const p = permisosCatalogo.find(function (x) { return x.clave === clave; }); return p ? p.etiqueta : clave; }; %>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" style="min-width:620px">
+            <thead><tr><th>Nombre del Rol</th><th>Permisos Habilitados</th><th></th></tr></thead>
+            <tbody>
+              <% roles.forEach(function (r) { %>
+                <tr>
+                  <td class="is-primary"><%= r.nombre %></td>
+                  <td>
+                    <% r.permisos.forEach(function (clave) { %>
+                      <span class="badge badge-neutral" style="margin:2px"><%= etiquetaPermiso(clave) %></span>
+                    <% }) %>
+                  </td>
+                  <td style="text-align:right"><a href="/accesos/roles/<%= r.id %>/editar" class="btn btn-sm btn-outline">Configurar</a></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

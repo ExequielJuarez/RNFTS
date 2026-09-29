@@ -227,6 +227,42 @@
 .form-notice.is-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 .form-notice.is-error { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
 
+/* Grilla de permisos (checkboxes como chips) */
+.permisos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.permiso-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-alt);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.permiso-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.permiso-chip input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.permiso-chip.is-sensible {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
 /* Botón volver (mobile) */
 .btn-page-back {
   display: none;

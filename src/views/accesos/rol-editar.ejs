@@ -1,0 +1,56 @@
+<%- include('../partials/head', { titulo: 'Configurar Rol', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'accesos' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/accesos/roles" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a la Matriz de Roles
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Configurar Rol: <%= rol.nombre %></h1>
+          <p>Definí a qué módulos podrán acceder todos los usuarios que tengan este rol asignado.</p>
+        </div>
+      </div>
+
+      <form action="/accesos/roles/<%= rol.id %>/editar" method="post">
+        <section class="form-section">
+          <h2>Identificación del Rol</h2>
+          <div class="form-group is-small">
+            <label>Nombre de la Jerarquía</label>
+            <input type="text" value="<%= rol.nombre %>" disabled class="readonly-field">
+            <span class="field-hint">El nombre del rol es estructural y no puede modificarse.</span>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Matriz de Permisos Globales</h2>
+          <% if (rol.bloqueado) { %>
+            <div class="form-notice is-success">El rol de Administrador posee control total del sistema por diseño y sus permisos no pueden ser revocados.</div>
+          <% } else { %>
+            <p class="field-hint" style="margin-bottom:var(--space-3)">Seleccioná las secciones que estarán visibles para este grupo:</p>
+            <div class="permisos-grid">
+              <% permisos.forEach(function (p) { %>
+                <label class="permiso-chip"><input type="checkbox" name="vistas" value="<%= p.clave %>" <%= rol.permisos.includes(p.clave) ? 'checked' : '' %>><%= p.etiqueta %></label>
+              <% }) %>
+              <label class="permiso-chip is-sensible"><input type="checkbox" name="vistas" value="auditoria" <%= rol.permisos.includes('auditoria') ? 'checked' : '' %>>Log de Auditoría</label>
+            </div>
+          <% } %>
+        </section>
+
+        <div class="form-actions">
+          <a href="/accesos/roles" class="btn btn-outline">Volver a Roles</a>
+          <% if (!rol.bloqueado) { %><button type="submit" class="btn btn-accent">Actualizar Privilegios</button><% } %>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

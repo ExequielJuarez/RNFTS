@@ -1,0 +1,90 @@
+<%- include('../partials/head', { titulo: 'Editar Usuario', estilosPagina: ['/css/forms.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'accesos' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/accesos/usuarios" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Usuarios
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Editar Usuario</h1>
+          <p>Modificá los datos, el rol o el estado de acceso del empleado.</p>
+        </div>
+      </div>
+
+      <form action="/accesos/usuarios/<%= objetivo.id %>/editar" method="post">
+        <section class="form-section">
+          <h2>Datos Personales</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre</label><input type="text" name="nombre" value="<%= objetivo.nombre %>" required></div>
+            <div class="form-group"><label>Apellido</label><input type="text" name="apellido" value="<%= objetivo.apellido %>" required></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Credenciales y Estado</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre de Usuario (Login)</label><input type="text" name="nombre_usuario" value="<%= objetivo.nombreUsuario %>" required></div>
+            <div class="form-group">
+              <label>Estado del Acceso</label>
+              <select name="estado">
+                <option value="1" <%= objetivo.activo ? 'selected' : '' %>>Activo (Permitido)</option>
+                <option value="0" <%= !objetivo.activo ? 'selected' : '' %>>Inactivo (Bloqueado)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group is-small">
+            <label>Rol del Usuario</label>
+            <select id="id_rol" name="id_rol" required>
+              <% roles.forEach(function (r) { %><option value="<%= r.id %>" <%= objetivo.rolId === r.id ? 'selected' : '' %>><%= r.nombre %></option><% }) %>
+            </select>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Permisos de Módulos</h2>
+          <div id="cartel-admin" class="form-notice is-success" style="display:none">
+            El rol de Administrador tiene acceso total a todos los módulos del sistema por defecto.
+          </div>
+          <div id="lista-permisos">
+            <p class="field-hint">Seleccioná a qué secciones de la barra lateral tendrá acceso este usuario:</p>
+            <div class="permisos-grid">
+              <% permisos.forEach(function (p) { %>
+                <label class="permiso-chip"><input type="checkbox" name="vistas" value="<%= p.clave %>" <%= (objetivo.permisos || []).includes(p.clave) ? 'checked' : '' %>><%= p.etiqueta %></label>
+              <% }) %>
+              <% permisosAdmin.forEach(function (p) { %>
+                <label class="permiso-chip is-sensible"><input type="checkbox" name="vistas" value="<%= p.clave %>" <%= (objetivo.permisos || []).includes(p.clave) ? 'checked' : '' %>><%= p.etiqueta %></label>
+              <% }) %>
+            </div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/accesos/usuarios" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Actualizar Usuario</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  var rolSelect = document.getElementById('id_rol');
+  var listaPermisos = document.getElementById('lista-permisos');
+  var cartelAdmin = document.getElementById('cartel-admin');
+  function togglePermisos() {
+    var esAdmin = rolSelect.value === '1';
+    listaPermisos.style.display = esAdmin ? 'none' : 'block';
+    cartelAdmin.style.display = esAdmin ? 'block' : 'none';
+  }
+  rolSelect.addEventListener('change', togglePermisos);
+  togglePermisos();
+</script>
