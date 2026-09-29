@@ -1,0 +1,94 @@
+/*
+  Vista: Mantenimientos.
+*/
+
+.cost-box {
+  text-align: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-subtle);
+}
+.cost-box + .cost-box {
+  margin-top: var(--space-3);
+}
+.cost-box.is-total {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft-border);
+}
+.cost-box-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+}
+.cost-box-value {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.cost-box.is-total .cost-box-value {
+  font-size: 22px;
+  color: var(--accent-hover);
+}
+
+.work-note {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+}
+.work-note-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--warning);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.work-note span {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Filas dinámicas de repuestos en el formulario de carga */
+.repuesto-row {
+  display: grid;
+  grid-template-columns: 2fr 90px 120px 36px;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+.repuesto-row select,
+.repuesto-row input {
+  height: 36px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  font-size: 13px;
+}
+.btn-remove-row {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 620px) {
+  .repuesto-row {
+    grid-template-columns: 1fr;
+  }
+  .btn-remove-row {
+    width: 100%;
+  }
+}

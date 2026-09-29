@@ -1,0 +1,168 @@
+<%- include('../partials/head', { titulo: 'Registrar Mantenimiento', estilosPagina: ['/css/forms.css', '/css/mantenimiento.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'mantenimientos' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/mantenimientos" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Mantenimientos
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Registrar Orden de Mantenimiento</h1>
+          <p>Ingresá los detalles del servicio, los repuestos utilizados y los costos asociados.</p>
+        </div>
+      </div>
+
+      <form action="/mantenimientos/nuevo" method="post" id="form-mantenimiento">
+
+        <section class="form-section">
+          <h2>1. Datos del Vehículo y Servicio</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vehículo Afectado <span class="req">*</span></label>
+              <select name="patente" id="select-vehiculo" required>
+                <option value="">Seleccione un vehículo</option>
+                <% vehiculos.forEach(function (v) { %>
+                  <option value="<%= v.patente %>" data-km="<%= v.km %>" <%= patenteSeleccionada === v.patente ? 'selected' : '' %>><%= v.patente %> - <%= v.marca %> <%= v.modelo %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group"><label>Fecha del Servicio <span class="req">*</span></label><input type="date" name="fecha" id="fecha" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Tipo de Servicio <span class="req">*</span></label><input type="text" name="tipo_servicio" placeholder="Ej: Cambio de aceite y filtros" required></div>
+            <div class="form-group">
+              <label>Estado de la Orden <span class="req">*</span></label>
+              <select name="estado" required>
+                <option value="Realizado">Realizado (Finalizado)</option>
+                <option value="En proceso">En proceso (Taller)</option>
+                <option value="Pendiente">Pendiente (Programado)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>2. Seguimiento de Kilometraje</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Km al momento del servicio <span class="req">*</span></label>
+              <input type="number" name="km_servicio" id="km_servicio" min="0" placeholder="Ej: 85000" required>
+              <span class="field-hint" id="km-actual-hint"></span>
+            </div>
+            <div class="form-group"><label>Sugerencia Próximo Servicio (Km)</label><input type="number" name="proximo_servicio_km" min="0" placeholder="Ej: 95000"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>3. Detalle del Trabajo</h2>
+          <div class="form-group"><label>Descripción de tareas realizadas <span class="req">*</span></label><textarea name="descripcion" placeholder="Detallá los trabajos hechos por el mecánico..." required></textarea></div>
+          <div class="form-group"><label>Observaciones o Diagnósticos</label><textarea name="observaciones" placeholder="Notas sobre desgastes futuros, anomalías detectadas..."></textarea></div>
+        </section>
+
+        <section class="form-section">
+          <h2>4. Desglose de Costos y Repuestos</h2>
+          <div style="background:var(--bg-surface-alt); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-5)">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3); flex-wrap:wrap; gap:var(--space-2)">
+              <span class="field-label" style="margin:0">Lista de Repuestos Usados</span>
+              <a href="/herramientas/repuestos" style="font-size:11.5px; color:var(--accent); font-weight:700">Gestionar Catálogo</a>
+            </div>
+            <div id="contenedor-repuestos"></div>
+            <button type="button" id="btn-add-repuesto" class="btn btn-sm btn-ghost" style="color:var(--accent); padding-left:0">+ Agregar repuesto usado</button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group"><label>Mano de Obra ($)</label><input type="number" name="mano_obra" id="mano_obra" placeholder="0.00" step="0.01"></div>
+            <div class="form-group" style="background:var(--accent-soft); padding:var(--space-4); border-radius:var(--radius-md); border:1px solid var(--accent-soft-border)">
+              <label style="color:var(--accent-hover)">Costo Total ($) <span class="tag-muted">automático</span></label>
+              <input type="number" name="costo_total" id="costo_total" step="0.01" readonly style="font-weight:800; font-size:17px; color:var(--accent-hover); background:transparent; border:none; padding:0;">
+            </div>
+          </div>
+          <input type="hidden" name="costo_repuestos" id="costo_repuestos" value="0">
+        </section>
+
+        <div class="form-actions">
+          <a href="/mantenimientos" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Guardar Orden</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>
+<script>
+  var repuestosCatalogo = <%- JSON.stringify(repuestos) %>;
+
+  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+  var selectVehiculo = document.getElementById('select-vehiculo');
+  var kmServicioInput = document.getElementById('km_servicio');
+  var kmHint = document.getElementById('km-actual-hint');
+
+  function actualizarKmHint() {
+    var opt = selectVehiculo.options[selectVehiculo.selectedIndex];
+    if (opt && opt.value) {
+      kmHint.textContent = 'Km registrado en base: ' + Number(opt.dataset.km).toLocaleString('es-AR');
+      if (!kmServicioInput.value) kmServicioInput.value = opt.dataset.km;
+    } else {
+      kmHint.textContent = '';
+    }
+  }
+  selectVehiculo.addEventListener('change', actualizarKmHint);
+  if (selectVehiculo.value) actualizarKmHint();
+
+  function calcularTotal() {
+    var totalRepuestos = 0;
+    document.querySelectorAll('.repuesto-row').forEach(function (fila) {
+      var cant = parseFloat(fila.querySelector('[name="cantidad"]').value) || 0;
+      var costo = parseFloat(fila.querySelector('[name="costo_unitario"]').value) || 0;
+      totalRepuestos += cant * costo;
+    });
+    var manoObra = parseFloat(document.getElementById('mano_obra').value) || 0;
+    document.getElementById('costo_total').value = (totalRepuestos + manoObra).toFixed(2);
+    document.getElementById('costo_repuestos').value = totalRepuestos.toFixed(2);
+  }
+  document.getElementById('mano_obra').addEventListener('input', calcularTotal);
+
+  document.getElementById('btn-add-repuesto').addEventListener('click', function () {
+    var opciones = repuestosCatalogo.map(function (r) {
+      return '<option value="' + r.id + '" data-precio="' + r.costoUnitario + '">' + r.nombre + ' (Stock: ' + r.stock + ')</option>';
+    }).join('');
+
+    var row = document.createElement('div');
+    row.className = 'repuesto-row';
+    row.innerHTML =
+      '<select name="id_repuesto" class="select-repuesto" required><option value="" selected disabled>-- Seleccione repuesto --</option>' + opciones + '</select>' +
+      '<input type="number" name="cantidad" placeholder="Cant." min="1" value="1" required>' +
+      '<input type="number" name="costo_unitario" placeholder="Costo $" step="0.01" required>' +
+      '<button type="button" class="btn-remove-row">×</button>';
+
+    document.getElementById('contenedor-repuestos').appendChild(row);
+
+    row.querySelector('.select-repuesto').addEventListener('change', function () {
+      var opt = this.options[this.selectedIndex];
+      row.querySelector('[name="costo_unitario"]').value = opt.dataset.precio || 0;
+      calcularTotal();
+    });
+    row.querySelectorAll('input').forEach(function (inp) { inp.addEventListener('input', calcularTotal); });
+    row.querySelector('.btn-remove-row').addEventListener('click', function () { row.remove(); calcularTotal(); });
+  });
+
+  document.getElementById('form-mantenimiento').addEventListener('submit', function (e) {
+    var kmActual = parseFloat(selectVehiculo.options[selectVehiculo.selectedIndex]?.dataset.km) || 0;
+    var kmServicio = parseFloat(kmServicioInput.value) || 0;
+    if (kmServicio < kmActual) {
+      e.preventDefault();
+      alert('El km del servicio no puede ser menor al actual (' + kmActual.toLocaleString('es-AR') + ').');
+    } else {
+      calcularTotal();
+    }
+  });
+</script>

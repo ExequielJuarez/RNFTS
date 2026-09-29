@@ -1,0 +1,123 @@
+<%- include('../partials/head', { titulo: 'Mantenimientos', estilosPagina: ['/css/master-detail.css', '/css/mantenimiento.css'] }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'mantenimientos' }) %>
+
+  <main class="app-main">
+    <div class="master-detail <%= mostrarDetalle ? 'showing-detail' : '' %>" id="masterDetail">
+
+      <!-- ===================== LISTADO ===================== -->
+      <section class="md-list">
+        <div class="list-header" style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3);">
+          <div style="flex:1">
+            <h1 style="margin-bottom:var(--space-3)">Mantenimientos</h1>
+            <label class="input-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="search" placeholder="Patente, servicio..." aria-label="Buscar mantenimiento" data-list-search="#listaMantenimientos" />
+            </label>
+          </div>
+          <a href="/mantenimientos/nuevo" class="btn btn-sm btn-accent" style="flex-shrink:0; margin-top:2px;">+ Nuevo</a>
+        </div>
+
+        <div class="vehicle-list scrollbar-thin" id="listaMantenimientos">
+          <% ordenes.forEach(function (o) { %>
+            <a
+              href="/mantenimientos/<%= o.id %>"
+              class="vehicle-card <%= String(o.id) === String(orden.id) ? 'is-active' : '' %>"
+              data-open-detail
+              data-search="<%= (o.patente + ' ' + o.tipoServicio + ' ' + o.estado).toLowerCase() %>"
+            >
+              <span class="vehicle-card-body">
+                <span class="vehicle-card-top">
+                  <span class="vehicle-plate"><%= o.patente %></span>
+                  <span class="badge badge-<%= o.estadoClase %>"><%= o.estado %></span>
+                </span>
+                <span class="vehicle-model" style="color:var(--accent); font-weight:600"><%= o.tipoServicio %></span>
+                <span class="vehicle-card-top">
+                  <span class="vehicle-km"><%= new Date(o.fecha).toLocaleDateString('es-AR') %></span>
+                  <span class="vehicle-km" style="font-weight:700; color:var(--text-primary)">$<%= o.costoTotal.toLocaleString('es-AR') %></span>
+                </span>
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- ===================== DETALLE ===================== -->
+      <section class="md-detail">
+        <div class="detail-wrap">
+
+          <button class="btn btn-sm btn-ghost btn-back-list" data-back-to-list style="align-self:flex-start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Volver al listado
+          </button>
+
+          <div class="card">
+            <div class="card-header" style="align-items:flex-start">
+              <div>
+                <span class="card-title" style="font-size:18px; margin-bottom:4px">
+                  Orden: <%= orden.tipoServicio %>
+                  <span class="badge badge-<%= orden.estadoClase %>"><%= orden.estado %></span>
+                </span>
+                <p style="font-size:13px; color:var(--text-secondary)">Fecha de ingreso: <%= new Date(orden.fecha).toLocaleDateString('es-AR') %></p>
+              </div>
+              <button class="btn btn-sm btn-outline" onclick="window.print()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+                Imprimir Remito
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div><span class="field-label">Vehículo Afectado</span><span class="field-value"><%= orden.vehiculo %></span></div>
+                <div><span class="field-label">Patente</span><span class="field-value"><a href="/vehiculos/<%= orden.patente %>"><%= orden.patente %></a></span></div>
+                <div><span class="field-label">Km al Realizar Servicio</span><span class="field-value"><%= orden.kmServicio.toLocaleString('es-AR') %> km</span></div>
+                <div><span class="field-label">Próximo Servicio Sugerido</span><span class="field-value" style="color:var(--warning)"><%= orden.proximoServicioKm ? 'A los ' + orden.proximoServicioKm.toLocaleString('es-AR') + ' km' : 'No especificado' %></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-columns">
+            <div class="stack">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Detalle del Trabajo</span></div>
+                <div class="card-body">
+                  <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:var(--space-4)"><%= orden.descripcion %></p>
+                  <div class="work-note">
+                    <span class="work-note-label">Observaciones del mecánico</span>
+                    <span><%= orden.observaciones || 'Sin observaciones.' %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Resumen Financiero</span></div>
+                <div class="card-body">
+                  <div class="cost-box"><span class="cost-box-label">Costo de Repuestos</span><span class="cost-box-value">$<%= orden.costoRepuestos.toLocaleString('es-AR') %></span></div>
+                  <div class="cost-box"><span class="cost-box-label">Mano de Obra</span><span class="cost-box-value">$<%= orden.manoObra.toLocaleString('es-AR') %></span></div>
+                  <div class="cost-box is-total"><span class="cost-box-label">Total Facturado</span><span class="cost-box-value">$<%= orden.costoTotal.toLocaleString('es-AR') %></span></div>
+                </div>
+              </div>
+
+              <% if (orden.estado === 'En proceso' || orden.estado === 'Pendiente') { %>
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Finalizar Orden</span></div>
+                  <div class="card-body">
+                    <form action="/mantenimientos/<%= orden.id %>/estado" method="post">
+                      <button type="submit" class="btn btn-accent" style="width:100%; justify-content:center">Marcar como Realizado</button>
+                    </form>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/scripts') %>

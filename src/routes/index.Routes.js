@@ -3,6 +3,7 @@ const router = express.Router();
 
 const vehiculoMockService = require("../services/vehiculoMockService");
 const choferMockService = require("../services/choferMockService");
+const mantenimientoMockService = require("../services/mantenimientoMockService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -159,6 +160,39 @@ router.get("/choferes/:id", (req, res, next) => {
   if (!chofer) return next();
 
   res.render("choferes/ficha", { choferes, chofer, mostrarDetalle: true });
+});
+
+// ===================== MANTENIMIENTOS =====================
+
+router.get("/mantenimientos", (req, res) => {
+  const ordenes = mantenimientoMockService.listar();
+  res.render("mantenimientos/ficha", { ordenes, orden: ordenes[0], mostrarDetalle: false });
+});
+
+router.get("/mantenimientos/nuevo", (req, res) => {
+  res.render("mantenimientos/carga", {
+    titulo: "Registrar Mantenimiento",
+    vehiculos: vehiculoMockService.listar(),
+    repuestos: mantenimientoMockService.listarRepuestos(),
+    patenteSeleccionada: req.query.patente || "",
+  });
+});
+
+router.post("/mantenimientos/nuevo", (req, res) => {
+  res.redirect("/mantenimientos");
+});
+
+router.post("/mantenimientos/:id/estado", (req, res, next) => {
+  const orden = mantenimientoMockService.obtenerPorId(req.params.id);
+  if (!orden) return next();
+  res.redirect("/mantenimientos/" + orden.id);
+});
+
+router.get("/mantenimientos/:id", (req, res, next) => {
+  const ordenes = mantenimientoMockService.listar();
+  const orden = mantenimientoMockService.obtenerPorId(req.params.id);
+  if (!orden) return next();
+  res.render("mantenimientos/ficha", { ordenes, orden, mostrarDetalle: true });
 });
 
 module.exports = router;
