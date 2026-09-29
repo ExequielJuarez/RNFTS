@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Usuarios del Sistema' }) %>
+<%- include('../partials/head', { titulo: 'Usuarios del Sistema', hojaEstilo: 'accesos-usuarios' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -52,19 +52,5 @@
   </main>
 </div>
 
+<script src="/js/pages/accesos-usuarios.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  var filtroBusqueda = document.getElementById('filtro-busqueda');
-  var filtroRol = document.getElementById('filtro-rol');
-  var filas = document.querySelectorAll('.fila-usuario');
-  function filtrar() {
-    var b = filtroBusqueda.value.toLowerCase();
-    var r = filtroRol.value;
-    filas.forEach(function (fila) {
-      var ok = fila.dataset.buscar.includes(b) && (!r || fila.dataset.rol === r);
-      fila.style.display = ok ? '' : 'none';
-    });
-  }
-  filtroBusqueda.addEventListener('input', filtrar);
-  filtroRol.addEventListener('change', filtrar);
-</script>

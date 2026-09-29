@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: vehiculo.patente, estilosPagina: ['/css/master-detail.css'] }) %>
+<%- include('../partials/head', { titulo: vehiculo.patente, hojaEstilo: 'vehiculos-ficha' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -308,4 +308,5 @@
   </main>
 </div>
 
+<script src="/js/pages/vehiculos-ficha.js"></script>
 <%- include('../partials/scripts') %>

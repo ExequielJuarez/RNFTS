@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Siniestro #' + siniestro.id }) %>
+<%- include('../partials/head', { titulo: 'Siniestro #' + siniestro.id, hojaEstilo: 'siniestros-detalle' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -96,4 +96,5 @@
   </main>
 </div>
 
+<script src="/js/pages/siniestros-detalle.js"></script>
 <%- include('../partials/scripts') %>

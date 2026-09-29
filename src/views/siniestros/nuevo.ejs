@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Registrar Siniestro', estilosPagina: ['/css/forms.css'] }) %>
+<%- include('../partials/head', { titulo: 'Registrar Siniestro', hojaEstilo: 'siniestros-nuevo' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -83,5 +83,5 @@
   </main>
 </div>
 
+<script src="/js/pages/siniestros-nuevo.js"></script>
 <%- include('../partials/scripts') %>
-<script>document.getElementById('fecha_siniestro').max = new Date().toISOString().split('T')[0];</script>

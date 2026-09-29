@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Panel de Alertas' }) %>
+<%- include('../partials/head', { titulo: 'Panel de Alertas', hojaEstilo: 'alertas-listado' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -129,73 +129,5 @@
   </main>
 </div>
 
+<script src="/js/pages/alertas-listado.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  // Donut en CSS puro (conic-gradient) — sin dependencias externas
-  document.querySelectorAll('.donut').forEach(function (donut) {
-    var values = donut.dataset.values.split(',').map(Number);
-    var colors = donut.dataset.colors.split(',');
-    var total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
-    var acc = 0;
-    var stops = values.map(function (v, i) {
-      var start = (acc / total) * 360;
-      acc += v;
-      var end = (acc / total) * 360;
-      return colors[i] + ' ' + start + 'deg ' + end + 'deg';
-    });
-    donut.style.background = values.some(Boolean)
-      ? 'conic-gradient(' + stops.join(', ') + ')'
-      : 'var(--border-subtle)';
-  });
-
-  document.getElementById('alertas-tbody').addEventListener('click', function (e) {
-    var btn = e.target.closest('.btn-marcar-leida');
-    if (!btn) return;
-    fetch('/alertas/' + btn.dataset.id + '/leer', { method: 'POST' }).then(function () {
-      var fila = btn.closest('tr');
-      fila.style.opacity = '.65';
-      fila.dataset.estado = 'leida';
-      btn.remove();
-    });
-  });
-
-  var filas = Array.from(document.querySelectorAll('.alerta-row'));
-  var filtroBuscar = document.getElementById('filtro-buscar');
-  var filtroDesde = document.getElementById('filtro-desde');
-  var filtroHasta = document.getElementById('filtro-hasta');
-  var filtroTipo = document.getElementById('filtro-tipo');
-  var filtroEstado = document.getElementById('filtro-estado');
-  var sinResultados = document.getElementById('sin-resultados');
-
-  function aplicarFiltros() {
-    var buscar = filtroBuscar.value.toLowerCase().trim();
-    var visibles = 0;
-    filas.forEach(function (fila) {
-      var ok = true;
-      if (buscar && !fila.dataset.buscar.includes(buscar)) ok = false;
-      if (filtroTipo.value && fila.dataset.tipo !== filtroTipo.value) ok = false;
-      if (filtroEstado.value && fila.dataset.estado !== filtroEstado.value) ok = false;
-      if (filtroDesde.value && fila.dataset.fecha < filtroDesde.value) ok = false;
-      if (filtroHasta.value && fila.dataset.fecha > filtroHasta.value) ok = false;
-      fila.style.display = ok ? '' : 'none';
-      if (ok) visibles++;
-    });
-    sinResultados.style.display = visibles === 0 ? '' : 'none';
-    document.querySelectorAll('[data-filtro-tipo]').forEach(function (card) {
-      card.classList.toggle('is-active', card.dataset.filtroTipo === filtroTipo.value && filtroTipo.value !== '');
-    });
-  }
-  [filtroBuscar, filtroDesde, filtroHasta, filtroTipo, filtroEstado].forEach(function (el) { el.addEventListener('input', aplicarFiltros); });
-
-  document.getElementById('btn-limpiar').addEventListener('click', function () {
-    filtroBuscar.value = ''; filtroDesde.value = ''; filtroHasta.value = ''; filtroTipo.value = ''; filtroEstado.value = '';
-    aplicarFiltros();
-  });
-
-  document.querySelectorAll('[data-filtro-tipo]').forEach(function (card) {
-    card.addEventListener('click', function () {
-      filtroTipo.value = card.dataset.filtroTipo;
-      aplicarFiltros();
-    });
-  });
-</script>

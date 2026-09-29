@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Reportes y Análisis' }) %>
+<%- include('../partials/head', { titulo: 'Reportes y Análisis', hojaEstilo: 'reportes-index' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -86,19 +86,5 @@
   </main>
 </div>
 
+<script src="/js/pages/reportes-index.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  document.querySelectorAll('.donut').forEach(function (donut) {
-    var values = donut.dataset.values.split(',').map(Number);
-    var colors = donut.dataset.colors.split(',');
-    var total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
-    var acc = 0;
-    var stops = values.map(function (v, i) {
-      var start = (acc / total) * 360;
-      acc += v;
-      var end = (acc / total) * 360;
-      return colors[i] + ' ' + start + 'deg ' + end + 'deg';
-    });
-    donut.style.background = 'conic-gradient(' + stops.join(', ') + ')';
-  });
-</script>

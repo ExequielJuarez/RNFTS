@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Actualizar Kilometraje', estilosPagina: ['/css/forms.css', '/css/kilometraje.css'] }) %>
+<%- include('../partials/head', { titulo: 'Actualizar Kilometraje', hojaEstilo: 'vehiculos-kilometraje' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -88,73 +88,10 @@
   </main>
 </div>
 
-<%- include('../partials/scripts') %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-  var vehicleSelect = document.getElementById('select-vehiculo');
-  var kmActualDisplay = document.getElementById('km-actual-display');
-  var choferDisplay = document.getElementById('chofer-display');
-  var kmNuevoInput = document.getElementById('km_nuevo');
-  var kmDiffHint = document.getElementById('km-diff-hint');
-  var kmActualGlobal = null;
-
-  vehicleSelect.addEventListener('change', function () {
-    var opt = this.options[this.selectedIndex];
-    if (!this.value) {
-      kmActualDisplay.textContent = '0 km'; choferDisplay.textContent = 'Sin asignar'; kmActualGlobal = null; kmDiffHint.textContent = '';
-      return;
-    }
-    var km = parseInt(opt.dataset.km) || 0;
-    kmActualDisplay.textContent = km.toLocaleString('es-AR') + ' km';
-    choferDisplay.textContent = opt.dataset.chofer;
-    kmActualGlobal = km;
-    if (!kmNuevoInput.value) kmNuevoInput.value = km;
-    actualizarDiff();
-  });
-
-  function actualizarDiff() {
-    if (kmActualGlobal === null) { kmDiffHint.textContent = ''; return; }
-    var nuevo = parseInt(kmNuevoInput.value);
-    if (isNaN(nuevo)) { kmDiffHint.textContent = ''; return; }
-    var diff = nuevo - kmActualGlobal;
-    if (diff > 0) { kmDiffHint.textContent = '+' + diff.toLocaleString('es-AR') + ' km respecto al registro actual'; kmDiffHint.style.color = 'var(--success)'; }
-    else if (diff === 0) { kmDiffHint.textContent = 'Sin cambios'; kmDiffHint.style.color = 'var(--text-muted)'; }
-    else { kmDiffHint.textContent = 'Valor menor al actual (-' + Math.abs(diff).toLocaleString('es-AR') + ' km)'; kmDiffHint.style.color = 'var(--danger)'; }
-  }
-  kmNuevoInput.addEventListener('input', actualizarDiff);
-
-  var fechaInput = document.getElementById('fecha_actualizacion');
-  var hoy = new Date().toISOString().split('T')[0];
-  fechaInput.max = hoy;
-  fechaInput.value = hoy;
-
-  var historialTodos = <%- JSON.stringify(historial) %>;
-  var kmChartInstance = null;
-  document.getElementById('select-historial').addEventListener('change', function () {
-    var patente = this.value;
-    var datos = historialTodos.filter(function (h) { return h.patente === patente; })
-      .sort(function (a, b) { return new Date(a.fecha) - new Date(b.fecha); });
-
-    if (kmChartInstance) kmChartInstance.destroy();
-    if (!datos.length) return;
-
-    kmChartInstance = new Chart(document.getElementById('kmChart'), {
-      type: 'line',
-      data: {
-        labels: datos.map(function (h) { return new Date(h.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' }); }),
-        datasets: [{
-          label: 'Kilometraje',
-          data: datos.map(function (h) { return h.km; }),
-          borderColor: '#0e7c6b',
-          backgroundColor: 'rgba(14, 124, 107, 0.12)',
-          borderWidth: 3,
-          pointBackgroundColor: '#0e7c6b',
-          pointRadius: 4,
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-  });
+  // Datos del servidor para el gráfico; el resto de la lógica vive en vehiculos-kilometraje.js
+  window.historialTodos = <%- JSON.stringify(historial) %>;
 </script>
+<script src="/js/pages/vehiculos-kilometraje.js"></script>
+<%- include('../partials/scripts') %>

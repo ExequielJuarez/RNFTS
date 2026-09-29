@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Editar Usuario', estilosPagina: ['/css/forms.css'] }) %>
+<%- include('../partials/head', { titulo: 'Editar Usuario', hojaEstilo: 'accesos-usuario-editar' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -75,16 +75,5 @@
   </main>
 </div>
 
+<script src="/js/pages/accesos-usuario-editar.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  var rolSelect = document.getElementById('id_rol');
-  var listaPermisos = document.getElementById('lista-permisos');
-  var cartelAdmin = document.getElementById('cartel-admin');
-  function togglePermisos() {
-    var esAdmin = rolSelect.value === '1';
-    listaPermisos.style.display = esAdmin ? 'none' : 'block';
-    cartelAdmin.style.display = esAdmin ? 'block' : 'none';
-  }
-  rolSelect.addEventListener('change', togglePermisos);
-  togglePermisos();
-</script>

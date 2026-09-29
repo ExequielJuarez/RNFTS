@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Editar Chofer', estilosPagina: ['/css/forms.css'] }) %>
+<%- include('../partials/head', { titulo: 'Editar Chofer', hojaEstilo: 'choferes-editar' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -107,15 +107,5 @@
   </main>
 </div>
 
+<script src="/js/pages/choferes-editar.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  document.getElementById('select-estado').addEventListener('change', function () {
-    var grupo = document.getElementById('grupo-motivo-baja');
-    if (this.value === 'Inactivo') {
-      grupo.style.display = '';
-    } else {
-      grupo.style.display = 'none';
-      grupo.querySelector('textarea').value = '';
-    }
-  });
-</script>

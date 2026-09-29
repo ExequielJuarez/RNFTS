@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: alerta.label }) %>
+<%- include('../partials/head', { titulo: alerta.label, hojaEstilo: 'alertas-detalle' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -53,17 +53,5 @@
   </main>
 </div>
 
+<script src="/js/pages/alertas-detalle.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  var btn = document.getElementById('btn-marcar-leida');
-  if (btn) {
-    btn.addEventListener('click', function () {
-      fetch('/alertas/' + btn.dataset.id + '/leer', { method: 'POST' }).then(function () {
-        var badge = document.getElementById('badge-estado');
-        badge.className = 'badge badge-success';
-        badge.textContent = 'Leída';
-        btn.remove();
-      });
-    });
-  }
-</script>

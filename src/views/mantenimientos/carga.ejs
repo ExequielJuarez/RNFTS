@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Registrar Mantenimiento', estilosPagina: ['/css/forms.css', '/css/mantenimiento.css'] }) %>
+<%- include('../partials/head', { titulo: 'Registrar Mantenimiento', hojaEstilo: 'mantenimientos-carga' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -96,73 +96,10 @@
   </main>
 </div>
 
-<%- include('../partials/scripts') %>
 <script>
-  var repuestosCatalogo = <%- JSON.stringify(repuestos) %>;
-
-  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
-
-  var selectVehiculo = document.getElementById('select-vehiculo');
-  var kmServicioInput = document.getElementById('km_servicio');
-  var kmHint = document.getElementById('km-actual-hint');
-
-  function actualizarKmHint() {
-    var opt = selectVehiculo.options[selectVehiculo.selectedIndex];
-    if (opt && opt.value) {
-      kmHint.textContent = 'Km registrado en base: ' + Number(opt.dataset.km).toLocaleString('es-AR');
-      if (!kmServicioInput.value) kmServicioInput.value = opt.dataset.km;
-    } else {
-      kmHint.textContent = '';
-    }
-  }
-  selectVehiculo.addEventListener('change', actualizarKmHint);
-  if (selectVehiculo.value) actualizarKmHint();
-
-  function calcularTotal() {
-    var totalRepuestos = 0;
-    document.querySelectorAll('.repuesto-row').forEach(function (fila) {
-      var cant = parseFloat(fila.querySelector('[name="cantidad"]').value) || 0;
-      var costo = parseFloat(fila.querySelector('[name="costo_unitario"]').value) || 0;
-      totalRepuestos += cant * costo;
-    });
-    var manoObra = parseFloat(document.getElementById('mano_obra').value) || 0;
-    document.getElementById('costo_total').value = (totalRepuestos + manoObra).toFixed(2);
-    document.getElementById('costo_repuestos').value = totalRepuestos.toFixed(2);
-  }
-  document.getElementById('mano_obra').addEventListener('input', calcularTotal);
-
-  document.getElementById('btn-add-repuesto').addEventListener('click', function () {
-    var opciones = repuestosCatalogo.map(function (r) {
-      return '<option value="' + r.id + '" data-precio="' + r.costoUnitario + '">' + r.nombre + ' (Stock: ' + r.stock + ')</option>';
-    }).join('');
-
-    var row = document.createElement('div');
-    row.className = 'repuesto-row';
-    row.innerHTML =
-      '<select name="id_repuesto" class="select-repuesto" required><option value="" selected disabled>-- Seleccione repuesto --</option>' + opciones + '</select>' +
-      '<input type="number" name="cantidad" placeholder="Cant." min="1" value="1" required>' +
-      '<input type="number" name="costo_unitario" placeholder="Costo $" step="0.01" required>' +
-      '<button type="button" class="btn-remove-row">×</button>';
-
-    document.getElementById('contenedor-repuestos').appendChild(row);
-
-    row.querySelector('.select-repuesto').addEventListener('change', function () {
-      var opt = this.options[this.selectedIndex];
-      row.querySelector('[name="costo_unitario"]').value = opt.dataset.precio || 0;
-      calcularTotal();
-    });
-    row.querySelectorAll('input').forEach(function (inp) { inp.addEventListener('input', calcularTotal); });
-    row.querySelector('.btn-remove-row').addEventListener('click', function () { row.remove(); calcularTotal(); });
-  });
-
-  document.getElementById('form-mantenimiento').addEventListener('submit', function (e) {
-    var kmActual = parseFloat(selectVehiculo.options[selectVehiculo.selectedIndex]?.dataset.km) || 0;
-    var kmServicio = parseFloat(kmServicioInput.value) || 0;
-    if (kmServicio < kmActual) {
-      e.preventDefault();
-      alert('El km del servicio no puede ser menor al actual (' + kmActual.toLocaleString('es-AR') + ').');
-    } else {
-      calcularTotal();
-    }
-  });
+  // Datos del servidor para el catálogo de repuestos; el resto vive en mantenimientos-carga.js
+  window.repuestosCatalogo = <%- JSON.stringify(repuestos) %>;
 </script>
+<script src="/js/pages/mantenimientos-carga.js"></script>
+<%- include('../partials/scripts') %>
+

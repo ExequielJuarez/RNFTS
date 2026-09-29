@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Inventario de Herramientas', estilosPagina: ['/css/master-detail.css'] }) %>
+<%- include('../partials/head', { titulo: 'Inventario de Herramientas', hojaEstilo: 'herramientas-ficha' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -142,4 +142,5 @@
   </main>
 </div>
 
+<script src="/js/pages/herramientas-ficha.js"></script>
 <%- include('../partials/scripts') %>

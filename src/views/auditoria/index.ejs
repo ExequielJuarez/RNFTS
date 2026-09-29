@@ -1,4 +1,4 @@
-<%- include('../partials/head', { titulo: 'Log de Auditoría' }) %>
+<%- include('../partials/head', { titulo: 'Log de Auditoría', hojaEstilo: 'auditoria-index' }) %>
 
 <div class="app-shell" id="appShell">
   <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
@@ -63,40 +63,5 @@
   </main>
 </div>
 
+<script src="/js/pages/auditoria-index.js"></script>
 <%- include('../partials/scripts') %>
-<script>
-  document.querySelectorAll('.donut').forEach(function (donut) {
-    var values = donut.dataset.values.split(',').map(Number);
-    var colors = donut.dataset.colors.split(',');
-    var total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
-    var acc = 0;
-    var stops = values.map(function (v, i) {
-      var start = (acc / total) * 360;
-      acc += v;
-      var end = (acc / total) * 360;
-      return colors[i] + ' ' + start + 'deg ' + end + 'deg';
-    });
-    donut.style.background = 'conic-gradient(' + stops.join(', ') + ')';
-  });
-
-  var filas = Array.from(document.querySelectorAll('.fila-registro'));
-  var filtroBuscar = document.getElementById('filtro-buscar');
-  var filtroDesde = document.getElementById('filtro-desde');
-  var filtroHasta = document.getElementById('filtro-hasta');
-  var contador = document.getElementById('contador');
-
-  function filtrar() {
-    var b = filtroBuscar.value.toLowerCase();
-    var visibles = 0;
-    filas.forEach(function (fila) {
-      var ok = true;
-      if (b && !fila.dataset.buscar.includes(b)) ok = false;
-      if (filtroDesde.value && fila.dataset.fecha < filtroDesde.value) ok = false;
-      if (filtroHasta.value && fila.dataset.fecha > filtroHasta.value) ok = false;
-      fila.style.display = ok ? '' : 'none';
-      if (ok) visibles++;
-    });
-    contador.textContent = visibles + ' registro' + (visibles === 1 ? '' : 's') + '.';
-  }
-  [filtroBuscar, filtroDesde, filtroHasta].forEach(function (el) { el.addEventListener('input', filtrar); });
-</script>
