@@ -1,0 +1,81 @@
+<%- include('../partials/head', { titulo: 'Documentos', hojaEstilo: 'documentos-listado' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: activeItem }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Documentos</h1>
+          <p>Todos los comodatos, actas y documentos generados, de todos los vehículos.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body filter-bar">
+          <div class="form-group"><label>Buscar Patente / N°</label><input type="text" id="filtro-texto" placeholder="Escribí para filtrar..."></div>
+          <div class="form-group">
+            <label>Tipo de Documento</label>
+            <select id="filtro-tipo">
+              <option value="">Todos</option>
+              <% Object.values(tipos).forEach(function (t) { %>
+                <option value="<%= t.id %>"><%= t.label %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Firma</label>
+            <select id="filtro-firma">
+              <option value="">Todas</option>
+              <option value="completo">Firmado completo</option>
+              <option value="parcial">Firma parcial</option>
+              <option value="sin_firmar">Sin firmar</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Emitido desde</label><input type="date" id="filtro-desde"></div>
+          <div class="form-group"><label>Emitido hasta</label><input type="date" id="filtro-hasta"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" id="tabla-documentos" style="min-width:860px">
+            <thead>
+              <tr><th>Tipo</th><th>N°</th><th>Vehículo(s)</th><th>Emisión</th><th>Vencimiento</th><th>Firma</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% if (documentos.length) { %>
+                <% documentos.forEach(function (d) { %>
+                  <tr
+                    class="fila-documento"
+                    data-tipo="<%= d.documento.tipo %>"
+                    data-firma="<%= d.estadoFirma.id %>"
+                    data-fecha="<%= d.documento.fechaEmision %>"
+                    data-buscar="<%= (d.patentes + ' ' + d.documento.numero).toLowerCase() %>"
+                  >
+                    <td class="is-primary"><%= d.tipoLabel %></td>
+                    <td><%= d.documento.numero %></td>
+                    <td><%= d.patentes %></td>
+                    <td><%= d.fechaEmisionFmt %></td>
+                    <td><%= d.documento.fechaVencimiento ? d.fechaVencimientoFmt : '—' %></td>
+                    <td><span class="badge badge-<%= d.estadoFirma.clase %>"><%= d.estadoFirma.label %></span></td>
+                    <td style="text-align:right"><a href="/documentos/<%= d.documento.id %>" class="btn btn-sm btn-outline">Ver</a></td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr><td colspan="7" class="table-empty">No hay documentos generados todavía.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+          <p class="table-empty" id="sin-resultados" style="display:none">No hay documentos que coincidan con los filtros aplicados.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/documentos-listado.js"></script>
+<%- include('../partials/scripts') %>

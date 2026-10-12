@@ -198,7 +198,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l5 5v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 13h6M9 17h4"/></svg>
                 Documentos
               </span>
-              <a href="/vehiculos/<%= vehiculo.patente %>/documentos/nuevo" class="btn btn-sm btn-accent">+ Crear Documento</a>
+              <span style="display:flex; gap:var(--space-2)">
+                <a href="/documentos" class="btn btn-sm btn-outline">Ver todos los documentos</a>
+                <a href="/vehiculos/<%= vehiculo.patente %>/documentos/nuevo" class="btn btn-sm btn-accent">+ Crear Documento</a>
+              </span>
             </div>
             <div class="card-body">
               <% if (documentos && documentos.length) { %>

@@ -34,6 +34,14 @@ function calcularEstado(documento) {
   return { clase: "success", label: "Vigente" };
 }
 
+function estadoFirma(documento) {
+  const firmas = documento.firmas || {};
+  const firmadas = ["parte1", "parte2"].filter((slot) => firmas[slot]).length;
+  if (firmadas === 2) return { id: "completo", clase: "success", label: "Firmado" };
+  if (firmadas === 1) return { id: "parcial", clase: "warning", label: "Firma parcial" };
+  return { id: "sin_firmar", clase: "neutral", label: "Sin firmar" };
+}
+
 let nextId = 3;
 
 const documentos = [
@@ -176,5 +184,6 @@ module.exports = {
   renovar,
   firmar,
   calcularEstado,
+  estadoFirma,
   formatoFecha,
 };

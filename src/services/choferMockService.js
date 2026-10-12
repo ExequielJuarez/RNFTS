@@ -20,19 +20,43 @@ function calcularEstadoLicencia(vencISO) {
   return { estadoClase: "success", estadoLabel: "Vigente", diasParaVencer: diff };
 }
 
+// Motivos predefinidos para la baja/inactividad de un chofer.
+// "permanente: true" son bajas definitivas: no tiene sentido pedir "hasta cuándo".
+const MOTIVOS_INACTIVIDAD = [
+  { id: "licencia_medica", label: "Licencia médica", permanente: false },
+  { id: "vacaciones", label: "Vacaciones", permanente: false },
+  { id: "suspension", label: "Suspensión disciplinaria", permanente: false },
+  { id: "licencia_otro", label: "Otra licencia temporal", permanente: false },
+  { id: "renuncia", label: "Renuncia", permanente: true },
+  { id: "cese", label: "Cese de funciones / Ya no trabaja más", permanente: true },
+  { id: "otro", label: "Otro motivo", permanente: false },
+];
+
 function crearChofer(datos) {
   const chofer = Object.assign(
     {
       foto: null,
       email: null,
       vehiculoAsignado: null,
-      motivoBaja: null,
+      inactividad: null,
+      documentos: {
+        dniFrente: null,
+        dniDorso: null,
+        licenciaProvincialFrente: null,
+        licenciaProvincialDorso: null,
+        licenciaNacionalFrente: null,
+        licenciaNacionalDorso: null,
+      },
     },
     datos,
   );
 
   chofer.licencia.historial = chofer.licencia.historial || [];
   Object.assign(chofer.licencia, calcularEstadoLicencia(chofer.licencia.vencimientoISO));
+
+  if (chofer.licenciaNacional) {
+    Object.assign(chofer.licenciaNacional, calcularEstadoLicencia(chofer.licenciaNacional.vencimientoISO));
+  }
 
   return chofer;
 }
@@ -51,6 +75,7 @@ const choferes = [
     turno: "Mañana",
     estado: "Activo",
     licencia: { numero: "L-778234", categoria: "C", fechaEmision: "10/6/2023", fechaVencimiento: "31/12/2027", vencimientoISO: "2027-12-31" },
+    licenciaNacional: { numero: "N-445210", categoria: "C", fechaEmision: "15/3/2023", fechaVencimiento: "15/3/2028", vencimientoISO: "2028-03-15" },
     vehiculoAsignado: { patente: "AA001BB", marca: "Toyota", modelo: "Hilux", fechaAsignacion: "15/1/2024" },
   }),
   crearChofer({
@@ -65,6 +90,7 @@ const choferes = [
     turno: "Tarde",
     estado: "Activo",
     licencia: { numero: "L-901122", categoria: "B1", fechaEmision: "5/3/2024", fechaVencimiento: "31/12/2026", vencimientoISO: "2026-12-31" },
+    licenciaNacional: { numero: "N-889213", categoria: "B1", fechaEmision: "5/11/2021", fechaVencimiento: "5/11/2026", vencimientoISO: "2026-11-05" },
   }),
   crearChofer({
     id: 3,
@@ -78,6 +104,7 @@ const choferes = [
     turno: "Noche",
     estado: "Activo",
     licencia: { numero: "L-556098", categoria: "D", fechaEmision: "1/12/2025", fechaVencimiento: "31/12/2025", vencimientoISO: "2025-12-31" },
+    licenciaNacional: { numero: "N-220871", categoria: "D", fechaEmision: "10/9/2020", fechaVencimiento: "10/9/2025", vencimientoISO: "2025-09-10" },
   }),
   crearChofer({
     id: 4,
@@ -90,8 +117,14 @@ const choferes = [
     fechaIngreso: "2/5/2022",
     turno: "Mañana",
     estado: "Inactivo",
-    motivoBaja: "Licencia médica prolongada.",
+    inactividad: {
+      motivo: "licencia_medica",
+      motivoLabel: "Licencia médica",
+      observaciones: "Licencia médica prolongada por cirugía. Reincorporación sujeta a alta médica.",
+      hasta: "2026-12-01",
+    },
     licencia: { numero: "L-334509", categoria: "B1", fechaEmision: "8/8/2022", fechaVencimiento: "31/12/2025", vencimientoISO: "2025-12-31" },
+    licenciaNacional: { numero: "N-776530", categoria: "B1", fechaEmision: "1/6/2020", fechaVencimiento: "1/6/2025", vencimientoISO: "2025-06-01" },
   }),
   crearChofer({
     id: 5,
@@ -105,6 +138,7 @@ const choferes = [
     turno: "Tarde/Noche",
     estado: "Activo",
     licencia: { numero: "L-667788", categoria: "E", fechaEmision: "1/1/2024", fechaVencimiento: "31/12/2026", vencimientoISO: "2026-12-31" },
+    licenciaNacional: { numero: "N-110492", categoria: "E", fechaEmision: "10/1/2024", fechaVencimiento: "10/1/2029", vencimientoISO: "2029-01-10" },
     vehiculoAsignado: { patente: "AF006GG", marca: "Scania", modelo: "R410", fechaAsignacion: "3/6/2025" },
   }),
 ];
@@ -141,6 +175,15 @@ function crear(datos) {
       fechaVencimiento: formatoFechaCorta(vencimientoISO),
       vencimientoISO,
     },
+    licenciaNacional: datos.numeroLicenciaNacional
+      ? {
+          numero: datos.numeroLicenciaNacional,
+          categoria: datos.categoriaNacional || datos.categoria,
+          fechaEmision: datos.fechaEmisionNacional ? formatoFechaCorta(datos.fechaEmisionNacional) : "",
+          fechaVencimiento: datos.vencimientoNacionalISO ? formatoFechaCorta(datos.vencimientoNacionalISO) : "",
+          vencimientoISO: datos.vencimientoNacionalISO || null,
+        }
+      : null,
   });
   choferes.push(chofer);
   return chofer;
@@ -170,4 +213,62 @@ function renovarLicencia(id, fechaRetiroISO, detalle) {
   return chofer;
 }
 
-module.exports = { listar, obtenerPorId, crear, actualizar, renovarLicencia, finDeAnio };
+function actualizarLicenciaNacional(id, datos) {
+  const chofer = obtenerPorId(id);
+  if (!chofer) return null;
+  const vencimientoISO = datos.vencimientoISO;
+  chofer.licenciaNacional = {
+    numero: datos.numero,
+    categoria: datos.categoria,
+    fechaEmision: datos.fechaEmisionISO ? formatoFechaCorta(datos.fechaEmisionISO) : chofer.licenciaNacional ? chofer.licenciaNacional.fechaEmision : "",
+    fechaVencimiento: vencimientoISO ? formatoFechaCorta(vencimientoISO) : "",
+    vencimientoISO: vencimientoISO || null,
+  };
+  if (vencimientoISO) {
+    Object.assign(chofer.licenciaNacional, calcularEstadoLicencia(vencimientoISO));
+  }
+  return chofer;
+}
+
+function inactivar(id, datos) {
+  const chofer = obtenerPorId(id);
+  if (!chofer) return null;
+  const motivoInfo = MOTIVOS_INACTIVIDAD.find((m) => m.id === datos.motivo);
+  chofer.estado = "Inactivo";
+  chofer.inactividad = {
+    motivo: datos.motivo || "otro",
+    motivoLabel: motivoInfo ? motivoInfo.label : "Otro motivo",
+    observaciones: datos.observaciones || "",
+    hasta: motivoInfo && motivoInfo.permanente ? null : datos.hasta || null,
+  };
+  return chofer;
+}
+
+function activar(id) {
+  const chofer = obtenerPorId(id);
+  if (!chofer) return null;
+  chofer.estado = "Activo";
+  chofer.inactividad = null;
+  return chofer;
+}
+
+function guardarDocumentos(id, archivos) {
+  const chofer = obtenerPorId(id);
+  if (!chofer) return null;
+  Object.assign(chofer.documentos, archivos);
+  return chofer;
+}
+
+module.exports = {
+  MOTIVOS_INACTIVIDAD,
+  listar,
+  obtenerPorId,
+  crear,
+  actualizar,
+  renovarLicencia,
+  actualizarLicenciaNacional,
+  inactivar,
+  activar,
+  guardarDocumentos,
+  finDeAnio,
+};

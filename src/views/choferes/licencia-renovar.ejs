@@ -20,8 +20,10 @@
       </div>
 
       <div class="form-notice is-success" style="margin-bottom:var(--space-5)">
-        Estado actual: <strong><%= chofer.licencia.estadoLabel %></strong>, vence el <strong><%= chofer.licencia.fechaVencimiento %></strong>.
-        La licencia provincial vence siempre el 31 de diciembre del año en que se retira, sin importar el mes del trámite.
+        <span>
+          Estado actual: <strong><%= chofer.licencia.estadoLabel %></strong>, vence el <strong><%= chofer.licencia.fechaVencimiento %></strong>.
+          La licencia provincial vence siempre el 31 de diciembre del año en que se retira, sin importar el mes del trámite.
+        </span>
       </div>
 
       <form action="/choferes/<%= chofer.id %>/licencia/renovar" method="post">

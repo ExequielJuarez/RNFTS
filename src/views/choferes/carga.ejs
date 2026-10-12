@@ -37,14 +37,16 @@
           </div>
           <div class="form-group"><label>Dirección</label><input name="direccion" type="text" placeholder="Calle y número"></div>
 
-          <div class="form-group" style="margin-top:var(--space-4)">
-            <label>Foto del Documento (DNI)</label>
-            <div class="upload-box">
-              <label for="foto_documento">Haga clic aquí para subir foto del DNI</label>
-              <span>Formatos aceptados: JPG, PNG</span>
-              <input type="file" id="foto_documento" name="foto_documento" accept="image/*">
+          <p class="field-hint" style="margin-top:var(--space-4)">DNI <span class="tag-muted">(foto o fotocopia)</span></p>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="upload-box"><label for="dni_frente">Frente</label><input type="file" id="dni_frente" name="dni_frente" accept="image/*,.pdf"></div>
+              <div class="upload-preview" data-preview-for="dni_frente">Sin archivo seleccionado</div>
             </div>
-            <div class="upload-preview" data-preview-for="foto_documento">Sin imagen seleccionada</div>
+            <div class="form-group">
+              <div class="upload-box"><label for="dni_dorso">Dorso</label><input type="file" id="dni_dorso" name="dni_dorso" accept="image/*,.pdf"></div>
+              <div class="upload-preview" data-preview-for="dni_dorso">Sin archivo seleccionado</div>
+            </div>
           </div>
         </section>
 
@@ -52,17 +54,6 @@
           <h2>Datos Laborales</h2>
           <div class="form-row">
             <div class="form-group"><label>Fecha de Ingreso</label><input name="fechaIngreso" type="date"></div>
-            <div class="form-group">
-              <label>Estado</label>
-              <select name="estado">
-                <option value="">Seleccionar</option>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-                <option value="Licencia Vacaciones/Medica">Licencia Vacaciones/Médica</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
             <div class="form-group">
               <label>Turno</label>
               <select name="turno">
@@ -73,12 +64,11 @@
                 <option>Noche</option>
               </select>
             </div>
-            <div class="form-group"></div>
           </div>
         </section>
 
         <section class="form-section">
-          <h2>Datos de Licencia de Conducir</h2>
+          <h2>Licencia Provincial</h2>
           <div class="form-row">
             <div class="form-group"><label>Número de Licencia</label><input name="numero_licencia" type="text" placeholder="Ingrese el N° de licencia"></div>
             <div class="form-group">
@@ -102,14 +92,51 @@
               <span class="field-hint">La licencia provincial vence siempre el 31 de diciembre del año de retiro. Se calcula automáticamente.</span>
             </div>
           </div>
-          <div class="form-group" style="margin-top:var(--space-4)">
-            <label>Foto de la Licencia</label>
-            <div class="upload-box">
-              <label for="foto_licencia">Haga clic aquí para subir foto de la licencia</label>
-              <span>Formatos aceptados: JPG, PNG</span>
-              <input type="file" id="foto_licencia" name="foto_licencia" accept="image/*">
+          <p class="field-hint" style="margin-top:var(--space-4)">Foto o fotocopia de la licencia</p>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="upload-box"><label for="licencia_provincial_frente">Frente</label><input type="file" id="licencia_provincial_frente" name="licencia_provincial_frente" accept="image/*,.pdf"></div>
+              <div class="upload-preview" data-preview-for="licencia_provincial_frente">Sin archivo seleccionado</div>
             </div>
-            <div class="upload-preview" data-preview-for="foto_licencia">Sin imagen seleccionada</div>
+            <div class="form-group">
+              <div class="upload-box"><label for="licencia_provincial_dorso">Dorso</label><input type="file" id="licencia_provincial_dorso" name="licencia_provincial_dorso" accept="image/*,.pdf"></div>
+              <div class="upload-preview" data-preview-for="licencia_provincial_dorso">Sin archivo seleccionado</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Licencia Nacional <span class="tag-muted">(opcional)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Licencia</label><input name="numero_licencia_nacional" type="text" placeholder="Ingrese el N° de licencia"></div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <select name="categoria_nacional">
+                <option value="">Seleccione categoría</option>
+                <option value="A">A - Motocicletas</option>
+                <option value="B1">B1 - Autos y camionetas</option>
+                <option value="B2">B2 - Vehículos utilitarios</option>
+                <option value="C">C - Camiones sin acoplado</option>
+                <option value="D">D - Transporte de pasajeros</option>
+                <option value="E">E - Camiones con acoplado</option>
+                <option value="G">G - Maquinaria especial</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Emisión</label><input name="fecha_emision_nacional" type="date"></div>
+            <div class="form-group"><label>Fecha de Vencimiento</label><input name="fecha_vencimiento_nacional" type="date"></div>
+          </div>
+          <p class="field-hint" style="margin-top:var(--space-4)">Foto o fotocopia de la licencia</p>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="upload-box"><label for="licencia_nacional_frente">Frente</label><input type="file" id="licencia_nacional_frente" name="licencia_nacional_frente" accept="image/*,.pdf"></div>
+              <div class="upload-preview" data-preview-for="licencia_nacional_frente">Sin archivo seleccionado</div>
+            </div>
+            <div class="form-group">
+              <div class="upload-box"><label for="licencia_nacional_dorso">Dorso</label><input type="file" id="licencia_nacional_dorso" name="licencia_nacional_dorso" accept="image/*,.pdf"></div>
+              <div class="upload-preview" data-preview-for="licencia_nacional_dorso">Sin archivo seleccionado</div>
+            </div>
           </div>
         </section>
 
@@ -121,14 +148,6 @@
             <input type="file" id="imagen" name="imagen" accept="image/*">
           </div>
           <div class="upload-preview" data-preview-for="imagen">Sin imagen seleccionada</div>
-        </section>
-
-        <section class="form-section">
-          <h2>Fechas Administrativas <span class="tag-muted">(Opcionales)</span></h2>
-          <div class="form-row">
-            <div class="form-group"><label>Fecha de Alta en Sistema</label><input name="fecha_alta" type="date"></div>
-            <div class="form-group"><label>Fecha de Baja</label><input name="fecha_baja" type="date"></div>
-          </div>
         </section>
 
         <div class="form-actions">

@@ -14,6 +14,7 @@ const comisionMockService = require("../services/comisionMockService");
 const memoMockService = require("../services/memoMockService");
 const turnoServiceMockService = require("../services/turnoServiceMockService");
 const pedidoRetiroMockService = require("../services/pedidoRetiroMockService");
+const { uploadChoferes, rutasDeArchivos } = require("../middleware/upload");
 const { LOCALIDADES } = require("../services/catalogos");
 
 const usuarioSesion = {
@@ -37,6 +38,24 @@ function comisionActivaDeVehiculo(patente) {
   const comision = comisionMockService.obtenerPorId(memo.comisionId);
   if (!comision) return null;
   return { memo, comision, estadoInfo: memoMockService.ESTADO_INFO[memoMockService.calcularEstado(memo)] };
+}
+
+// Convierte los nombres de campo del formulario (snake_case) a las claves
+// camelCase que usa chofer.documentos.
+function mapearDocumentosChofer(rutas) {
+  const mapa = {
+    dni_frente: "dniFrente",
+    dni_dorso: "dniDorso",
+    licencia_provincial_frente: "licenciaProvincialFrente",
+    licencia_provincial_dorso: "licenciaProvincialDorso",
+    licencia_nacional_frente: "licenciaNacionalFrente",
+    licencia_nacional_dorso: "licenciaNacionalDorso",
+  };
+  const resultado = {};
+  Object.keys(rutas).forEach((campo) => {
+    if (mapa[campo]) resultado[mapa[campo]] = rutas[campo];
+  });
+  return resultado;
 }
 
 // ===================== VEHÍCULOS =====================
@@ -224,6 +243,28 @@ router.post("/vehiculos/:patente/documentos", (req, res, next) => {
   res.redirect("/documentos/" + documento.id);
 });
 
+router.get("/documentos", (req, res) => {
+  const documentos = documentoMockService
+    .listar()
+    .slice()
+    .sort((a, b) => (a.fechaEmision < b.fechaEmision ? 1 : -1))
+    .map((d) => ({
+      documento: d,
+      tipoLabel: (documentoMockService.TIPOS[d.tipo] || {}).label || d.tipo,
+      estadoVencimiento: documentoMockService.calcularEstado(d),
+      estadoFirma: documentoMockService.estadoFirma(d),
+      fechaEmisionFmt: documentoMockService.formatoFecha(d.fechaEmision),
+      fechaVencimientoFmt: documentoMockService.formatoFecha(d.fechaVencimiento),
+      patentes: d.bienes.map((b) => b.dominio).join(", "),
+    }));
+  res.render("documentos/listado", {
+    titulo: "Documentos",
+    documentos,
+    tipos: documentoMockService.TIPOS,
+    activeItem: "vehiculos-documentos",
+  });
+});
+
 router.get("/documentos/:id", (req, res, next) => {
   const documento = documentoMockService.obtenerPorId(req.params.id);
   if (!documento) return next();
@@ -358,7 +399,17 @@ router.get("/choferes/nuevo", (req, res) => {
   res.render("choferes/carga", { titulo: "Cargar Chofer", activeItem: "choferes-alta" });
 });
 
-router.post("/choferes/nuevo", (req, res) => {
+const CAMPOS_ARCHIVOS_CHOFER = [
+  { name: "imagen", maxCount: 1 },
+  { name: "dni_frente", maxCount: 1 },
+  { name: "dni_dorso", maxCount: 1 },
+  { name: "licencia_provincial_frente", maxCount: 1 },
+  { name: "licencia_provincial_dorso", maxCount: 1 },
+  { name: "licencia_nacional_frente", maxCount: 1 },
+  { name: "licencia_nacional_dorso", maxCount: 1 },
+];
+
+router.post("/choferes/nuevo", uploadChoferes.fields(CAMPOS_ARCHIVOS_CHOFER), (req, res) => {
   const b = req.body;
   const chofer = choferMockService.crear({
     nombre: b.nombre,
@@ -374,7 +425,15 @@ router.post("/choferes/nuevo", (req, res) => {
     numeroLicencia: b.numero_licencia,
     categoria: b.categoria,
     fechaEmisionISO: b.fecha_emision,
+    numeroLicenciaNacional: b.numero_licencia_nacional,
+    categoriaNacional: b.categoria_nacional,
+    fechaEmisionNacional: b.fecha_emision_nacional,
+    vencimientoNacionalISO: b.fecha_vencimiento_nacional,
   });
+  const rutas = rutasDeArchivos(req.files, "choferes");
+  if (rutas.imagen) choferMockService.actualizar(chofer.id, { foto: rutas.imagen });
+  delete rutas.imagen;
+  if (Object.keys(rutas).length) choferMockService.guardarDocumentos(chofer.id, mapearDocumentosChofer(rutas));
   res.redirect("/choferes/" + chofer.id);
 });
 
@@ -384,7 +443,7 @@ router.get("/choferes/:id/editar", (req, res, next) => {
   res.render("choferes/editar", { titulo: "Editar Chofer", chofer, activeItem: "choferes-listado" });
 });
 
-router.post("/choferes/:id/editar", (req, res, next) => {
+router.post("/choferes/:id/editar", uploadChoferes.fields(CAMPOS_ARCHIVOS_CHOFER), (req, res, next) => {
   const chofer = choferMockService.obtenerPorId(req.params.id);
   if (!chofer) return next();
   const b = req.body;
@@ -397,20 +456,40 @@ router.post("/choferes/:id/editar", (req, res, next) => {
     email: b.email || null,
     direccion: b.direccion,
     turno: b.turno,
-    estado: b.estado || chofer.estado,
-    motivoBaja: b.estado === "Inactivo" ? b.motivoBaja || chofer.motivoBaja : null,
   });
+  if (b.numero_licencia_nacional || b.fecha_vencimiento_nacional) {
+    choferMockService.actualizarLicenciaNacional(chofer.id, {
+      numero: b.numero_licencia_nacional,
+      categoria: b.categoria_nacional,
+      fechaEmisionISO: b.fecha_emision_nacional,
+      vencimientoISO: b.fecha_vencimiento_nacional,
+    });
+  }
+  const rutas = rutasDeArchivos(req.files, "choferes");
+  if (rutas.imagen) choferMockService.actualizar(chofer.id, { foto: rutas.imagen });
+  delete rutas.imagen;
+  if (Object.keys(rutas).length) choferMockService.guardarDocumentos(chofer.id, mapearDocumentosChofer(rutas));
   res.redirect("/choferes/" + chofer.id);
 });
 
 router.post("/choferes/:id/activar", (req, res, next) => {
-  const chofer = choferMockService.actualizar(req.params.id, { estado: "Activo", motivoBaja: null });
+  const chofer = choferMockService.activar(req.params.id);
   if (!chofer) return next();
   res.redirect("/choferes/" + chofer.id);
 });
 
+router.get("/choferes/:id/desactivar", (req, res, next) => {
+  const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+  res.render("choferes/desactivar", { titulo: "Desactivar Chofer", chofer, motivos: choferMockService.MOTIVOS_INACTIVIDAD, activeItem: "choferes-listado" });
+});
+
 router.post("/choferes/:id/desactivar", (req, res, next) => {
-  const chofer = choferMockService.actualizar(req.params.id, { estado: "Inactivo" });
+  const chofer = choferMockService.inactivar(req.params.id, {
+    motivo: req.body.motivo,
+    observaciones: req.body.observaciones,
+    hasta: req.body.hasta,
+  });
   if (!chofer) return next();
   res.redirect("/choferes/" + chofer.id);
 });

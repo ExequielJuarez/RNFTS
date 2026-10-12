@@ -127,17 +127,3 @@
   });
 })();
 
-(function () {
-  "use strict";
-
-  document.getElementById('select-estado').addEventListener('change', function () {
-    var grupo = document.getElementById('grupo-motivo-baja');
-    if (this.value === 'Inactivo') {
-      grupo.style.display = '';
-    } else {
-      grupo.style.display = 'none';
-      grupo.querySelector('textarea').value = '';
-    }
-  });
-
-})();

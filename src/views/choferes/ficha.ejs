@@ -93,9 +93,7 @@
 
             <div class="hero-toolbar">
               <% if (chofer.estado === 'Activo') { %>
-                <form action="/choferes/<%= chofer.id %>/desactivar" method="post" onsubmit="return confirm('¿Desactivar a este chofer?');">
-                  <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Desactivar</button>
-                </form>
+                <a href="/choferes/<%= chofer.id %>/desactivar" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Desactivar</a>
               <% } else { %>
                 <form action="/choferes/<%= chofer.id %>/activar" method="post" onsubmit="return confirm('¿Activar a este chofer?');">
                   <button type="submit" class="btn btn-sm btn-outline" style="color:var(--success); border-color:var(--success-border);">Activar</button>
@@ -104,10 +102,16 @@
             </div>
           </div>
 
-          <% if (chofer.estado === 'Inactivo' && chofer.motivoBaja) { %>
+          <% if (chofer.estado === 'Inactivo' && chofer.inactividad) { %>
             <div class="alert-item is-warning">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
-              <span><strong>Motivo de baja</strong><span><%= chofer.motivoBaja %></span></span>
+              <span>
+                <strong>Motivo de baja: <%= chofer.inactividad.motivoLabel %></strong>
+                <span>
+                  <%= chofer.inactividad.observaciones %>
+                  <% if (chofer.inactividad.hasta) { %> Hasta el <%= new Date(chofer.inactividad.hasta + 'T00:00:00').toLocaleDateString('es-AR') %>.<% } else { %> Baja definitiva.<% } %>
+                </span>
+              </span>
             </div>
           <% } %>
 
@@ -172,40 +176,83 @@
               </div>
             </div>
 
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-                  Estado de Licencia Provincial
-                </span>
-                <a href="/choferes/<%= chofer.id %>/licencia/renovar" class="btn btn-sm btn-accent">Renovar Licencia</a>
-              </div>
-              <div class="card-body">
-                <div class="alert-item is-<%= chofer.licencia.estadoClase === 'danger' ? 'danger' : (chofer.licencia.estadoClase === 'warning' ? 'warning' : 'info') %>">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-                  <span>
-                    <strong><%= chofer.licencia.estadoLabel %></strong>
+            <div class="stack">
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+                    Licencia Provincial
+                  </span>
+                  <a href="/choferes/<%= chofer.id %>/licencia/renovar" class="btn btn-sm btn-accent">Renovar</a>
+                </div>
+                <div class="card-body">
+                  <div class="alert-item is-<%= chofer.licencia.estadoClase === 'danger' ? 'danger' : (chofer.licencia.estadoClase === 'warning' ? 'warning' : 'info') %>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
                     <span>
-                      Vence el 31 de diciembre (<%= chofer.licencia.fechaVencimiento %>)
-                      <% if (chofer.licencia.diasParaVencer >= 0) { %>· <%= chofer.licencia.diasParaVencer %> días restantes<% } %>
+                      <strong><%= chofer.licencia.estadoLabel %></strong>
+                      <span>
+                        Vence el 31 de diciembre (<%= chofer.licencia.fechaVencimiento %>)
+                        <% if (chofer.licencia.diasParaVencer >= 0) { %>· <%= chofer.licencia.diasParaVencer %> días restantes<% } %>
+                      </span>
                     </span>
+                  </div>
+                  <% if (chofer.licencia.fechaRetiroFmt) { %>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin-top:var(--space-3)">Última vez retirada el <strong><%= chofer.licencia.fechaRetiroFmt %></strong>.</p>
+                  <% } %>
+                  <% if (chofer.licencia.historial && chofer.licencia.historial.length) { %>
+                    <div style="margin-top:var(--space-4); padding-top:var(--space-3); border-top:1px dashed var(--border-strong)">
+                      <span class="field-label">Historial de Renovaciones</span>
+                      <% chofer.licencia.historial.forEach(function (h) { %>
+                        <div class="work-note" style="margin-top:var(--space-2)">
+                          <span class="work-note-label"><%= h.fecha.split('-').reverse().join('/') %></span>
+                          <span><%= h.detalle %></span>
+                        </div>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l2.5 2.5L16 9"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+                    Licencia Nacional
                   </span>
                 </div>
-                <% if (chofer.licencia.fechaRetiroFmt) { %>
-                  <p style="font-size:12.5px; color:var(--text-secondary); margin-top:var(--space-3)">Última vez retirada el <strong><%= chofer.licencia.fechaRetiroFmt %></strong>.</p>
-                <% } %>
-                <% if (chofer.licencia.historial && chofer.licencia.historial.length) { %>
-                  <div style="margin-top:var(--space-4); padding-top:var(--space-3); border-top:1px dashed var(--border-strong)">
-                    <span class="field-label">Historial de Renovaciones</span>
-                    <% chofer.licencia.historial.forEach(function (h) { %>
-                      <div class="work-note" style="margin-top:var(--space-2)">
-                        <span class="work-note-label"><%= h.fecha.split('-').reverse().join('/') %></span>
-                        <span><%= h.detalle %></span>
-                      </div>
-                    <% }) %>
-                  </div>
-                <% } %>
+                <div class="card-body">
+                  <% if (chofer.licenciaNacional && chofer.licenciaNacional.vencimientoISO) { %>
+                    <div class="alert-item is-<%= chofer.licenciaNacional.estadoClase === 'danger' ? 'danger' : (chofer.licenciaNacional.estadoClase === 'warning' ? 'warning' : 'info') %>">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                      <span>
+                        <strong><%= chofer.licenciaNacional.estadoLabel %></strong>
+                        <span>
+                          N° <%= chofer.licenciaNacional.numero %> · Vence <%= chofer.licenciaNacional.fechaVencimiento %>
+                          <% if (chofer.licenciaNacional.diasParaVencer >= 0) { %>· <%= chofer.licenciaNacional.diasParaVencer %> días restantes<% } %>
+                        </span>
+                      </span>
+                    </div>
+                  <% } else { %>
+                    <p class="table-empty">Sin datos de licencia nacional cargados. Agregala desde "Editar".</p>
+                  <% } %>
+                </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Documentación -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Documentación del Chofer</span></div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div><span class="field-label">DNI — Frente</span><span class="field-value"><% if (chofer.documentos.dniFrente) { %><a href="<%= chofer.documentos.dniFrente %>" target="_blank">Ver archivo</a><% } else { %>Sin cargar<% } %></span></div>
+                <div><span class="field-label">DNI — Dorso</span><span class="field-value"><% if (chofer.documentos.dniDorso) { %><a href="<%= chofer.documentos.dniDorso %>" target="_blank">Ver archivo</a><% } else { %>Sin cargar<% } %></span></div>
+                <div><span class="field-label">Lic. Provincial — Frente</span><span class="field-value"><% if (chofer.documentos.licenciaProvincialFrente) { %><a href="<%= chofer.documentos.licenciaProvincialFrente %>" target="_blank">Ver archivo</a><% } else { %>Sin cargar<% } %></span></div>
+                <div><span class="field-label">Lic. Provincial — Dorso</span><span class="field-value"><% if (chofer.documentos.licenciaProvincialDorso) { %><a href="<%= chofer.documentos.licenciaProvincialDorso %>" target="_blank">Ver archivo</a><% } else { %>Sin cargar<% } %></span></div>
+                <div><span class="field-label">Lic. Nacional — Frente</span><span class="field-value"><% if (chofer.documentos.licenciaNacionalFrente) { %><a href="<%= chofer.documentos.licenciaNacionalFrente %>" target="_blank">Ver archivo</a><% } else { %>Sin cargar<% } %></span></div>
+                <div><span class="field-label">Lic. Nacional — Dorso</span><span class="field-value"><% if (chofer.documentos.licenciaNacionalDorso) { %><a href="<%= chofer.documentos.licenciaNacionalDorso %>" target="_blank">Ver archivo</a><% } else { %>Sin cargar<% } %></span></div>
+              </div>
+              <p class="field-hint" style="margin-top:var(--space-3)">Podés subir una foto o una fotocopia escaneada (JPG, PNG o PDF) desde "Editar".</p>
             </div>
           </div>
 

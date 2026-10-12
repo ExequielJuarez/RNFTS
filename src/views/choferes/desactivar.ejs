@@ -1,0 +1,54 @@
+<%- include('../partials/head', { titulo: 'Desactivar Chofer', hojaEstilo: 'choferes-desactivar' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'choferes' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/choferes/<%= chofer.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a <%= chofer.nombre %> <%= chofer.apellido %>
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Desactivar Chofer</h1>
+          <p><%= chofer.nombre %> <%= chofer.apellido %> · DNI <%= chofer.dni %></p>
+        </div>
+      </div>
+
+      <form action="/choferes/<%= chofer.id %>/desactivar" method="post" id="form-desactivar">
+        <section class="form-section">
+          <h2>Motivo de la Baja</h2>
+          <div class="form-group is-small">
+            <label>Motivo <span class="req">*</span></label>
+            <select name="motivo" id="select-motivo" required>
+              <option value="">Seleccione un motivo</option>
+              <% motivos.forEach(function (m) { %>
+                <option value="<%= m.id %>" data-permanente="<%= m.permanente ? '1' : '0' %>"><%= m.label %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group" id="grupo-hasta">
+            <label>¿Hasta cuándo? <span class="tag-muted">(fecha estimada de reincorporación)</span></label>
+            <input type="date" name="hasta">
+            <span class="field-hint">No aplica si el motivo es una baja definitiva (renuncia o cese de funciones) — en ese caso no se pide fecha.</span>
+          </div>
+
+          <div class="form-group"><label>Observaciones <span class="req">*</span></label><textarea name="observaciones" placeholder="Detalle importante sobre el motivo de la inactividad..." required></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/choferes/<%= chofer.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn" style="background:var(--danger); color:#fff;">Confirmar Desactivación</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/choferes-desactivar.js"></script>
+<%- include('../partials/scripts') %>

@@ -19,6 +19,12 @@
         </div>
       </div>
 
+      <% if (chofer.estado === 'Inactivo') { %>
+        <div class="form-notice is-error">
+          <span>Este chofer está Inactivo (<%= chofer.inactividad ? chofer.inactividad.motivoLabel : '—' %>). Para reactivarlo o cambiar el motivo, usá las acciones de la ficha del chofer.</span>
+        </div>
+      <% } %>
+
       <form action="/choferes/<%= chofer.id %>/editar" method="post" enctype="multipart/form-data">
 
         <section class="form-section">
@@ -43,21 +49,6 @@
           <div class="form-row">
             <div class="form-group"><label>Fecha de Ingreso</label><input name="fechaIngreso" type="date" value="<%= chofer.fechaIngresoISO || '' %>"></div>
             <div class="form-group">
-              <label>Estado</label>
-              <select name="estado" id="select-estado">
-                <option value="Activo" <%= chofer.estado === 'Activo' ? 'selected' : '' %>>Activo</option>
-                <option value="Inactivo" <%= chofer.estado === 'Inactivo' ? 'selected' : '' %>>Inactivo</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group" id="grupo-motivo-baja" style="<%= chofer.estado === 'Inactivo' ? '' : 'display:none' %>">
-            <label>Motivo de baja <span class="tag-muted">(requerido al desactivar)</span></label>
-            <textarea name="motivoBaja" rows="3" placeholder="Explicá el motivo por el que se da de baja al chofer..."><%= chofer.motivoBaja || '' %></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
               <label>Turno</label>
               <select name="turno">
                 <option value="Mañana" <%= chofer.turno === 'Mañana' ? 'selected' : '' %>>Mañana</option>
@@ -66,12 +57,11 @@
                 <option value="Noche" <%= chofer.turno === 'Noche' ? 'selected' : '' %>>Noche</option>
               </select>
             </div>
-            <div class="form-group"></div>
           </div>
         </section>
 
         <section class="form-section">
-          <h2>Datos de Licencia</h2>
+          <h2>Licencia Provincial</h2>
           <div class="form-row">
             <div class="form-group"><label>Número de Licencia</label><input name="numero_licencia" type="text" value="<%= chofer.licencia.numero %>"></div>
             <div class="form-group">
@@ -84,8 +74,72 @@
             </div>
           </div>
           <div class="form-notice is-success">
-            Vencimiento: 31/12 (<%= chofer.licencia.fechaVencimiento %>) · <%= chofer.licencia.estadoLabel %>. Para renovarla, usá el botón
-            "Renovar Licencia" en la ficha del chofer — se calcula automáticamente según la fecha de retiro.
+            <span>Vencimiento: 31/12 (<%= chofer.licencia.fechaVencimiento %>) · <%= chofer.licencia.estadoLabel %>. Para renovarla, usá el botón "Renovar Licencia" en la ficha del chofer — se calcula automáticamente según la fecha de retiro.</span>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Licencia Nacional</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Número de Licencia</label><input name="numero_licencia_nacional" type="text" value="<%= chofer.licenciaNacional ? chofer.licenciaNacional.numero : '' %>"></div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <select name="categoria_nacional">
+                <option value="">Seleccionar</option>
+                <% ['A','B1','B2','C','D','E','G'].forEach(function(cat) { %>
+                  <option value="<%= cat %>" <%= chofer.licenciaNacional && chofer.licenciaNacional.categoria === cat ? 'selected' : '' %>><%= cat %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Emisión</label><input name="fecha_emision_nacional" type="date"></div>
+            <div class="form-group"><label>Fecha de Vencimiento</label><input name="fecha_vencimiento_nacional" type="date" value="<%= chofer.licenciaNacional ? chofer.licenciaNacional.vencimientoISO : '' %>"></div>
+          </div>
+          <% if (chofer.licenciaNacional && chofer.licenciaNacional.estadoLabel) { %>
+            <div class="form-notice <%= chofer.licenciaNacional.estadoClase === 'danger' ? 'is-error' : 'is-success' %>">
+              <span>Estado actual: <%= chofer.licenciaNacional.estadoLabel %> · vence el <%= chofer.licenciaNacional.fechaVencimiento %>.</span>
+            </div>
+          <% } %>
+        </section>
+
+        <section class="form-section">
+          <h2>Documentación <span class="tag-muted">(foto o fotocopia — subí sólo lo que quieras reemplazar)</span></h2>
+
+          <p class="field-hint">DNI</p>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="upload-box"><label for="dni_frente">Frente</label><input type="file" id="dni_frente" name="dni_frente" accept="image/*,.pdf"></div>
+              <% if (chofer.documentos.dniFrente) { %><a href="<%= chofer.documentos.dniFrente %>" target="_blank" class="field-hint">Ver archivo actual</a><% } %>
+            </div>
+            <div class="form-group">
+              <div class="upload-box"><label for="dni_dorso">Dorso</label><input type="file" id="dni_dorso" name="dni_dorso" accept="image/*,.pdf"></div>
+              <% if (chofer.documentos.dniDorso) { %><a href="<%= chofer.documentos.dniDorso %>" target="_blank" class="field-hint">Ver archivo actual</a><% } %>
+            </div>
+          </div>
+
+          <p class="field-hint" style="margin-top:var(--space-4)">Licencia Provincial</p>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="upload-box"><label for="lic_prov_frente">Frente</label><input type="file" id="lic_prov_frente" name="licencia_provincial_frente" accept="image/*,.pdf"></div>
+              <% if (chofer.documentos.licenciaProvincialFrente) { %><a href="<%= chofer.documentos.licenciaProvincialFrente %>" target="_blank" class="field-hint">Ver archivo actual</a><% } %>
+            </div>
+            <div class="form-group">
+              <div class="upload-box"><label for="lic_prov_dorso">Dorso</label><input type="file" id="lic_prov_dorso" name="licencia_provincial_dorso" accept="image/*,.pdf"></div>
+              <% if (chofer.documentos.licenciaProvincialDorso) { %><a href="<%= chofer.documentos.licenciaProvincialDorso %>" target="_blank" class="field-hint">Ver archivo actual</a><% } %>
+            </div>
+          </div>
+
+          <p class="field-hint" style="margin-top:var(--space-4)">Licencia Nacional</p>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="upload-box"><label for="lic_nac_frente">Frente</label><input type="file" id="lic_nac_frente" name="licencia_nacional_frente" accept="image/*,.pdf"></div>
+              <% if (chofer.documentos.licenciaNacionalFrente) { %><a href="<%= chofer.documentos.licenciaNacionalFrente %>" target="_blank" class="field-hint">Ver archivo actual</a><% } %>
+            </div>
+            <div class="form-group">
+              <div class="upload-box"><label for="lic_nac_dorso">Dorso</label><input type="file" id="lic_nac_dorso" name="licencia_nacional_dorso" accept="image/*,.pdf"></div>
+              <% if (chofer.documentos.licenciaNacionalDorso) { %><a href="<%= chofer.documentos.licenciaNacionalDorso %>" target="_blank" class="field-hint">Ver archivo actual</a><% } %>
+            </div>
           </div>
         </section>
 
@@ -93,7 +147,7 @@
           <h2>Imagen de Perfil <span class="tag-muted">(opcional al editar)</span></h2>
           <div class="upload-box">
             <label for="imagen">Subir nueva imagen (reemplaza la actual)</label>
-            <input type="file" id="imagen" name="imagen">
+            <input type="file" id="imagen" name="imagen" accept="image/*">
           </div>
           <p class="field-hint" style="margin-top:var(--space-2)">Si no subís un archivo nuevo, se mantiene la imagen guardada.</p>
         </section>
