@@ -1,0 +1,48 @@
+<%- include('../partials/head', { titulo: 'Renovar Licencia', hojaEstilo: 'choferes-licencia-renovar' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'choferes', activeItem: 'choferes-listado' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/choferes/<%= chofer.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a <%= chofer.nombre %> <%= chofer.apellido %>
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Renovar Licencia Provincial</h1>
+          <p><%= chofer.nombre %> <%= chofer.apellido %> · Licencia N° <%= chofer.licencia.numero %> · Categoría <%= chofer.licencia.categoria %></p>
+        </div>
+      </div>
+
+      <div class="form-notice is-success" style="margin-bottom:var(--space-5)">
+        Estado actual: <strong><%= chofer.licencia.estadoLabel %></strong>, vence el <strong><%= chofer.licencia.fechaVencimiento %></strong>.
+        La licencia provincial vence siempre el 31 de diciembre del año en que se retira, sin importar el mes del trámite.
+      </div>
+
+      <form action="/choferes/<%= chofer.id %>/licencia/renovar" method="post">
+        <section class="form-section">
+          <h2>Datos de la Renovación</h2>
+          <div class="form-group is-small">
+            <label>Fecha en que el chofer retiró la licencia <span class="req">*</span></label>
+            <input type="date" name="fecha_retiro" required>
+            <span class="field-hint">El nuevo vencimiento se calculará automáticamente como el 31 de diciembre de ese año.</span>
+          </div>
+          <div class="form-group"><label>Observaciones</label><input type="text" name="detalle" placeholder="Ej: Renovación tramitada en Centro Único de Trámites"></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/choferes/<%= chofer.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Confirmar Renovación</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/choferes-licencia-renovar.js"></script>
+<%- include('../partials/scripts') %>

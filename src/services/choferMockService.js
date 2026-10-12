@@ -1,6 +1,25 @@
 // Datos de demostración para la Plantilla de Choferes.
 // Reemplazar por consultas reales (Sequelize) cuando el modelo de datos esté definido.
 
+// La licencia provincial de conducir vence siempre el 31 de diciembre del año
+// de emisión/retiro, sin importar en qué mes del año se haya tramitado.
+function finDeAnio(fechaISO) {
+  const anio = new Date(fechaISO + "T00:00:00").getFullYear();
+  return `${anio}-12-31`;
+}
+
+function formatoFechaCorta(iso) {
+  const [y, m, d] = iso.split("-");
+  return `${Number(d)}/${Number(m)}/${y}`;
+}
+
+function calcularEstadoLicencia(vencISO) {
+  const diff = Math.ceil((new Date(vencISO) - new Date()) / 86400000);
+  if (diff < 0) return { estadoClase: "danger", estadoLabel: "Vencida", diasParaVencer: diff };
+  if (diff <= 30) return { estadoClase: "warning", estadoLabel: "Por vencer", diasParaVencer: diff };
+  return { estadoClase: "success", estadoLabel: "Vigente", diasParaVencer: diff };
+}
+
 function crearChofer(datos) {
   const chofer = Object.assign(
     {
@@ -12,19 +31,8 @@ function crearChofer(datos) {
     datos,
   );
 
-  const vencISO = chofer.licencia.vencimientoISO;
-  const diff = Math.ceil((new Date(vencISO) - new Date()) / 86400000);
-  chofer.licencia.diasParaVencer = diff;
-  if (diff < 0) {
-    chofer.licencia.estadoClase = "danger";
-    chofer.licencia.estadoLabel = "Vencida";
-  } else if (diff <= 30) {
-    chofer.licencia.estadoClase = "warning";
-    chofer.licencia.estadoLabel = "Por vencer";
-  } else {
-    chofer.licencia.estadoClase = "success";
-    chofer.licencia.estadoLabel = "Vigente";
-  }
+  chofer.licencia.historial = chofer.licencia.historial || [];
+  Object.assign(chofer.licencia, calcularEstadoLicencia(chofer.licencia.vencimientoISO));
 
   return chofer;
 }
@@ -42,7 +50,7 @@ const choferes = [
     fechaIngreso: "3/2/2019",
     turno: "Mañana",
     estado: "Activo",
-    licencia: { numero: "L-778234", categoria: "C", fechaEmision: "10/6/2023", fechaVencimiento: "10/6/2027", vencimientoISO: "2027-06-10" },
+    licencia: { numero: "L-778234", categoria: "C", fechaEmision: "10/6/2023", fechaVencimiento: "31/12/2027", vencimientoISO: "2027-12-31" },
     vehiculoAsignado: { patente: "AA001BB", marca: "Toyota", modelo: "Hilux", fechaAsignacion: "15/1/2024" },
   }),
   crearChofer({
@@ -56,7 +64,7 @@ const choferes = [
     fechaIngreso: "20/8/2021",
     turno: "Tarde",
     estado: "Activo",
-    licencia: { numero: "L-901122", categoria: "B1", fechaEmision: "5/3/2024", fechaVencimiento: "5/10/2026", vencimientoISO: "2026-10-05" },
+    licencia: { numero: "L-901122", categoria: "B1", fechaEmision: "5/3/2024", fechaVencimiento: "31/12/2026", vencimientoISO: "2026-12-31" },
   }),
   crearChofer({
     id: 3,
@@ -69,7 +77,7 @@ const choferes = [
     fechaIngreso: "11/11/2015",
     turno: "Noche",
     estado: "Activo",
-    licencia: { numero: "L-556098", categoria: "D", fechaEmision: "1/12/2025", fechaVencimiento: "15/8/2026", vencimientoISO: "2026-08-15" },
+    licencia: { numero: "L-556098", categoria: "D", fechaEmision: "1/12/2025", fechaVencimiento: "31/12/2025", vencimientoISO: "2025-12-31" },
   }),
   crearChofer({
     id: 4,
@@ -83,7 +91,7 @@ const choferes = [
     turno: "Mañana",
     estado: "Inactivo",
     motivoBaja: "Licencia médica prolongada.",
-    licencia: { numero: "L-334509", categoria: "B1", fechaEmision: "8/8/2022", fechaVencimiento: "8/8/2025", vencimientoISO: "2025-08-08" },
+    licencia: { numero: "L-334509", categoria: "B1", fechaEmision: "8/8/2022", fechaVencimiento: "31/12/2025", vencimientoISO: "2025-12-31" },
   }),
   crearChofer({
     id: 5,
@@ -96,7 +104,7 @@ const choferes = [
     fechaIngreso: "14/2/2020",
     turno: "Tarde/Noche",
     estado: "Activo",
-    licencia: { numero: "L-667788", categoria: "E", fechaEmision: "1/1/2024", fechaVencimiento: "15/12/2026", vencimientoISO: "2026-12-15" },
+    licencia: { numero: "L-667788", categoria: "E", fechaEmision: "1/1/2024", fechaVencimiento: "31/12/2026", vencimientoISO: "2026-12-31" },
     vehiculoAsignado: { patente: "AF006GG", marca: "Scania", modelo: "R410", fechaAsignacion: "3/6/2025" },
   }),
 ];
@@ -109,4 +117,57 @@ function obtenerPorId(id) {
   return choferes.find((c) => String(c.id) === String(id));
 }
 
-module.exports = { listar, obtenerPorId };
+let nextId = 6;
+
+function crear(datos) {
+  const fechaEmisionISO = datos.fechaEmisionISO || new Date().toISOString().slice(0, 10);
+  const vencimientoISO = finDeAnio(fechaEmisionISO);
+  const chofer = crearChofer({
+    id: nextId++,
+    nombre: datos.nombre,
+    apellido: datos.apellido,
+    dni: datos.dni,
+    telefono: datos.telefono,
+    email: datos.email || null,
+    direccion: datos.direccion,
+    fechaNacimiento: datos.fechaNacimiento,
+    fechaIngreso: datos.fechaIngreso,
+    turno: datos.turno,
+    estado: datos.estado || "Activo",
+    licencia: {
+      numero: datos.numeroLicencia,
+      categoria: datos.categoria,
+      fechaEmision: formatoFechaCorta(fechaEmisionISO),
+      fechaVencimiento: formatoFechaCorta(vencimientoISO),
+      vencimientoISO,
+    },
+  });
+  choferes.push(chofer);
+  return chofer;
+}
+
+function actualizar(id, cambios) {
+  const chofer = obtenerPorId(id);
+  if (!chofer) return null;
+  Object.assign(chofer, cambios);
+  return chofer;
+}
+
+function renovarLicencia(id, fechaRetiroISO, detalle) {
+  const chofer = obtenerPorId(id);
+  if (!chofer) return null;
+  const vencimientoISO = finDeAnio(fechaRetiroISO);
+  chofer.licencia.fechaRetiro = fechaRetiroISO;
+  chofer.licencia.fechaRetiroFmt = formatoFechaCorta(fechaRetiroISO);
+  chofer.licencia.fechaEmision = formatoFechaCorta(fechaRetiroISO);
+  chofer.licencia.vencimientoISO = vencimientoISO;
+  chofer.licencia.fechaVencimiento = formatoFechaCorta(vencimientoISO);
+  Object.assign(chofer.licencia, calcularEstadoLicencia(vencimientoISO));
+  chofer.licencia.historial.unshift({
+    fecha: fechaRetiroISO,
+    detalle: detalle || `Licencia retirada el ${formatoFechaCorta(fechaRetiroISO)}. Vence el 31/12/${vencimientoISO.slice(0, 4)}.`,
+  });
+  return chofer;
+}
+
+module.exports = { listar, obtenerPorId, crear, actualizar, renovarLicencia, finDeAnio };

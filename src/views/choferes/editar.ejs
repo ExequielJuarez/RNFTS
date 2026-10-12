@@ -83,9 +83,9 @@
               </select>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group"><label>Fecha de Emisión</label><input name="fecha_emision" type="date" value="<%= chofer.licencia.emisionISO || '' %>"></div>
-            <div class="form-group"><label>Vencimiento</label><input name="fecha_vencimiento" type="date" value="<%= chofer.licencia.vencimientoISO || '' %>"></div>
+          <div class="form-notice is-success">
+            Vencimiento: 31/12 (<%= chofer.licencia.fechaVencimiento %>) · <%= chofer.licencia.estadoLabel %>. Para renovarla, usá el botón
+            "Renovar Licencia" en la ficha del chofer — se calcula automáticamente según la fecha de retiro.
           </div>
         </section>
 

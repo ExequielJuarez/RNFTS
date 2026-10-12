@@ -1,7 +1,7 @@
 // Memos de comisión: reserva y uso de un vehículo por una comisión de viaje.
 // Reemplazar por persistencia real (Sequelize) cuando el modelo de datos esté definido.
 
-let nextId = 4;
+let nextId = 5;
 
 function calcularEstado(memo) {
   if (memo.estado === "finalizado") return memo.estado;
@@ -65,6 +65,22 @@ const memos = [
     historial: [
       { fecha: "2026-08-01", accion: "Memo generado", detalle: "Reserva del vehículo para la comisión." },
       { fecha: "2026-08-05", accion: "Regreso registrado", detalle: "Vehículo restituido sin novedades." },
+    ],
+  },
+  {
+    id: 4,
+    comisionId: 2,
+    vehiculoPatente: "AG007HH",
+    choferId: 5,
+    integrantes: [{ nombre: "Marcela Soledad Ríos", dni: "27.889.112" }],
+    destino: "Termas de Río Hondo",
+    motivo: "Operativo conjunto de asistencia",
+    fechaSalida: "2026-09-01",
+    fechaRegreso: "2026-09-04",
+    estado: "finalizado",
+    historial: [
+      { fecha: "2026-09-01", accion: "Memo generado", detalle: "Reserva del vehículo para la comisión." },
+      { fecha: "2026-09-04", accion: "Regreso registrado", detalle: "Vehículo restituido sin novedades." },
     ],
   },
 ];

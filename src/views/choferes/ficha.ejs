@@ -160,14 +160,25 @@
                   <% } %>
                 </div>
               </div>
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">Actividad</span></div>
+                <div class="card-body">
+                  <div class="info-grid">
+                    <div><span class="field-label">Viajes de Comisión Realizados</span><span class="field-value"><%= cantidadViajes %></span></div>
+                    <div><span class="field-label">Cantidad de Siniestros</span><span class="field-value" style="<%= cantidadSiniestros > 0 ? 'color:var(--danger)' : '' %>"><%= cantidadSiniestros %></span></div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="card">
               <div class="card-header">
                 <span class="card-title">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-                  Estado de Licencia
+                  Estado de Licencia Provincial
                 </span>
+                <a href="/choferes/<%= chofer.id %>/licencia/renovar" class="btn btn-sm btn-accent">Renovar Licencia</a>
               </div>
               <div class="card-body">
                 <div class="alert-item is-<%= chofer.licencia.estadoClase === 'danger' ? 'danger' : (chofer.licencia.estadoClase === 'warning' ? 'warning' : 'info') %>">
@@ -175,11 +186,25 @@
                   <span>
                     <strong><%= chofer.licencia.estadoLabel %></strong>
                     <span>
-                      Vencimiento: <%= chofer.licencia.fechaVencimiento %>
-                      <% if (chofer.licencia.diasParaVencer >= 0) { %>(<%= chofer.licencia.diasParaVencer %> días restantes)<% } %>
+                      Vence el 31 de diciembre (<%= chofer.licencia.fechaVencimiento %>)
+                      <% if (chofer.licencia.diasParaVencer >= 0) { %>· <%= chofer.licencia.diasParaVencer %> días restantes<% } %>
                     </span>
                   </span>
                 </div>
+                <% if (chofer.licencia.fechaRetiroFmt) { %>
+                  <p style="font-size:12.5px; color:var(--text-secondary); margin-top:var(--space-3)">Última vez retirada el <strong><%= chofer.licencia.fechaRetiroFmt %></strong>.</p>
+                <% } %>
+                <% if (chofer.licencia.historial && chofer.licencia.historial.length) { %>
+                  <div style="margin-top:var(--space-4); padding-top:var(--space-3); border-top:1px dashed var(--border-strong)">
+                    <span class="field-label">Historial de Renovaciones</span>
+                    <% chofer.licencia.historial.forEach(function (h) { %>
+                      <div class="work-note" style="margin-top:var(--space-2)">
+                        <span class="work-note-label"><%= h.fecha.split('-').reverse().join('/') %></span>
+                        <span><%= h.detalle %></span>
+                      </div>
+                    <% }) %>
+                  </div>
+                <% } %>
               </div>
             </div>
           </div>

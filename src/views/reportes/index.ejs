@@ -81,6 +81,60 @@
             </div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Siniestros por Vehículo</span></div>
+          <div class="card-body">
+            <% if (estadisticas.siniestrosPorVehiculo.length) { %>
+              <div class="bar-list">
+                <% estadisticas.siniestrosPorVehiculo.forEach(function (s) { %>
+                  <div>
+                    <div class="bar-row-head"><span><a href="/vehiculos/<%= s.patente %>"><%= s.patente %></a></span><span><%= s.cantidad %></span></div>
+                    <div class="bar-track"><div class="bar-fill" style="width:<%= (s.cantidad / estadisticas.maxSiniestrosVehiculo * 100).toFixed(0) %>%; background:var(--danger)"></div></div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="table-empty">Sin siniestros registrados en el período.</p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Choferes con Más Viajes de Comisión</span></div>
+          <div class="card-body">
+            <% if (estadisticas.choferesConMasViajes.length) { %>
+              <div class="bar-list">
+                <% estadisticas.choferesConMasViajes.forEach(function (c) { %>
+                  <div>
+                    <div class="bar-row-head"><span><%= c.nombre %></span><span><%= c.cantidad %></span></div>
+                    <div class="bar-track"><div class="bar-fill" style="width:<%= (c.cantidad / estadisticas.maxViajesChofer * 100).toFixed(0) %>%"></div></div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="table-empty">Sin viajes de comisión registrados todavía.</p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-header"><span class="card-title">Destinos Más Viajados</span></div>
+          <div class="card-body">
+            <% if (estadisticas.destinosMasFrecuentes.length) { %>
+              <div class="bar-list">
+                <% estadisticas.destinosMasFrecuentes.forEach(function (d) { %>
+                  <div>
+                    <div class="bar-row-head"><span><%= d.destino %></span><span><%= d.cantidad %></span></div>
+                    <div class="bar-track"><div class="bar-fill" style="width:<%= (d.cantidad / estadisticas.maxDestino * 100).toFixed(0) %>%; background:var(--accent)"></div></div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="table-empty">Sin viajes de comisión registrados todavía.</p>
+            <% } %>
+          </div>
+        </div>
       </div>
     </div>
   </main>

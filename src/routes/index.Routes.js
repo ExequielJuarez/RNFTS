@@ -273,9 +273,25 @@ router.get("/vehiculos/:patente", (req, res, next) => {
 
 // ===================== CHOFERES =====================
 
+function cantidadSiniestrosDeChofer(dni) {
+  return siniestroMockService.listar().filter((s) => s.choferDni === dni).length;
+}
+
+function cantidadViajesDeChofer(choferId) {
+  return memoMockService.listar().filter((m) => String(m.choferId) === String(choferId)).length;
+}
+
 router.get("/choferes", (req, res) => {
   const choferes = choferMockService.listar();
-  res.render("choferes/ficha", { choferes, chofer: choferes[0], mostrarDetalle: false, activeItem: "choferes-listado" });
+  const primero = choferes[0];
+  res.render("choferes/ficha", {
+    choferes,
+    chofer: primero,
+    cantidadSiniestros: cantidadSiniestrosDeChofer(primero.dni),
+    cantidadViajes: cantidadViajesDeChofer(primero.id),
+    mostrarDetalle: false,
+    activeItem: "choferes-listado",
+  });
 });
 
 router.get("/choferes/nuevo", (req, res) => {
@@ -283,7 +299,23 @@ router.get("/choferes/nuevo", (req, res) => {
 });
 
 router.post("/choferes/nuevo", (req, res) => {
-  res.redirect("/choferes");
+  const b = req.body;
+  const chofer = choferMockService.crear({
+    nombre: b.nombre,
+    apellido: b.apellido,
+    dni: b.dni,
+    telefono: b.telefono,
+    email: b.email || null,
+    direccion: b.direccion,
+    fechaNacimiento: b.fechaNacimiento,
+    fechaIngreso: b.fechaIngreso,
+    turno: b.turno,
+    estado: b.estado || "Activo",
+    numeroLicencia: b.numero_licencia,
+    categoria: b.categoria,
+    fechaEmisionISO: b.fecha_emision,
+  });
+  res.redirect("/choferes/" + chofer.id);
 });
 
 router.get("/choferes/:id/editar", (req, res, next) => {
@@ -295,17 +327,42 @@ router.get("/choferes/:id/editar", (req, res, next) => {
 router.post("/choferes/:id/editar", (req, res, next) => {
   const chofer = choferMockService.obtenerPorId(req.params.id);
   if (!chofer) return next();
+  const b = req.body;
+  chofer.licencia.numero = b.numero_licencia || chofer.licencia.numero;
+  chofer.licencia.categoria = b.categoria || chofer.licencia.categoria;
+  choferMockService.actualizar(chofer.id, {
+    nombre: b.nombre || chofer.nombre,
+    apellido: b.apellido || chofer.apellido,
+    telefono: b.telefono,
+    email: b.email || null,
+    direccion: b.direccion,
+    turno: b.turno,
+    estado: b.estado || chofer.estado,
+    motivoBaja: b.estado === "Inactivo" ? b.motivoBaja || chofer.motivoBaja : null,
+  });
   res.redirect("/choferes/" + chofer.id);
 });
 
 router.post("/choferes/:id/activar", (req, res, next) => {
-  const chofer = choferMockService.obtenerPorId(req.params.id);
+  const chofer = choferMockService.actualizar(req.params.id, { estado: "Activo", motivoBaja: null });
   if (!chofer) return next();
   res.redirect("/choferes/" + chofer.id);
 });
 
 router.post("/choferes/:id/desactivar", (req, res, next) => {
+  const chofer = choferMockService.actualizar(req.params.id, { estado: "Inactivo" });
+  if (!chofer) return next();
+  res.redirect("/choferes/" + chofer.id);
+});
+
+router.get("/choferes/:id/licencia/renovar", (req, res, next) => {
   const chofer = choferMockService.obtenerPorId(req.params.id);
+  if (!chofer) return next();
+  res.render("choferes/licencia-renovar", { titulo: "Renovar Licencia", chofer, activeItem: "choferes-listado" });
+});
+
+router.post("/choferes/:id/licencia/renovar", (req, res, next) => {
+  const chofer = choferMockService.renovarLicencia(req.params.id, req.body.fecha_retiro, req.body.detalle);
   if (!chofer) return next();
   res.redirect("/choferes/" + chofer.id);
 });
@@ -315,7 +372,14 @@ router.get("/choferes/:id", (req, res, next) => {
   const chofer = choferMockService.obtenerPorId(req.params.id);
   if (!chofer) return next();
 
-  res.render("choferes/ficha", { choferes, chofer, mostrarDetalle: true, activeItem: "choferes-listado" });
+  res.render("choferes/ficha", {
+    choferes,
+    chofer,
+    cantidadSiniestros: cantidadSiniestrosDeChofer(chofer.dni),
+    cantidadViajes: cantidadViajesDeChofer(chofer.id),
+    mostrarDetalle: true,
+    activeItem: "choferes-listado",
+  });
 });
 
 // ===================== MANTENIMIENTOS =====================
@@ -867,6 +931,39 @@ router.get("/reportes", (req, res) => {
     .sort((a, b) => b.cantidad - a.cantidad);
   const maxTipoServicio = Math.max(1, ...porTipoServicio.map((t) => t.cantidad));
 
+  const conteoSiniestrosVehiculo = {};
+  siniestroMockService.listar().forEach((s) => {
+    conteoSiniestrosVehiculo[s.patente] = (conteoSiniestrosVehiculo[s.patente] || 0) + 1;
+  });
+  const siniestrosPorVehiculo = Object.entries(conteoSiniestrosVehiculo)
+    .map(([patente, cantidad]) => ({ patente, cantidad }))
+    .sort((a, b) => b.cantidad - a.cantidad);
+  const maxSiniestrosVehiculo = Math.max(1, ...siniestrosPorVehiculo.map((s) => s.cantidad));
+
+  const conteoViajesChofer = {};
+  memoMockService.listar().forEach((m) => {
+    if (!m.choferId) return;
+    conteoViajesChofer[m.choferId] = (conteoViajesChofer[m.choferId] || 0) + 1;
+  });
+  const choferesConMasViajes = Object.entries(conteoViajesChofer)
+    .map(([choferId, cantidad]) => {
+      const chofer = choferMockService.obtenerPorId(choferId);
+      return { nombre: chofer ? chofer.nombre + " " + chofer.apellido : "Chofer #" + choferId, cantidad };
+    })
+    .sort((a, b) => b.cantidad - a.cantidad)
+    .slice(0, 6);
+  const maxViajesChofer = Math.max(1, ...choferesConMasViajes.map((c) => c.cantidad));
+
+  const conteoDestinos = {};
+  memoMockService.listar().forEach((m) => {
+    conteoDestinos[m.destino] = (conteoDestinos[m.destino] || 0) + 1;
+  });
+  const destinosMasFrecuentes = Object.entries(conteoDestinos)
+    .map(([destino, cantidad]) => ({ destino, cantidad }))
+    .sort((a, b) => b.cantidad - a.cantidad)
+    .slice(0, 6);
+  const maxDestino = Math.max(1, ...destinosMasFrecuentes.map((d) => d.cantidad));
+
   res.render("reportes/index", {
     fechaDesde,
     fechaHasta,
@@ -881,6 +978,12 @@ router.get("/reportes", (req, res) => {
       totalVehiculos: vehiculos.length,
       porTipoServicio,
       maxTipoServicio,
+      siniestrosPorVehiculo,
+      maxSiniestrosVehiculo,
+      choferesConMasViajes,
+      maxViajesChofer,
+      destinosMasFrecuentes,
+      maxDestino,
     },
   });
 });
