@@ -14,7 +14,7 @@ function crearVehiculo(datos) {
       foto: null,
       choferAsignado: null,
       choferId: null,
-      comodato: null,
+      observaciones: "",
       mantenimientos: [],
       siniestros: [],
       alertas: [],
@@ -33,7 +33,7 @@ const vehiculos = [
     anio: 2019,
     chasis: "CHS-001",
     motor: "MOT-001",
-    distrito: "Centro",
+    localidad: "Santiago del Estero (Capital)",
     fechaAlta: "10/1/2023",
     transmision: "Manual",
     combustible: "Diesel",
@@ -49,18 +49,7 @@ const vehiculos = [
       vencRTO: "10/9/2026",
       rtoVencida: true,
     },
-    comodato: {
-      estadoClase: "success",
-      estadoLabel: "Activo",
-      comodatario: "Bomberos Voluntarios Zona Centro",
-      tipo: "Entidad sin fines de lucro",
-      numero: "COM-014/2025",
-      fechaInicio: "1/3/2025",
-      fechaFin: "1/3/2026",
-      documentoUrl: "#",
-      observaciones:
-        "Uso exclusivo para tareas de prevención y asistencia comunitaria. Renovación sujeta a evaluación anual.",
-    },
+    observaciones: "Unidad de uso frecuente. Revisar amortiguadores en el próximo service.",
     mantenimientos: [
       { fecha: "2026-07-01", servicio: "Cambio de aceite", costo: 65000.0 },
       { fecha: "2026-07-01", servicio: "Cambio de aceite", costo: 51500.0 },
@@ -79,7 +68,7 @@ const vehiculos = [
     anio: 2017,
     chasis: "CHS-002",
     motor: "MOT-002",
-    distrito: "Norte",
+    localidad: "La Banda",
     fechaAlta: "5/3/2022",
     transmision: "Automática",
     combustible: "Diesel",
@@ -107,7 +96,7 @@ const vehiculos = [
     anio: 2021,
     chasis: "CHS-003",
     motor: "MOT-003",
-    distrito: "Sur",
+    localidad: "Termas de Río Hondo",
     fechaAlta: "18/2/2023",
     transmision: "Automática",
     combustible: "Diesel",
@@ -121,19 +110,7 @@ const vehiculos = [
       vencRTO: "2/5/2027",
       rtoVencida: false,
     },
-    comodato: {
-      estadoClase: "warning",
-      estadoLabel: "Por vencer",
-      comodatario: "Defensa Civil Distrito Norte",
-      tipo: "Organismo público",
-      numero: "COM-009/2024",
-      fechaInicio: "1/6/2024",
-      fechaFin: "15/10/2026",
-      documentoUrl: "#",
-      observaciones: "Próximo a vencer: gestionar renovación o restitución del vehículo.",
-    },
     mantenimientos: [{ fecha: "2026-05-12", servicio: "Rotación de neumáticos", costo: 18000.0 }],
-    alertas: [{ tipo: "warning", titulo: "Comodato", detalle: "Vence el 15/10/2026" }],
   }),
 
   crearVehiculo({
@@ -144,7 +121,7 @@ const vehiculos = [
     anio: 2016,
     chasis: "CHS-004",
     motor: "MOT-004",
-    distrito: "Este",
+    localidad: "Quimilí",
     fechaAlta: "9/9/2021",
     transmision: "Manual",
     combustible: "Diesel",
@@ -169,7 +146,7 @@ const vehiculos = [
     anio: 2015,
     chasis: "CHS-005",
     motor: "MOT-005",
-    distrito: "Centro",
+    localidad: "Santiago del Estero (Capital)",
     fechaAlta: "3/4/2020",
     transmision: "Manual",
     combustible: "Diesel",
@@ -193,7 +170,7 @@ const vehiculos = [
     anio: 2018,
     chasis: "CHS-006",
     motor: "MOT-006",
-    distrito: "Oeste",
+    localidad: "Frías",
     fechaAlta: "27/6/2021",
     transmision: "Automática",
     combustible: "Diesel",
@@ -217,7 +194,7 @@ const vehiculos = [
     anio: 2019,
     chasis: "CHS-007",
     motor: "MOT-007",
-    distrito: "Norte",
+    localidad: "La Banda",
     fechaAlta: "14/11/2022",
     transmision: "Manual",
     combustible: "Diesel",
@@ -241,7 +218,7 @@ const vehiculos = [
     anio: 2020,
     chasis: "CHS-008",
     motor: "MOT-008",
-    distrito: "Sur",
+    localidad: "Termas de Río Hondo",
     fechaAlta: "2/2/2023",
     transmision: "Manual",
     combustible: "Diesel",
@@ -266,4 +243,21 @@ function obtenerPorPatente(patente) {
   return vehiculos.find((v) => v.patente.toLowerCase() === String(patente).toLowerCase());
 }
 
-module.exports = { listar, obtenerPorPatente };
+function actualizar(patente, cambios) {
+  const vehiculo = obtenerPorPatente(patente);
+  if (!vehiculo) return null;
+  Object.assign(vehiculo, cambios);
+  if (cambios.estado && ESTADOS[cambios.estado]) {
+    vehiculo.estadoClase = ESTADOS[cambios.estado].clase;
+    vehiculo.estadoLabel = ESTADOS[cambios.estado].label;
+  }
+  return vehiculo;
+}
+
+function crear(datos) {
+  const vehiculo = crearVehiculo(datos);
+  vehiculos.push(vehiculo);
+  return vehiculo;
+}
+
+module.exports = { listar, obtenerPorPatente, actualizar, crear };

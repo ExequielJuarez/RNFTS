@@ -9,6 +9,8 @@ const siniestroMockService = require("../services/siniestroMockService");
 const alertaMockService = require("../services/alertaMockService");
 const usuarioMockService = require("../services/usuarioMockService");
 const auditoriaMockService = require("../services/auditoriaMockService");
+const documentoMockService = require("../services/documentoMockService");
+const { LOCALIDADES } = require("../services/catalogos");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -29,20 +31,53 @@ router.get("/", (req, res) => res.redirect("/vehiculos"));
 
 router.get("/vehiculos", (req, res) => {
   const vehiculos = vehiculoMockService.listar();
+  const primero = vehiculos[0];
+  const documentos = documentoMockService.listarPorVehiculo(primero.patente).map((d) => ({
+    documento: d,
+    tipoLabel: (documentoMockService.TIPOS[d.tipo] || {}).label || d.tipo,
+    estado: documentoMockService.calcularEstado(d),
+    fechaEmisionFmt: documentoMockService.formatoFecha(d.fechaEmision),
+    fechaVencimientoFmt: documentoMockService.formatoFecha(d.fechaVencimiento),
+  }));
   res.render("vehiculos/ficha", {
     titulo: "Inventario de Vehículos",
     vehiculos,
-    vehiculo: vehiculos[0],
+    vehiculo: primero,
+    documentos,
     mostrarDetalle: false,
   });
 });
 
 router.get("/vehiculos/alta", (req, res) => {
-  res.render("vehiculos/alta", { titulo: "Cargar Vehículo" });
+  res.render("vehiculos/alta", { titulo: "Cargar Vehículo", localidades: LOCALIDADES });
 });
 
 router.post("/vehiculos/alta", (req, res) => {
-  // Persistencia pendiente: por ahora sólo confirma el alta y vuelve al listado.
+  const b = req.body;
+  vehiculoMockService.crear({
+    patente: (b.patente || "").toUpperCase(),
+    tipo: b.tipo,
+    marca: b.marca,
+    modelo: b.modelo,
+    anio: Number(b.anio) || null,
+    chasis: b.chasis,
+    motor: b.motor,
+    combustible: b.combustible || "",
+    transmision: b.transmision || "",
+    estado: b.estado || "DISPONIBLE",
+    km: Number(b.km) || 0,
+    localidad: b.localidad || "",
+    fechaAlta: b.fecha_alta || new Date().toISOString().slice(0, 10),
+    observaciones: b.observaciones || "",
+    documentacion: {
+      cedula: b.cedula_numero || "",
+      titular: b.cedula_titular || "",
+      seguroCompania: b.seguro_compania || "",
+      vencSeguro: b.seguro_vencimiento || "",
+      vencRTO: b.rto_vencimiento || "",
+      rtoVencida: false,
+    },
+  });
   res.redirect("/vehiculos");
 });
 
@@ -98,13 +133,105 @@ router.post("/vehiculos/kilometraje", (req, res) => {
 router.get("/vehiculos/:patente/editar", (req, res, next) => {
   const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
   if (!vehiculo) return next();
-  res.render("vehiculos/editar", { titulo: "Editar " + vehiculo.patente, vehiculo });
+  res.render("vehiculos/editar", { titulo: "Editar " + vehiculo.patente, vehiculo, localidades: LOCALIDADES });
 });
 
 router.post("/vehiculos/:patente/editar", (req, res, next) => {
   const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
   if (!vehiculo) return next();
+  const b = req.body;
+  vehiculoMockService.actualizar(vehiculo.patente, {
+    estado: b.estado || vehiculo.estado,
+    km: b.km !== undefined && b.km !== "" ? Number(b.km) : vehiculo.km,
+    localidad: b.localidad !== undefined ? b.localidad : vehiculo.localidad,
+    observaciones: b.observaciones !== undefined ? b.observaciones : vehiculo.observaciones,
+    documentacion: Object.assign({}, vehiculo.documentacion, {
+      cedula: b.cedula_numero || vehiculo.documentacion.cedula,
+      titular: b.cedula_titular || vehiculo.documentacion.titular,
+      seguroCompania: b.seguro_compania || vehiculo.documentacion.seguroCompania,
+    }),
+  });
   res.redirect("/vehiculos/" + vehiculo.patente);
+});
+
+router.get("/vehiculos/:patente/documentos/nuevo", (req, res, next) => {
+  const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
+  if (!vehiculo) return next();
+  res.render("vehiculos/documento-nuevo", {
+    titulo: "Crear Documento",
+    vehiculo,
+    tipos: documentoMockService.TIPOS_LISTA,
+    localidades: LOCALIDADES,
+  });
+});
+
+router.post("/vehiculos/:patente/documentos", (req, res, next) => {
+  const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
+  if (!vehiculo) return next();
+  const b = req.body;
+
+  const bienes = [{ cantidad: 1, tipo: vehiculo.tipo, marca: vehiculo.marca, modelo: vehiculo.modelo, dominio: vehiculo.patente }];
+  if (Array.isArray(b.bien_dominio)) {
+    b.bien_dominio.forEach((dominio, i) => {
+      if (!dominio) return;
+      bienes.push({
+        cantidad: 1,
+        tipo: b.bien_tipo[i] || "",
+        marca: b.bien_marca[i] || "",
+        modelo: b.bien_modelo[i] || "",
+        dominio,
+      });
+    });
+  } else if (b.bien_dominio) {
+    bienes.push({ cantidad: 1, tipo: b.bien_tipo || "", marca: b.bien_marca || "", modelo: b.bien_modelo || "", dominio: b.bien_dominio });
+  }
+
+  const documento = documentoMockService.crear({
+    vehiculoPatente: vehiculo.patente,
+    tipo: b.tipo,
+    fechaEmision: b.fecha_emision,
+    localidad: b.localidad || vehiculo.localidad,
+    observaciones: b.observaciones || "",
+    bienes,
+    comodante: {
+      nombre: b.comodante_nombre || "Gobierno de la Provincia de Santiago del Estero",
+      cargo: b.comodante_cargo || "Ministro de Producción, Recursos Naturales, Forestación, Tierras y Medio Ambiente",
+      representante: b.comodante_representante || "",
+      dni: b.comodante_dni || "",
+      domicilio: b.comodante_domicilio || "",
+    },
+    comodatario: {
+      nombre: b.comodatario_nombre || "",
+      representante: b.comodatario_representante || "",
+      dni: b.comodatario_dni || "",
+      domicilio: b.comodatario_domicilio || "",
+    },
+  });
+  res.redirect("/documentos/" + documento.id);
+});
+
+router.get("/documentos/:id", (req, res, next) => {
+  const documento = documentoMockService.obtenerPorId(req.params.id);
+  if (!documento) return next();
+  const vehiculo = vehiculoMockService.obtenerPorPatente(documento.vehiculoPatente);
+  res.render("documentos/ver", {
+    titulo: (documentoMockService.TIPOS[documento.tipo] || {}).label + " · " + documento.numero,
+    documento,
+    vehiculo,
+    tipoInfo: documentoMockService.TIPOS[documento.tipo],
+    estado: documentoMockService.calcularEstado(documento),
+    formatoFecha: documentoMockService.formatoFecha,
+  });
+});
+
+router.post("/documentos/:id/renovar", (req, res, next) => {
+  const documento = documentoMockService.renovar(req.params.id, {
+    fechaRenovacion: req.body.fecha_renovacion,
+    observaciones: req.body.observaciones,
+    detalle: req.body.detalle,
+  });
+  if (!documento) return next();
+  res.redirect("/documentos/" + documento.id);
 });
 
 router.get("/vehiculos/:patente", (req, res, next) => {
@@ -112,10 +239,19 @@ router.get("/vehiculos/:patente", (req, res, next) => {
   const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
   if (!vehiculo) return next();
 
+  const documentos = documentoMockService.listarPorVehiculo(vehiculo.patente).map((d) => ({
+    documento: d,
+    tipoLabel: (documentoMockService.TIPOS[d.tipo] || {}).label || d.tipo,
+    estado: documentoMockService.calcularEstado(d),
+    fechaEmisionFmt: documentoMockService.formatoFecha(d.fechaEmision),
+    fechaVencimientoFmt: documentoMockService.formatoFecha(d.fechaVencimiento),
+  }));
+
   res.render("vehiculos/ficha", {
     titulo: vehiculo.patente,
     vehiculos,
     vehiculo,
+    documentos,
     mostrarDetalle: true,
   });
 });
@@ -451,7 +587,7 @@ const formatoFechaCorta = (iso) => {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
-const PALETA_DISTRITOS = ["#0e7c6b", "#1d5fbf", "#a3630f", "#b3261e", "#667085"];
+const PALETA_LOCALIDADES = ["#0e7c6b", "#1d5fbf", "#a3630f", "#b3261e", "#667085", "#8a3ffc", "#c2410c"];
 
 router.get("/reportes", (req, res) => {
   const hoy = new Date().toISOString().slice(0, 10);
@@ -473,12 +609,12 @@ router.get("/reportes", (req, res) => {
     .slice(0, 5);
   const maxGastoVehiculo = Math.max(1, ...topVehiculos.map((v) => v.total));
 
-  const conteoDistrito = {};
+  const conteoLocalidad = {};
   vehiculos.forEach((v) => {
-    conteoDistrito[v.distrito] = (conteoDistrito[v.distrito] || 0) + 1;
+    conteoLocalidad[v.localidad] = (conteoLocalidad[v.localidad] || 0) + 1;
   });
-  const porDistrito = Object.entries(conteoDistrito).map(([distrito, cantidad]) => ({ distrito, cantidad }));
-  const coloresDistrito = porDistrito.map((_, i) => PALETA_DISTRITOS[i % PALETA_DISTRITOS.length]);
+  const porLocalidad = Object.entries(conteoLocalidad).map(([localidad, cantidad]) => ({ localidad, cantidad }));
+  const coloresLocalidad = porLocalidad.map((_, i) => PALETA_LOCALIDADES[i % PALETA_LOCALIDADES.length]);
 
   const conteoServicio = {};
   ordenes.forEach((o) => {
@@ -498,8 +634,8 @@ router.get("/reportes", (req, res) => {
       costoTotalFormateado: formatoARS(costoTotal),
       topVehiculos,
       maxGastoVehiculo,
-      porDistrito,
-      coloresDistrito,
+      porLocalidad,
+      coloresLocalidad,
       totalVehiculos: vehiculos.length,
       porTipoServicio,
       maxTipoServicio,

@@ -118,14 +118,10 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Distrito</label>
-              <select name="distrito">
-                <option value="">Seleccione un distrito</option>
-                <option>Centro</option>
-                <option>Norte</option>
-                <option>Sur</option>
-                <option>Este</option>
-                <option>Oeste</option>
+              <label>Localidad</label>
+              <select name="localidad">
+                <option value="">Seleccione una localidad</option>
+                <% localidades.forEach(function (loc) { %><option value="<%= loc %>"><%= loc %></option><% }) %>
               </select>
             </div>
             <div class="form-group"><label>Fecha de Alta <span class="req">*</span></label><input name="fecha_alta" type="date" required></div>

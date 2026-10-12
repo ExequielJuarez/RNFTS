@@ -1,0 +1,102 @@
+<%- include('../partials/head', { titulo: 'Crear Documento', hojaEstilo: 'vehiculos-documento-nuevo' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: 'inventario' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a <%= vehiculo.patente %>
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Crear Documento</h1>
+          <p><%= vehiculo.patente %> · <%= vehiculo.marca %> <%= vehiculo.modelo %></p>
+        </div>
+      </div>
+
+      <form action="/vehiculos/<%= vehiculo.patente %>/documentos" method="post" id="form-documento">
+
+        <section class="form-section">
+          <h2>1. Tipo de Documento</h2>
+          <div class="tipo-doc-grid">
+            <% tipos.forEach(function (t, i) { %>
+              <label class="tipo-doc-card">
+                <input type="radio" name="tipo" value="<%= t.id %>" data-tipo-radio <%= i === 0 ? 'checked' : '' %> required>
+                <span><%= t.label %></span>
+              </label>
+            <% }) %>
+          </div>
+          <p class="field-hint" id="hint-sin-plantilla" style="display:none; margin-top:var(--space-3)">
+            Esta plantilla todavía no tiene un modelo legal cargado: se generará con los datos ingresados en un formato genérico, listo para ajustarse a futuro.
+          </p>
+        </section>
+
+        <section class="form-section">
+          <h2>2. Datos Generales</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Emisión <span class="req">*</span></label><input type="date" name="fecha_emision" required></div>
+            <div class="form-group">
+              <label>Localidad</label>
+              <select name="localidad">
+                <option value="">Seleccione una localidad</option>
+                <% localidades.forEach(function (loc) { %>
+                  <option value="<%= loc %>" <%= vehiculo.localidad === loc ? 'selected' : '' %>><%= loc %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section" data-seccion-tipo="comodato">
+          <h2>3. Datos del Comodante</h2>
+          <div class="form-group"><label>Organismo</label><input name="comodante_nombre" type="text" value="Gobierno de la Provincia de Santiago del Estero"></div>
+          <div class="form-group"><label>Cargo del representante</label><input name="comodante_cargo" type="text" value="Ministro de Producción, Recursos Naturales, Forestación, Tierras y Medio Ambiente"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre del representante</label><input name="comodante_representante" type="text" placeholder="Nombre y apellido"></div>
+            <div class="form-group"><label>DNI</label><input name="comodante_dni" type="text" placeholder="Ej: 20.151.259"></div>
+          </div>
+          <div class="form-group"><label>Domicilio legal</label><input name="comodante_domicilio" type="text" placeholder="Domicilio legal del comodante"></div>
+        </section>
+
+        <section class="form-section">
+          <h2 data-titulo-contraparte>4. Datos del Comodatario</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Entidad / Organismo <span class="req">*</span></label><input name="comodatario_nombre" type="text" placeholder="Ej: Consejo Provincial de Vialidad" required></div>
+            <div class="form-group"><label>Nombre del representante</label><input name="comodatario_representante" type="text" placeholder="Nombre y apellido"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>DNI</label><input name="comodatario_dni" type="text" placeholder="Ej: 13.969.540"></div>
+            <div class="form-group"><label>Domicilio legal</label><input name="comodatario_domicilio" type="text" placeholder="Domicilio legal"></div>
+          </div>
+        </section>
+
+        <section class="form-section" data-seccion-tipo="comodato">
+          <h2>5. Bienes Incluidos</h2>
+          <div class="form-notice is-success">
+            El vehículo <strong><%= vehiculo.patente %></strong> (<%= vehiculo.tipo %> <%= vehiculo.marca %> <%= vehiculo.modelo %>) se incluye automáticamente en este documento.
+          </div>
+          <div id="contenedor-bienes"></div>
+          <button type="button" id="btn-add-bien" class="btn btn-sm btn-ghost" style="color:var(--accent); padding-left:0; margin-top:var(--space-3)">+ Agregar otro bien</button>
+        </section>
+
+        <section class="form-section">
+          <h2>Observaciones</h2>
+          <div class="form-group"><textarea name="observaciones" placeholder="Notas adicionales sobre el documento..."></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Generar Documento</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/vehiculos-documento-nuevo.js"></script>
+<%- include('../partials/scripts') %>

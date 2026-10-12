@@ -1,0 +1,141 @@
+<%- include('../partials/head', { titulo: titulo, hojaEstilo: 'documentos-ver' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: 'inventario' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap" style="max-width:900px">
+
+      <div class="page-header-row no-print">
+        <div>
+          <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-sm btn-outline" style="margin-bottom:var(--space-3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Volver a <%= vehiculo.patente %>
+          </a>
+          <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap;">
+            <h1 style="margin:0"><%= tipoInfo.label %></h1>
+            <span class="badge badge-<%= estado.clase %>"><%= estado.label %></span>
+          </div>
+          <p>N° <%= documento.numero %> · Emitido el <%= formatoFecha(documento.fechaEmision) %></p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline" onclick="window.print()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+            Imprimir
+          </button>
+          <% if (estado.clase === 'danger' || estado.clase === 'warning') { %>
+            <a href="#renovar" class="btn btn-accent">Renovar <%= tipoInfo.id === 'comodato' ? 'Comodato' : 'Documento' %></a>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Documento -->
+      <div class="card doc-paper">
+        <div class="card-body">
+
+          <% if (documento.tipo === 'comodato') { %>
+            <h2 class="doc-titulo">CONTRATO DE COMODATO</h2>
+            <p class="doc-parrafo">
+              En la Ciudad de <%= documento.localidad || 'Santiago del Estero' %>, a los <%= new Date(documento.fechaEmision + 'T00:00:00').getDate() %> días del mes de
+              <%= new Date(documento.fechaEmision + 'T00:00:00').toLocaleDateString('es-AR', { month: 'long' }) %> del <%= new Date(documento.fechaEmision + 'T00:00:00').getFullYear() %>,
+              entre <strong><%= documento.comodante.nombre %></strong>, representado en este acto por el/la <strong><%= documento.comodante.cargo %></strong>,
+              <strong><%= documento.comodante.representante %></strong>, DNI <%= documento.comodante.dni %>, con domicilio legal en <%= documento.comodante.domicilio %>,
+              en adelante el <strong>"COMODANTE"</strong>, y por la otra parte <strong><%= documento.comodatario.nombre %></strong>, representado en este acto por
+              <strong><%= documento.comodatario.representante %></strong>, DNI <%= documento.comodatario.dni %>, con domicilio legal en <%= documento.comodatario.domicilio %>,
+              denominado en adelante <strong>"COMODATARIO"</strong>, convienen en celebrar el presente Contrato de Comodato Gratuito, sujeto a las siguientes cláusulas:
+            </p>
+
+            <p class="doc-clausula"><strong>PRIMERA:</strong> El COMODANTE cede en uso, al COMODATARIO los siguientes bienes, vehículos y maquinarias que se detallan a continuación, quien las acepta de plena conformidad con la descripción, características e inventario detallado:</p>
+            <ol class="doc-lista-bienes">
+              <% documento.bienes.forEach(function (b) { %>
+                <li>Un (1) <%= (b.tipo || '').toUpperCase() %> Marca <%= b.marca %> Modelo <%= b.modelo %>, dominio <%= b.dominio %>;</li>
+              <% }) %>
+            </ol>
+
+            <p class="doc-clausula"><strong>SEGUNDA:</strong> El COMODANTE manifiesta tener afectado al uso oficial los bienes objeto del presente contrato y, en consecuencia, se encuentra facultado, sin impedimentos de ninguna naturaleza, para ceder los mismos en uso gratuito al COMODATARIO.</p>
+            <p class="doc-clausula"><strong>TERCERA:</strong> El COMODATARIO se compromete a utilizar los bienes descriptos recibidos, para el destino acordado entre las partes, como así también en las localidades que se asignen<% if (documento.localidad) { %> (<%= documento.localidad %>)<% } %>, quedando prohibido utilizar los mismos con otro fin, así como ceder, locar, sublocar, transferir o someter los bienes objeto de este contrato, a algún acto jurídico que no sea el específico de este contrato.</p>
+            <p class="doc-clausula"><strong>CUARTA:</strong> El presente contrato está sujeto a la posterior homologación por parte del Sr. Gobernador de la Provincia de Santiago del Estero.</p>
+            <p class="doc-clausula"><strong>QUINTA:</strong> El presente convenio tendrá una vigencia de UN (1) AÑO desde la suscripción del mismo (hasta el <%= formatoFecha(documento.fechaVencimiento) %>), siendo renovable automáticamente, por idéntico plazo salvo voluntad de las partes de modificarlo con previa notificación fehaciente.</p>
+            <p class="doc-clausula"><strong>SEXTA:</strong> El COMODANTE en razón de la urgencia que pudiera tener, podrá retirar sin previo aviso al COMODATARIO los bienes objeto del presente contrato.</p>
+            <p class="doc-clausula"><strong>SÉPTIMA:</strong> Si alguna de las partes pretendiera rescindir unilateralmente el presente contrato, deberá comunicar dicha voluntad en forma fehaciente a la otra parte con una anticipación no menor a DIEZ (10) días, sin necesidad de invocación de causa y sin derecho de la otra parte a exigir indemnización alguna.</p>
+            <p class="doc-clausula"><strong>OCTAVA:</strong> El COMODANTE entrega los bienes detallados en buen estado de funcionamiento, y el COMODATARIO los recibe y acepta de plena conformidad, comprometiéndose al cuidado y conservación de los mismos, obligándose a darles un uso prudente hasta su restitución total.</p>
+            <p class="doc-clausula"><strong>NOVENA:</strong> El COMODATARIO no podrá efectuar modificaciones estructurales o estéticas sin consentimiento previo del COMODANTE, las que en todo caso serán por cuenta del COMODATARIO, quedando las mismas a la finalización del presente convenio en beneficio de la parte COMODANTE sin cargo alguno.</p>
+            <p class="doc-clausula"><strong>DÉCIMA:</strong> Le asiste al COMODANTE el derecho de inspeccionar los bienes objeto del contrato durante la vigencia de este, en forma amplia.</p>
+            <p class="doc-clausula"><strong>DÉCIMA PRIMERA:</strong> Cualquier gasto necesario para la utilización, traslado, mantenimiento, conservación y/o reparación de los bienes durante la vigencia del presente contrato será por cuenta exclusiva del COMODATARIO.</p>
+            <p class="doc-clausula"><strong>DÉCIMA SEGUNDA:</strong> Se conviene que el COMODANTE no tendrá vinculación jurídica alguna con las personas que el COMODATARIO afecte para el desarrollo de la actividad comprometida, debiendo en su caso los choferes u otros designados, contar con las condiciones de aptitud y habilitaciones correspondientes, como así también todo lo referido al SEGURO DE RIESGO DE TRABAJO y al SALARIO correspondiente a su jornada laboral.</p>
+            <p class="doc-clausula"><strong>DÉCIMA TERCERA:</strong> El COMODATARIO, al vencimiento del plazo del presente contrato, debe restituir los bienes en las mismas condiciones recibidas, salvo el deterioro normal que pudieran tener originados por el buen uso y el transcurso del tiempo.</p>
+            <p class="doc-clausula"><strong>DÉCIMA CUARTA:</strong> A todos los efectos legales las partes constituyen domicilio especial en <%= documento.comodante.domicilio %>, COMODANTE, y en el domicilio legal de <%= documento.comodatario.domicilio %>, el COMODATARIO, ambos de esta provincia.</p>
+            <p class="doc-clausula"><strong>DÉCIMA QUINTA:</strong> A fin de resolver las controversias que puedan suscitarse, las partes se someten a la Jurisdicción de los Tribunales de la Provincia de Santiago del Estero, renunciando expresamente las partes a cualquier otro fuero o competencia que pudiere corresponderles.</p>
+            <p class="doc-parrafo">De conformidad, se otorgan y firman Dos (2) ejemplares de un mismo tenor para constancia y a un solo efecto, en <%= documento.localidad || 'Santiago del Estero' %>, a los <%= new Date(documento.fechaEmision + 'T00:00:00').getDate() %> días del mes de <%= new Date(documento.fechaEmision + 'T00:00:00').toLocaleDateString('es-AR', { month: 'long' }) %> de <%= new Date(documento.fechaEmision + 'T00:00:00').getFullYear() %>.</p>
+
+            <div class="doc-firmas">
+              <div><span>Firma COMODANTE</span><strong><%= documento.comodante.representante %></strong></div>
+              <div><span>Firma COMODATARIO</span><strong><%= documento.comodatario.representante %></strong></div>
+            </div>
+
+          <% } else { %>
+            <h2 class="doc-titulo"><%= tipoInfo.label.toUpperCase() %></h2>
+            <p class="doc-parrafo">
+              En <%= documento.localidad || 'Santiago del Estero' %>, a los <%= formatoFecha(documento.fechaEmision) %>, se deja constancia de lo actuado respecto del vehículo
+              <strong><%= vehiculo.patente %></strong> (<%= vehiculo.marca %> <%= vehiculo.modelo %>), entre <strong><%= documento.comodante.nombre %></strong>
+              y <strong><%= documento.comodatario.nombre %></strong>, representado por <strong><%= documento.comodatario.representante %></strong>
+              (DNI <%= documento.comodatario.dni %>), con domicilio en <%= documento.comodatario.domicilio %>.
+            </p>
+            <div class="form-notice is-success" style="margin:var(--space-4) 0">
+              Esta plantilla todavía no tiene un modelo legal cargado para "<%= tipoInfo.label %>". Se generó con un formato genérico a partir de los datos ingresados; puede ajustarse cuando se cargue el modelo definitivo.
+            </div>
+            <p class="doc-clausula"><strong>Bienes involucrados:</strong></p>
+            <ol class="doc-lista-bienes">
+              <% documento.bienes.forEach(function (b) { %>
+                <li>Un (1) <%= (b.tipo || '').toUpperCase() %> Marca <%= b.marca %> Modelo <%= b.modelo %>, dominio <%= b.dominio %>;</li>
+              <% }) %>
+            </ol>
+            <div class="doc-firmas">
+              <div><span>Entrega</span><strong><%= documento.comodante.representante || documento.comodante.nombre %></strong></div>
+              <div><span>Recibe</span><strong><%= documento.comodatario.representante %></strong></div>
+            </div>
+          <% } %>
+
+          <% if (documento.observaciones) { %>
+            <div style="margin-top:var(--space-6); padding-top:var(--space-4); border-top:1px dashed var(--border-strong)">
+              <span class="field-label">Observaciones</span>
+              <p style="font-size:13.5px; color:var(--text-secondary); margin-top:4px;"><%= documento.observaciones %></p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Renovación -->
+      <% if (estado.clase === 'danger' || estado.clase === 'warning') { %>
+        <div class="card no-print" id="renovar">
+          <div class="card-header"><span class="card-title">Renovar <%= tipoInfo.id === 'comodato' ? 'Comodato' : 'Documento' %></span></div>
+          <div class="card-body">
+            <form action="/documentos/<%= documento.id %>/renovar" method="post" class="form-row" style="align-items:flex-end; flex-wrap:wrap">
+              <div class="form-group"><label>Nueva fecha de emisión</label><input type="date" name="fecha_renovacion" required></div>
+              <div class="form-group" style="flex:2; min-width:260px"><label>Detalle de la renovación</label><input type="text" name="detalle" placeholder="Ej: Renovado por acuerdo entre las partes"></div>
+              <button type="submit" class="btn btn-accent">Confirmar Renovación</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Historial -->
+      <div class="card no-print">
+        <div class="card-header"><span class="card-title">Historial del Documento</span></div>
+        <div class="card-body">
+          <% documento.historial.forEach(function (h) { %>
+            <div class="work-note" style="margin-bottom:var(--space-2)">
+              <span class="work-note-label"><%= formatoFecha(h.fecha) %> · <%= h.accion %></span>
+              <span><%= h.detalle %></span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/documentos-ver.js"></script>
+<%- include('../partials/scripts') %>

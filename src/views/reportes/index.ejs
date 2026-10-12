@@ -55,14 +55,14 @@
         </div>
 
         <div class="card">
-          <div class="card-header"><span class="card-title">Vehículos por Distrito</span></div>
+          <div class="card-header"><span class="card-title">Vehículos por Localidad</span></div>
           <div class="card-body donut-row">
-            <div class="donut" data-values="<%= estadisticas.porDistrito.map(function(d){return d.cantidad}).join(',') %>" data-colors="<%= estadisticas.coloresDistrito.join(',') %>">
+            <div class="donut" data-values="<%= estadisticas.porLocalidad.map(function(d){return d.cantidad}).join(',') %>" data-colors="<%= estadisticas.coloresLocalidad.join(',') %>">
               <div class="donut-total"><strong><%= estadisticas.totalVehiculos %></strong><span>Total</span></div>
             </div>
             <div class="donut-legend">
-              <% estadisticas.porDistrito.forEach(function (d, i) { %>
-                <div class="donut-legend-item"><span class="donut-legend-dot" style="background:<%= estadisticas.coloresDistrito[i] %>"></span><%= d.distrito %><span class="donut-legend-value"><%= d.cantidad %></span></div>
+              <% estadisticas.porLocalidad.forEach(function (d, i) { %>
+                <div class="donut-legend-item"><span class="donut-legend-dot" style="background:<%= estadisticas.coloresLocalidad[i] %>"></span><%= d.localidad %><span class="donut-legend-value"><%= d.cantidad %></span></div>
               <% }) %>
             </div>
           </div>

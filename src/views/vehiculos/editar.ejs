@@ -72,14 +72,14 @@
             <div class="form-group"><label>Kilometraje <span class="req">*</span></label><input name="km" type="number" min="0" value="<%= vehiculo.km %>"></div>
           </div>
           <div class="form-group">
-            <label>Distrito</label>
-            <select name="distrito">
-              <% ['Centro','Norte','Sur','Este','Oeste'].forEach(function(d) { %>
-                <option value="<%= d %>" <%= vehiculo.distrito === d ? 'selected' : '' %>><%= d %></option>
+            <label>Localidad</label>
+            <select name="localidad">
+              <% localidades.forEach(function (loc) { %>
+                <option value="<%= loc %>" <%= vehiculo.localidad === loc ? 'selected' : '' %>><%= loc %></option>
               <% }) %>
             </select>
           </div>
-          <div class="form-group"><label>Observaciones</label><textarea name="observaciones"></textarea></div>
+          <div class="form-group"><label>Observaciones</label><textarea name="observaciones" placeholder="Notas sobre el estado, uso o seguimiento del vehículo..."><%= vehiculo.observaciones || '' %></textarea></div>
         </section>
 
         <section class="form-section">
