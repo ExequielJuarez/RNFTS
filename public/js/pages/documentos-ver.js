@@ -126,3 +126,75 @@
     });
   });
 })();
+
+(function () {
+  document.querySelectorAll('.firma-pad').forEach(function (canvas) {
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#0f1b2d';
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    var wrap = canvas.closest('.firma-pad-wrap');
+    var form = wrap.querySelector('[data-firma-form]');
+    var input = form.querySelector('[data-firma-input]');
+    var btnGuardar = form.querySelector('[data-firma-guardar]');
+    var btnLimpiar = wrap.querySelector('[data-firma-limpiar]');
+
+    var dibujando = false;
+    var tieneTrazo = false;
+
+    function posicion(e) {
+      var rect = canvas.getBoundingClientRect();
+      var escalaX = canvas.width / rect.width;
+      var escalaY = canvas.height / rect.height;
+      return { x: (e.clientX - rect.left) * escalaX, y: (e.clientY - rect.top) * escalaY };
+    }
+
+    function iniciar(e) {
+      dibujando = true;
+      var p = posicion(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId);
+    }
+
+    function mover(e) {
+      if (!dibujando) return;
+      var p = posicion(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      tieneTrazo = true;
+      if (btnGuardar) btnGuardar.disabled = false;
+    }
+
+    function terminar() {
+      dibujando = false;
+    }
+
+    canvas.addEventListener('pointerdown', iniciar);
+    canvas.addEventListener('pointermove', mover);
+    canvas.addEventListener('pointerup', terminar);
+    canvas.addEventListener('pointercancel', terminar);
+    canvas.addEventListener('pointerleave', terminar);
+
+    if (btnLimpiar) {
+      btnLimpiar.addEventListener('click', function () {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        tieneTrazo = false;
+        if (btnGuardar) btnGuardar.disabled = true;
+      });
+    }
+
+    form.addEventListener('submit', function (e) {
+      if (!tieneTrazo) {
+        e.preventDefault();
+        return;
+      }
+      input.value = canvas.toDataURL('image/png');
+    });
+  });
+})();

@@ -129,6 +129,7 @@ function crear(datos) {
     taller: datos.taller || "",
     fechaRecepcion: datos.fechaRecepcion || null,
     observaciones: datos.observaciones || "",
+    firmas: {},
     historial: [{ fecha: fechaEmision, accion: "Documento generado", detalle: "Emisión inicial." }],
   };
   documentos.push(documento);
@@ -143,10 +144,24 @@ function renovar(id, datos) {
   documento.fechaEmision = fechaRenovacion;
   documento.fechaVencimiento = tipoInfo.vigenciaMeses ? sumarMeses(fechaRenovacion, tipoInfo.vigenciaMeses) : documento.fechaVencimiento;
   if (datos.observaciones) documento.observaciones = datos.observaciones;
+  documento.firmas = {};
   documento.historial.unshift({
     fecha: fechaRenovacion,
     accion: "Renovado",
     detalle: datos.detalle || "Renovación registrada desde la ficha del vehículo.",
+  });
+  return documento;
+}
+
+function firmar(id, slot, dataUrl, nombre) {
+  const documento = obtenerPorId(id);
+  if (!documento || !slot || !dataUrl) return null;
+  documento.firmas = documento.firmas || {};
+  documento.firmas[slot] = { dataUrl, nombre: nombre || "", fecha: new Date().toISOString().slice(0, 10) };
+  documento.historial.unshift({
+    fecha: documento.firmas[slot].fecha,
+    accion: "Firma registrada",
+    detalle: nombre ? `Firmó ${nombre}.` : "Se registró una firma en el documento.",
   });
   return documento;
 }
@@ -159,6 +174,7 @@ module.exports = {
   obtenerPorId,
   crear,
   renovar,
+  firmar,
   calcularEstado,
   formatoFecha,
 };

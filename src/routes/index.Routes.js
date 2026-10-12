@@ -248,6 +248,12 @@ router.post("/documentos/:id/renovar", (req, res, next) => {
   res.redirect("/documentos/" + documento.id);
 });
 
+router.post("/documentos/:id/firmar", (req, res, next) => {
+  const documento = documentoMockService.firmar(req.params.id, req.body.slot, req.body.firma, req.body.nombre);
+  if (!documento) return next();
+  res.redirect("/documentos/" + documento.id + "#firmas");
+});
+
 router.get("/vehiculos/para-baja", (req, res) => {
   res.render("vehiculos/para-baja", {
     titulo: "Vehículos para Baja",
@@ -844,6 +850,12 @@ router.post("/memos/:id/finalizar", (req, res, next) => {
   const memo = memoMockService.finalizar(req.params.id, { fechaRegresoReal: req.body.fecha_regreso_real, detalle: req.body.detalle });
   if (!memo) return next();
   res.redirect("/memos/" + memo.id);
+});
+
+router.post("/memos/:id/firmar", (req, res, next) => {
+  const memo = memoMockService.firmar(req.params.id, req.body.slot, req.body.firma, req.body.nombre);
+  if (!memo) return next();
+  res.redirect("/memos/" + memo.id + "#firmas");
 });
 
 // ===================== ALERTAS =====================

@@ -20,6 +20,10 @@
           <p>Memo N° <%= memo.id %> · <%= comision.nombre %></p>
         </div>
         <div class="page-header-actions">
+          <a href="#firmas" class="btn btn-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 4h7v7"/></svg>
+            Firmar
+          </a>
           <button class="btn btn-outline" onclick="window.print()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
             Imprimir
@@ -56,6 +60,11 @@
               <li><%= i.nombre %> — DNI <%= i.dni %></li>
             <% }) %>
           </ol>
+
+          <div class="doc-firmas" id="firmas">
+            <%- include('../partials/firma-slot', { registro: memo, slot: 'parte1', etiqueta: 'Autoriza', nombre: comision.comisionado.nombre, accionFirma: '/memos/' + memo.id + '/firmar' }) %>
+            <%- include('../partials/firma-slot', { registro: memo, slot: 'parte2', etiqueta: 'Chofer', nombre: chofer ? (chofer.nombre + ' ' + chofer.apellido) : '', accionFirma: '/memos/' + memo.id + '/firmar' }) %>
+          </div>
         </div>
       </div>
 

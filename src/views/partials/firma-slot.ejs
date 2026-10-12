@@ -1,0 +1,26 @@
+<%
+  var firma = (registro.firmas || {})[slot];
+%>
+<div class="firma-slot">
+  <span class="firma-etiqueta"><%= etiqueta %></span>
+  <% if (firma) { %>
+    <img class="firma-img" src="<%= firma.dataUrl %>" alt="Firma de <%= firma.nombre || nombre %>">
+    <strong><%= firma.nombre || nombre %></strong>
+    <span class="firma-fecha">Firmado el <%= new Date(firma.fecha + 'T00:00:00').toLocaleDateString('es-AR') %></span>
+  <% } else { %>
+    <strong><%= nombre %></strong>
+    <div class="firma-pad-wrap no-print">
+      <canvas class="firma-pad" width="500" height="160"></canvas>
+      <div class="firma-pad-actions">
+        <button type="button" class="btn btn-sm btn-outline" data-firma-limpiar>Limpiar</button>
+        <form action="<%= accionFirma %>" method="post" data-firma-form>
+          <input type="hidden" name="slot" value="<%= slot %>">
+          <input type="hidden" name="nombre" value="<%= nombre %>">
+          <input type="hidden" name="firma" data-firma-input>
+          <button type="submit" class="btn btn-sm btn-accent" data-firma-guardar disabled>Guardar Firma</button>
+        </form>
+      </div>
+      <p class="firma-hint">Firmá con el dedo (en el celular) o con el mouse, dentro del recuadro.</p>
+    </div>
+  <% } %>
+</div>

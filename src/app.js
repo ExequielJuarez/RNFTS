@@ -11,8 +11,8 @@ const indexRouter = require("./routes/index.Routes");
 const puerto = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, "../public")));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: false, limit: "2mb" }));
+app.use(express.json({ limit: "2mb" }));
 app.use(methodOverride("_method"));
 
 app.set("view engine", "ejs");

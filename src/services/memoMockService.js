@@ -132,6 +132,7 @@ function crear(datos) {
     fechaSalida: datos.fechaSalida,
     fechaRegreso: datos.fechaRegreso,
     estado: "reservado",
+    firmas: {},
     historial: [{ fecha: new Date().toISOString().slice(0, 10), accion: "Memo generado", detalle: "Reserva del vehículo para la comisión." }],
   };
   memo.estado = calcularEstado(memo);
@@ -152,6 +153,19 @@ function finalizar(id, datos) {
   return memo;
 }
 
+function firmar(id, slot, dataUrl, nombre) {
+  const memo = obtenerPorId(id);
+  if (!memo || !slot || !dataUrl) return null;
+  memo.firmas = memo.firmas || {};
+  memo.firmas[slot] = { dataUrl, nombre: nombre || "", fecha: new Date().toISOString().slice(0, 10) };
+  memo.historial.unshift({
+    fecha: memo.firmas[slot].fecha,
+    accion: "Firma registrada",
+    detalle: nombre ? `Firmó ${nombre}.` : "Se registró una firma en el memo.",
+  });
+  return memo;
+}
+
 module.exports = {
   ESTADO_INFO,
   listar,
@@ -162,5 +176,6 @@ module.exports = {
   hayConflicto,
   crear,
   finalizar,
+  firmar,
   calcularEstado,
 };
