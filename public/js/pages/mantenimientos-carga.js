@@ -133,7 +133,8 @@
   // repuestosCatalogo se define en un <script> inline en la vista (datos del servidor)
   var repuestosCatalogo = window.repuestosCatalogo || [];
 
-  document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+  var fechaInput = document.getElementById('fecha');
+  if (!fechaInput.value) fechaInput.value = new Date().toISOString().split('T')[0];
 
   var selectVehiculo = document.getElementById('select-vehiculo');
   var kmServicioInput = document.getElementById('km_servicio');

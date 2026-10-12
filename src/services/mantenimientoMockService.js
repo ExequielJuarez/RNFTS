@@ -3,7 +3,6 @@
 
 const ESTADOS = {
   Realizado: "success",
-  Pendiente: "warning",
   "En proceso": "info",
   Cancelado: "danger",
 };
@@ -12,7 +11,7 @@ let nextId = 5;
 
 function crearOrden(datos) {
   return Object.assign(
-    { proveedor: "", lugarService: "Externo", pagado: false, numeroExpediente: "" },
+    { proveedor: "", lugarService: "Externo", pagado: false, numeroExpediente: "", origenTurnoId: null },
     datos,
     { estadoClase: ESTADOS[datos.estado] || "info" },
   );
@@ -82,7 +81,7 @@ const ordenes = [
     vehiculo: "Scania R410",
     fecha: "2026-09-10",
     tipoServicio: "Service de 400.000 km",
-    estado: "Pendiente",
+    estado: "En proceso",
     kmServicio: 415000,
     proximoServicioKm: 430000,
     descripcion: "Service mayor programado: aceite, filtros, frenos y suspensión.",
@@ -112,6 +111,13 @@ function listar() {
 
 function obtenerPorId(id) {
   return ordenes.find((o) => String(o.id) === String(id));
+}
+
+function listarPorVehiculo(patente) {
+  const p = String(patente).toLowerCase();
+  return ordenes
+    .filter((o) => o.patente.toLowerCase() === p)
+    .sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
 }
 
 function listarRepuestos() {
@@ -155,7 +161,7 @@ function crear(datos) {
     vehiculo: datos.vehiculo,
     fecha: datos.fecha,
     tipoServicio: datos.tipoServicio,
-    estado: datos.estado || "Pendiente",
+    estado: datos.estado || "En proceso",
     kmServicio: datos.kmServicio,
     proximoServicioKm: datos.proximoServicioKm,
     descripcion: datos.descripcion,
@@ -167,6 +173,7 @@ function crear(datos) {
     lugarService: datos.lugarService || "Externo",
     pagado: Boolean(datos.pagado),
     numeroExpediente: datos.numeroExpediente || "",
+    origenTurnoId: datos.origenTurnoId || null,
   });
   ordenes.push(orden);
   return orden;
@@ -190,6 +197,7 @@ function marcarPagado(id, pagado) {
 module.exports = {
   listar,
   obtenerPorId,
+  listarPorVehiculo,
   listarRepuestos,
   obtenerRepuestoPorId,
   agregarRepuesto,

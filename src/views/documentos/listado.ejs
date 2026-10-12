@@ -9,14 +9,25 @@
 
       <div class="page-header-row">
         <div>
-          <h1>Documentos</h1>
-          <p>Todos los comodatos, actas y documentos generados, de todos los vehículos.</p>
+          <% if (filtroPatente) { %>
+            <h1>Documentos de <%= filtroPatente %><% if (vehiculoFiltro) { %> · <%= vehiculoFiltro.marca %> <%= vehiculoFiltro.modelo %><% } %></h1>
+            <p>Comodatos, actas y documentos generados para este vehículo.</p>
+          <% } else { %>
+            <h1>Documentos</h1>
+            <p>Todos los comodatos, actas y documentos generados, de todos los vehículos.</p>
+          <% } %>
         </div>
+        <% if (filtroPatente) { %>
+          <div class="page-header-actions">
+            <a href="/vehiculos/<%= filtroPatente %>" class="btn btn-sm btn-outline">← Volver a la ficha</a>
+            <a href="/documentos" class="btn btn-sm btn-ghost">Ver todos los documentos</a>
+          </div>
+        <% } %>
       </div>
 
       <div class="card">
         <div class="card-body filter-bar">
-          <div class="form-group"><label>Buscar Patente / N°</label><input type="text" id="filtro-texto" placeholder="Escribí para filtrar..."></div>
+          <div class="form-group"><label>Buscar Patente / N°</label><input type="text" id="filtro-texto" placeholder="Escribí para filtrar..." value="<%= filtroPatente %>"></div>
           <div class="form-group">
             <label>Tipo de Documento</label>
             <select id="filtro-tipo">

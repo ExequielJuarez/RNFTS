@@ -77,6 +77,7 @@ router.get("/vehiculos", (req, res) => {
     documentos,
     comisionActiva: comisionActivaDeVehiculo(primero.patente),
     proximoTurno: turnoServiceMockService.proximoTurno(primero.patente),
+    mantenimientosRecientes: mantenimientoMockService.listarPorVehiculo(primero.patente).slice(0, 5),
     mostrarDetalle: false,
   });
 });
@@ -244,8 +245,18 @@ router.post("/vehiculos/:patente/documentos", (req, res, next) => {
 });
 
 router.get("/documentos", (req, res) => {
+  const filtroPatente = (req.query.patente || "").trim();
+  const filtroPatenteLower = filtroPatente.toLowerCase();
+
   const documentos = documentoMockService
     .listar()
+    .filter((d) => {
+      if (!filtroPatente) return true;
+      return (
+        d.vehiculoPatente.toLowerCase() === filtroPatenteLower ||
+        (d.bienes || []).some((b) => (b.dominio || "").toLowerCase() === filtroPatenteLower)
+      );
+    })
     .slice()
     .sort((a, b) => (a.fechaEmision < b.fechaEmision ? 1 : -1))
     .map((d) => ({
@@ -257,11 +268,14 @@ router.get("/documentos", (req, res) => {
       fechaVencimientoFmt: documentoMockService.formatoFecha(d.fechaVencimiento),
       patentes: d.bienes.map((b) => b.dominio).join(", "),
     }));
+
   res.render("documentos/listado", {
-    titulo: "Documentos",
+    titulo: filtroPatente ? `Documentos · ${filtroPatente}` : "Documentos",
     documentos,
     tipos: documentoMockService.TIPOS,
     activeItem: "vehiculos-documentos",
+    filtroPatente,
+    vehiculoFiltro: filtroPatente ? vehiculoMockService.obtenerPorPatente(filtroPatente) : null,
   });
 });
 
@@ -368,6 +382,7 @@ router.get("/vehiculos/:patente", (req, res, next) => {
     documentos,
     comisionActiva: comisionActivaDeVehiculo(vehiculo.patente),
     proximoTurno: turnoServiceMockService.proximoTurno(vehiculo.patente),
+    mantenimientosRecientes: mantenimientoMockService.listarPorVehiculo(vehiculo.patente).slice(0, 5),
     mostrarDetalle: true,
   });
 });
@@ -535,12 +550,19 @@ router.get("/mantenimientos", (req, res) => {
 });
 
 router.get("/mantenimientos/nuevo", (req, res) => {
+  const turnoId = req.query.turnoId || "";
+  const turnoOrigen = turnoId ? turnoServiceMockService.obtenerPorId(turnoId) : null;
   res.render("mantenimientos/carga", {
     titulo: "Registrar Mantenimiento",
     vehiculos: vehiculoMockService.listar(),
     repuestos: mantenimientoMockService.listarRepuestos(),
     proveedores: mantenimientoMockService.proveedores(),
     patenteSeleccionada: req.query.patente || "",
+    tipoServicioSugerido: req.query.tipoServicio || "",
+    fechaSugerida: req.query.fecha || "",
+    proveedorSugerido: req.query.taller || "",
+    turnoId,
+    turnoOrigen,
     activeItem: "mantenimientos-nuevo",
   });
 });
@@ -555,7 +577,7 @@ router.post("/mantenimientos/nuevo", (req, res) => {
     vehiculo: vehiculo ? vehiculo.marca + " " + vehiculo.modelo : b.patente,
     fecha: b.fecha,
     tipoServicio: b.tipo_servicio,
-    estado: b.estado || "Pendiente",
+    estado: b.estado || "En proceso",
     kmServicio: Number(b.km_servicio) || 0,
     proximoServicioKm: b.proximo_servicio_km ? Number(b.proximo_servicio_km) : null,
     descripcion: b.descripcion,
@@ -567,7 +589,11 @@ router.post("/mantenimientos/nuevo", (req, res) => {
     lugarService: b.lugar_service || "Externo",
     pagado: b.pagado === "on" || b.pagado === "true",
     numeroExpediente: b.numero_expediente || "",
+    origenTurnoId: b.turno_id || null,
   });
+  if (b.turno_id) {
+    turnoServiceMockService.cambiarEstado(b.turno_id, "Realizado");
+  }
   res.redirect("/mantenimientos/" + orden.id);
 });
 
@@ -609,12 +635,6 @@ router.post("/mantenimientos/turnos/nuevo", (req, res) => {
     taller: b.taller,
     observaciones: b.observaciones,
   });
-  res.redirect("/mantenimientos/turnos");
-});
-
-router.post("/mantenimientos/turnos/:id/realizado", (req, res, next) => {
-  const turno = turnoServiceMockService.cambiarEstado(req.params.id, "Realizado");
-  if (!turno) return next();
   res.redirect("/mantenimientos/turnos");
 });
 

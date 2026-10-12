@@ -10,7 +10,7 @@
       <div class="page-header-row">
         <div>
           <h1>Turnos de Service</h1>
-          <p>Service programados por vehículo. Un vehículo con turno programado no puede reservarse para viajes dentro de los <%= 14 %> días cercanos a la fecha del turno.</p>
+          <p>Service programados por vehículo. Un vehículo con turno programado no puede reservarse para viajes dentro de los <%= 14 %> días cercanos a la fecha del turno. Al marcar un turno como realizado se genera la orden de mantenimiento correspondiente, con sus costos y proveedor.</p>
         </div>
         <div class="page-header-actions">
           <a href="/mantenimientos/turnos/nuevo" class="btn btn-accent">
@@ -38,9 +38,11 @@
                     <td>
                       <% if (t.estado === 'Programado') { %>
                         <div style="display:flex; gap:var(--space-2); justify-content:flex-end">
-                          <form action="/mantenimientos/turnos/<%= t.id %>/realizado" method="post">
-                            <button type="submit" class="btn btn-sm btn-outline" style="color:var(--success); border-color:var(--success-border);">✓ Realizado</button>
-                          </form>
+                          <a
+                            href="/mantenimientos/nuevo?patente=<%= t.vehiculoPatente %>&tipoServicio=<%= encodeURIComponent(t.tipoServicio) %>&fecha=<%= t.fechaProgramada %>&taller=<%= encodeURIComponent(t.taller || '') %>&turnoId=<%= t.id %>"
+                            class="btn btn-sm btn-outline"
+                            style="color:var(--success); border-color:var(--success-border);"
+                          >✓ Marcar Realizado</a>
                           <form action="/mantenimientos/turnos/<%= t.id %>/cancelar" method="post" onsubmit="return confirm('¿Cancelar este turno de service?')">
                             <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Cancelar</button>
                           </form>

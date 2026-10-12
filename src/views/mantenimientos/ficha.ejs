@@ -77,6 +77,7 @@
                 <span class="card-title" style="font-size:18px; margin-bottom:4px">
                   Orden: <%= orden.tipoServicio %>
                   <span class="badge badge-<%= orden.estadoClase %>"><%= orden.estado %></span>
+                  <% if (orden.origenTurnoId) { %><span class="badge badge-neutral">Desde Turno de Service</span><% } %>
                 </span>
                 <p style="font-size:13px; color:var(--text-secondary)">Fecha de ingreso: <%= new Date(orden.fecha).toLocaleDateString('es-AR') %></p>
               </div>
@@ -138,7 +139,7 @@
                 </div>
               </div>
 
-              <% if (orden.estado === 'En proceso' || orden.estado === 'Pendiente') { %>
+              <% if (orden.estado === 'En proceso') { %>
                 <div class="card">
                   <div class="card-header"><span class="card-title">Finalizar Orden</span></div>
                   <div class="card-body">

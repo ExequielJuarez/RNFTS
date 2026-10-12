@@ -19,7 +19,14 @@
         </div>
       </div>
 
+      <% if (typeof turnoOrigen !== 'undefined' && turnoOrigen) { %>
+        <div class="form-notice is-info" style="margin-bottom:var(--space-5)">
+          <span>Estás completando el <strong>turno de service programado</strong> del <%= new Date(turnoOrigen.fechaProgramada).toLocaleDateString('es-AR') %> para <strong><%= turnoOrigen.vehiculoPatente %></strong>. Al guardar esta orden, el turno se va a marcar como Realizado automáticamente.</span>
+        </div>
+      <% } %>
+
       <form action="/mantenimientos/nuevo" method="post" id="form-mantenimiento">
+        <% if (typeof turnoId !== 'undefined' && turnoId) { %><input type="hidden" name="turno_id" value="<%= turnoId %>"><% } %>
 
         <section class="form-section">
           <h2>1. Datos del Vehículo y Servicio</h2>
@@ -33,16 +40,15 @@
                 <% }) %>
               </select>
             </div>
-            <div class="form-group"><label>Fecha del Servicio <span class="req">*</span></label><input type="date" name="fecha" id="fecha" required></div>
+            <div class="form-group"><label>Fecha del Servicio <span class="req">*</span></label><input type="date" name="fecha" id="fecha" value="<%= typeof fechaSugerida !== 'undefined' ? fechaSugerida : '' %>" required></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>Tipo de Servicio <span class="req">*</span></label><input type="text" name="tipo_servicio" placeholder="Ej: Cambio de aceite y filtros" required></div>
+            <div class="form-group"><label>Tipo de Servicio <span class="req">*</span></label><input type="text" name="tipo_servicio" value="<%= typeof tipoServicioSugerido !== 'undefined' ? tipoServicioSugerido : '' %>" placeholder="Ej: Cambio de aceite y filtros" required></div>
             <div class="form-group">
               <label>Estado de la Orden <span class="req">*</span></label>
               <select name="estado" required>
                 <option value="Realizado">Realizado (Finalizado)</option>
                 <option value="En proceso">En proceso (Taller)</option>
-                <option value="Pendiente">Pendiente (Programado)</option>
               </select>
             </div>
           </div>
@@ -92,7 +98,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Proveedor / Taller</label>
-              <input type="text" name="proveedor" list="lista-proveedores" placeholder="Ej: Taller Central">
+              <input type="text" name="proveedor" list="lista-proveedores" value="<%= typeof proveedorSugerido !== 'undefined' ? proveedorSugerido : '' %>" placeholder="Ej: Taller Central">
               <datalist id="lista-proveedores">
                 <% proveedores.forEach(function (p) { %><option value="<%= p %>"><% }) %>
               </datalist>

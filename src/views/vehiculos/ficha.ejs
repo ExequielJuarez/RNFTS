@@ -199,7 +199,7 @@
                 Documentos
               </span>
               <span style="display:flex; gap:var(--space-2)">
-                <a href="/documentos" class="btn btn-sm btn-outline">Ver todos los documentos</a>
+                <a href="/documentos?patente=<%= vehiculo.patente %>" class="btn btn-sm btn-outline">Ver todos los documentos</a>
                 <a href="/vehiculos/<%= vehiculo.patente %>/documentos/nuevo" class="btn btn-sm btn-accent">+ Crear Documento</a>
               </span>
             </div>
@@ -250,17 +250,20 @@
                   </span>
                   <a href="/mantenimientos?patente=<%= vehiculo.patente %>" class="btn btn-sm btn-ghost">Ver todos</a>
                 </div>
-                <% if (vehiculo.mantenimientos.length) { %>
+                <% if (mantenimientosRecientes && mantenimientosRecientes.length) { %>
                   <table class="table">
                     <thead>
                       <tr><th>Fecha</th><th>Servicio</th><th>Costo</th></tr>
                     </thead>
                     <tbody>
-                      <% vehiculo.mantenimientos.forEach(function (m) { %>
+                      <% mantenimientosRecientes.forEach(function (m) { %>
                         <tr>
-                          <td class="is-primary"><%= m.fecha %></td>
-                          <td><%= m.servicio %></td>
-                          <td class="is-primary">$<%= m.costo.toLocaleString('es-AR', {minimumFractionDigits:2}) %></td>
+                          <td class="is-primary"><a href="/mantenimientos/<%= m.id %>"><%= new Date(m.fecha).toLocaleDateString('es-AR') %></a></td>
+                          <td>
+                            <%= m.tipoServicio %>
+                            <span class="badge badge-<%= m.estadoClase %>" style="margin-left:6px"><%= m.estado %></span>
+                          </td>
+                          <td class="is-primary">$<%= m.costoTotal.toLocaleString('es-AR') %></td>
                         </tr>
                       <% }) %>
                     </tbody>

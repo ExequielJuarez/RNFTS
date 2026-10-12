@@ -16,7 +16,6 @@ function crearVehiculo(datos) {
       choferAsignado: null,
       choferId: null,
       observaciones: "",
-      mantenimientos: [],
       siniestros: [],
       alertas: [],
     },
@@ -51,10 +50,6 @@ const vehiculos = [
       rtoVencida: true,
     },
     observaciones: "Unidad de uso frecuente. Revisar amortiguadores en el próximo service.",
-    mantenimientos: [
-      { fecha: "2026-07-01", servicio: "Cambio de aceite", costo: 65000.0 },
-      { fecha: "2026-07-01", servicio: "Cambio de aceite", costo: 51500.0 },
-    ],
     alertas: [
       { tipo: "danger", titulo: "RTO / VTV", detalle: "Vencida hace 18 días" },
       { tipo: "warning", titulo: "Seguro", detalle: "Vence el 15/3/2027" },
@@ -111,7 +106,6 @@ const vehiculos = [
       vencRTO: "2/5/2027",
       rtoVencida: false,
     },
-    mantenimientos: [{ fecha: "2026-05-12", servicio: "Rotación de neumáticos", costo: 18000.0 }],
   }),
 
   crearVehiculo({
@@ -137,7 +131,6 @@ const vehiculos = [
       vencRTO: "14/1/2026",
       rtoVencida: false,
     },
-    mantenimientos: [{ fecha: "2026-03-01", servicio: "Cambio de correa de distribución", costo: 95000.0 }],
   }),
 
   crearVehiculo({
