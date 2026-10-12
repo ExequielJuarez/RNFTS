@@ -145,6 +145,12 @@
                 <div><span class="field-label">Chofer Asignado</span><span class="field-value">
                   <% if (vehiculo.choferAsignado) { %><a href="/choferes/<%= vehiculo.choferId %>"><%= vehiculo.choferAsignado %></a><% } else { %>—<% } %>
                 </span></div>
+                <div><span class="field-label">Comisión Actual</span><span class="field-value">
+                  <% if (comisionActiva) { %>
+                    <a href="/comisiones/<%= comisionActiva.comision.id %>"><%= comisionActiva.comision.nombre %></a>
+                    <span class="badge badge-<%= comisionActiva.estadoInfo.clase %>" style="margin-left:6px"><%= comisionActiva.estadoInfo.label %></span>
+                  <% } else { %>Sin comisión asignada<% } %>
+                </span></div>
                 <div><span class="field-label">Km Actual</span><span class="field-value"><%= vehiculo.km.toLocaleString('es-AR') %> km</span></div>
                 <div><span class="field-label">Combustible</span><span class="field-value"><%= vehiculo.combustible %></span></div>
               </div>

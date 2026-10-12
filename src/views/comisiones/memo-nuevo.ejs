@@ -1,0 +1,86 @@
+<%- include('../partials/head', { titulo: 'Reservar Vehículo', hojaEstilo: 'comisiones-memo-nuevo' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones', activeItem: 'comisiones-listado' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/comisiones/<%= comision.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a <%= comision.nombre %>
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Reservar Vehículo / Nuevo Memo</h1>
+          <p><%= comision.nombre %> · <%= comision.area %></p>
+        </div>
+      </div>
+
+      <% if (conflicto) { %>
+        <div class="form-notice is-error" style="margin-bottom:var(--space-5)">
+          El vehículo seleccionado ya tiene una reserva que se superpone con esas fechas. Elegí otro vehículo u otro rango de fechas.
+        </div>
+      <% } %>
+
+      <form action="/comisiones/<%= comision.id %>/memos" method="post" id="form-memo">
+        <section class="form-section">
+          <h2>Vehículo y Chofer</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vehículo <span class="req">*</span></label>
+              <select name="vehiculo" required>
+                <option value="">Seleccione un vehículo</option>
+                <% vehiculos.forEach(function (v) { %>
+                  <option value="<%= v.patente %>"><%= v.patente %> - <%= v.marca %> <%= v.modelo %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Chofer</label>
+              <select name="chofer">
+                <option value="">Sin chofer asignado</option>
+                <% choferes.forEach(function (c) { %>
+                  <option value="<%= c.id %>"><%= c.nombre %> <%= c.apellido %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Fechas y Destino</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Fecha de Salida <span class="req">*</span></label><input type="date" name="fecha_salida" required></div>
+            <div class="form-group"><label>Fecha de Regreso Prevista <span class="req">*</span></label><input type="date" name="fecha_regreso" required></div>
+          </div>
+          <div class="form-group"><label>Destino <span class="req">*</span></label><input type="text" name="destino" placeholder="Ej: Ruta 34, km 56 - Quimilí" required></div>
+          <div class="form-group"><label>Motivo</label><textarea name="motivo" placeholder="Motivo del viaje / tarea a realizar..."></textarea></div>
+        </section>
+
+        <section class="form-section">
+          <h2>Integrantes que Viajan</h2>
+          <% if (comision.integrantes.length) { %>
+            <div class="permisos-grid">
+              <% comision.integrantes.forEach(function (i) { %>
+                <label class="permiso-chip"><input type="checkbox" name="integrante_dni" value="<%= i.dni %>" checked><%= i.nombre %></label>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="field-hint">Esta comisión no tiene integrantes cargados todavía.</p>
+          <% } %>
+        </section>
+
+        <div class="form-actions">
+          <a href="/comisiones/<%= comision.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Generar Memo y Reservar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/comisiones-memo-nuevo.js"></script>
+<%- include('../partials/scripts') %>

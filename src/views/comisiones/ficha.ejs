@@ -1,0 +1,155 @@
+<%- include('../partials/head', { titulo: 'Comisiones', hojaEstilo: 'comisiones-ficha' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones', activeItem: activeItem }) %>
+
+  <main class="app-main">
+    <div class="master-detail <%= mostrarDetalle ? 'showing-detail' : '' %>" id="masterDetail">
+
+      <!-- ===================== LISTADO ===================== -->
+      <section class="md-list">
+        <div class="list-header" style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3);">
+          <div style="flex:1">
+            <h1 style="margin-bottom:var(--space-3)">Comisiones</h1>
+            <label class="input-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="search" placeholder="Buscar comisión..." aria-label="Buscar comisión" data-list-search="#listaComisiones" />
+            </label>
+          </div>
+          <a href="/comisiones/nueva" class="btn btn-sm btn-accent" style="flex-shrink:0; margin-top:2px;">+ Nueva</a>
+        </div>
+
+        <div class="vehicle-list scrollbar-thin" id="listaComisiones">
+          <% comisiones.forEach(function (c) { %>
+            <a
+              href="/comisiones/<%= c.id %>"
+              class="vehicle-card <%= String(c.id) === String(comision.id) ? 'is-active' : '' %>"
+              data-open-detail
+              data-search="<%= (c.nombre + ' ' + c.area + ' ' + c.comisionado.nombre).toLowerCase() %>"
+            >
+              <span class="vehicle-card-body">
+                <span class="vehicle-plate"><%= c.nombre %></span>
+                <span class="vehicle-model"><%= c.area %></span>
+                <span class="vehicle-km">Comisionado: <%= c.comisionado.nombre %></span>
+              </span>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- ===================== DETALLE ===================== -->
+      <section class="md-detail">
+        <div class="detail-wrap">
+
+          <button class="btn btn-sm btn-ghost btn-back-list" data-back-to-list style="align-self:flex-start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Volver al listado
+          </button>
+
+          <div class="card detail-hero">
+            <div class="hero-top">
+              <div class="hero-avatar"><%= comision.nombre.charAt(0) %></div>
+              <div class="hero-info">
+                <div class="hero-plate-row">
+                  <span class="hero-plate" style="font-size:19px"><%= comision.nombre %></span>
+                </div>
+                <p class="hero-subtitle"><%= comision.area %></p>
+                <div class="hero-tags">
+                  <span class="hero-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+                    Comisionado: <%= comision.comisionado.nombre %>
+                  </span>
+                  <span class="hero-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+                    <%= comision.integrantes.length %> integrante<%= comision.integrantes.length === 1 ? '' : 's' %>
+                  </span>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <a href="/comisiones/<%= comision.id %>/editar" class="btn btn-sm btn-outline">Editar</a>
+                <a href="/comisiones/<%= comision.id %>/memos/nuevo" class="btn btn-sm btn-accent">+ Reservar Vehículo</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comisionado e integrantes -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+                Comisionado Responsable
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div><span class="field-label">Nombre Completo</span><span class="field-value"><%= comision.comisionado.nombre %></span></div>
+                <div><span class="field-label">DNI</span><span class="field-value"><%= comision.comisionado.dni %></span></div>
+                <div><span class="field-label">Cargo</span><span class="field-value"><%= comision.comisionado.cargo || '—' %></span></div>
+                <div><span class="field-label">Teléfono</span><span class="field-value"><%= comision.comisionado.telefono || '—' %></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Integrantes de la Comisión</span></div>
+            <% if (comision.integrantes.length) { %>
+              <table class="table">
+                <thead><tr><th>Nombre</th><th>DNI</th><th>Cargo</th></tr></thead>
+                <tbody>
+                  <% comision.integrantes.forEach(function (i) { %>
+                    <tr><td class="is-primary"><%= i.nombre %></td><td><%= i.dni %></td><td><%= i.cargo || '—' %></td></tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <p class="table-empty">Sin integrantes registrados.</p>
+            <% } %>
+          </div>
+
+          <!-- Historial de memos -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l5 5v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 13h6M9 17h4"/></svg>
+                Historial de Memos (Reservas de Vehículo)
+              </span>
+              <a href="/comisiones/<%= comision.id %>/memos/nuevo" class="btn btn-sm btn-ghost">+ Nuevo Memo</a>
+            </div>
+            <% if (memos.length) { %>
+              <table class="table">
+                <thead><tr><th>Vehículo</th><th>Chofer</th><th>Salida</th><th>Regreso</th><th>Destino</th><th>Estado</th><th></th></tr></thead>
+                <tbody>
+                  <% memos.forEach(function (m) { %>
+                    <tr>
+                      <td class="is-primary"><%= m.vehiculo ? m.vehiculo.patente : m.memo.vehiculoPatente %></td>
+                      <td><%= m.chofer ? (m.chofer.nombre + ' ' + m.chofer.apellido) : '—' %></td>
+                      <td><%= m.fechaSalidaFmt %></td>
+                      <td><%= m.fechaRegresoFmt %></td>
+                      <td><%= m.memo.destino %></td>
+                      <td><span class="badge badge-<%= m.estadoInfo.clase %>"><%= m.estadoInfo.label %></span></td>
+                      <td style="text-align:right"><a href="/memos/<%= m.memo.id %>" class="btn btn-sm btn-outline">Ver</a></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <p class="table-empty">Esta comisión todavía no tiene memos de viaje registrados.</p>
+            <% } %>
+          </div>
+
+          <% if (comision.observaciones) { %>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Observaciones</span></div>
+              <div class="card-body"><p style="font-size:13.5px; color:var(--text-secondary)"><%= comision.observaciones %></p></div>
+            </div>
+          <% } %>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/comisiones-ficha.js"></script>
+<%- include('../partials/scripts') %>

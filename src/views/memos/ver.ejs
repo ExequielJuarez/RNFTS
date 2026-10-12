@@ -1,0 +1,92 @@
+<%- include('../partials/head', { titulo: titulo, hojaEstilo: 'memos-ver' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones', activeItem: 'comisiones-listado' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap" style="max-width:860px">
+
+      <div class="page-header-row no-print">
+        <div>
+          <a href="/comisiones/<%= comision.id %>" class="btn btn-sm btn-outline" style="margin-bottom:var(--space-3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Volver a <%= comision.nombre %>
+          </a>
+          <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap;">
+            <h1 style="margin:0">Memo de Comisión</h1>
+            <span class="badge badge-<%= estadoInfo.clase %>"><%= estadoInfo.label %></span>
+          </div>
+          <p>Memo N° <%= memo.id %> · <%= comision.nombre %></p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline" onclick="window.print()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+            Imprimir
+          </button>
+        </div>
+      </div>
+
+      <div class="card doc-paper">
+        <div class="card-body">
+          <h2 class="doc-titulo">Memo de Reserva de Vehículo</h2>
+          <p class="doc-parrafo">
+            Se deja constancia de la reserva del vehículo <strong><%= vehiculo.patente %></strong> (<%= vehiculo.marca %> <%= vehiculo.modelo %>)
+            para la comisión <strong><%= comision.nombre %></strong> (<%= comision.area %>), a cargo de <strong><%= comision.comisionado.nombre %></strong>
+            (DNI <%= comision.comisionado.dni %>), con destino a <strong><%= memo.destino %></strong>.
+          </p>
+
+          <div class="info-grid" style="margin:var(--space-5) 0">
+            <div><span class="field-label">Vehículo</span><span class="field-value"><a href="/vehiculos/<%= vehiculo.patente %>"><%= vehiculo.patente %></a> · <%= vehiculo.marca %> <%= vehiculo.modelo %></span></div>
+            <div><span class="field-label">Chofer</span><span class="field-value"><% if (chofer) { %><a href="/choferes/<%= chofer.id %>"><%= chofer.nombre %> <%= chofer.apellido %></a><% } else { %>Sin chofer asignado<% } %></span></div>
+            <div><span class="field-label">Fecha de Salida</span><span class="field-value"><%= formatoFecha(memo.fechaSalida) %></span></div>
+            <div><span class="field-label">Fecha de Regreso Prevista</span><span class="field-value"><%= formatoFecha(memo.fechaRegreso) %></span></div>
+            <% if (memo.fechaRegresoReal) { %>
+              <div><span class="field-label">Fecha de Regreso Real</span><span class="field-value"><%= formatoFecha(memo.fechaRegresoReal) %></span></div>
+            <% } %>
+          </div>
+
+          <% if (memo.motivo) { %>
+            <p class="doc-clausula"><strong>Motivo:</strong> <%= memo.motivo %></p>
+          <% } %>
+
+          <p class="doc-clausula"><strong>Integrantes que viajan:</strong></p>
+          <ol class="doc-lista-bienes">
+            <% memo.integrantes.forEach(function (i) { %>
+              <li><%= i.nombre %> — DNI <%= i.dni %></li>
+            <% }) %>
+          </ol>
+        </div>
+      </div>
+
+      <% if (estadoInfo.label !== 'Finalizado') { %>
+        <div class="card no-print">
+          <div class="card-header"><span class="card-title">Marcar Regreso / Finalizar Memo</span></div>
+          <div class="card-body">
+            <form action="/memos/<%= memo.id %>/finalizar" method="post" class="form-row" style="align-items:flex-end; flex-wrap:wrap">
+              <div class="form-group"><label>Fecha real de regreso</label><input type="date" name="fecha_regreso_real" required></div>
+              <div class="form-group" style="flex:2; min-width:260px"><label>Observaciones del regreso</label><input type="text" name="detalle" placeholder="Ej: Vehículo restituido sin novedades"></div>
+              <button type="submit" class="btn btn-accent">Confirmar Regreso</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="card no-print">
+        <div class="card-header"><span class="card-title">Historial del Memo</span></div>
+        <div class="card-body">
+          <% memo.historial.forEach(function (h) { %>
+            <div class="work-note" style="margin-bottom:var(--space-2)">
+              <span class="work-note-label"><%= formatoFecha(h.fecha) %> · <%= h.accion %></span>
+              <span><%= h.detalle %></span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/memos-ver.js"></script>
+<%- include('../partials/scripts') %>

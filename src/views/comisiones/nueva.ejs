@@ -1,0 +1,64 @@
+<%- include('../partials/head', { titulo: 'Nueva Comisión', hojaEstilo: 'comisiones-nueva' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones', activeItem: 'comisiones-nueva' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/comisiones" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Comisiones
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Nueva Comisión</h1>
+          <p>Registrá una comisión de viaje con su comisionado responsable e integrantes.</p>
+        </div>
+      </div>
+
+      <form action="/comisiones/nueva" method="post" id="form-comision">
+        <section class="form-section">
+          <h2>Datos de la Comisión</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre de la Comisión <span class="req">*</span></label><input name="nombre" type="text" placeholder="Ej: Comisión de Obras Públicas - Ruta 34" required></div>
+            <div class="form-group"><label>Área / Dependencia</label><input name="area" type="text" placeholder="Ej: Vialidad Provincial"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Comisionado Responsable</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre Completo <span class="req">*</span></label><input name="comisionado_nombre" type="text" placeholder="Nombre y apellido" required></div>
+            <div class="form-group"><label>DNI <span class="req">*</span></label><input name="comisionado_dni" type="text" placeholder="Ej: 24.556.781" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Cargo</label><input name="comisionado_cargo" type="text" placeholder="Ej: Jefe de Inspección"></div>
+            <div class="form-group"><label>Teléfono</label><input name="comisionado_telefono" type="tel" placeholder="Código de área + número"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Integrantes de la Comisión</h2>
+          <div id="contenedor-integrantes"></div>
+          <button type="button" id="btn-add-integrante" class="btn btn-sm btn-ghost" style="color:var(--accent); padding-left:0">+ Agregar integrante</button>
+        </section>
+
+        <section class="form-section">
+          <h2>Observaciones</h2>
+          <div class="form-group"><textarea name="observaciones" placeholder="Notas adicionales sobre la comisión..."></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/comisiones" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Guardar Comisión</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/comisiones-nueva.js"></script>
+<%- include('../partials/scripts') %>

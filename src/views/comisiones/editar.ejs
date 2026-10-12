@@ -1,0 +1,73 @@
+<%- include('../partials/head', { titulo: 'Editar Comisión', hojaEstilo: 'comisiones-editar' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones', activeItem: 'comisiones-listado' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/comisiones/<%= comision.id %>" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a <%= comision.nombre %>
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Editar Comisión</h1>
+          <p>Modificá los datos de la comisión, su comisionado e integrantes.</p>
+        </div>
+      </div>
+
+      <form action="/comisiones/<%= comision.id %>/editar" method="post" id="form-comision">
+        <section class="form-section">
+          <h2>Datos de la Comisión</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre de la Comisión <span class="req">*</span></label><input name="nombre" type="text" value="<%= comision.nombre %>" required></div>
+            <div class="form-group"><label>Área / Dependencia</label><input name="area" type="text" value="<%= comision.area %>"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Comisionado Responsable</h2>
+          <div class="form-row">
+            <div class="form-group"><label>Nombre Completo <span class="req">*</span></label><input name="comisionado_nombre" type="text" value="<%= comision.comisionado.nombre %>" required></div>
+            <div class="form-group"><label>DNI <span class="req">*</span></label><input name="comisionado_dni" type="text" value="<%= comision.comisionado.dni %>" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Cargo</label><input name="comisionado_cargo" type="text" value="<%= comision.comisionado.cargo || '' %>"></div>
+            <div class="form-group"><label>Teléfono</label><input name="comisionado_telefono" type="tel" value="<%= comision.comisionado.telefono || '' %>"></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Integrantes de la Comisión</h2>
+          <div id="contenedor-integrantes">
+            <% comision.integrantes.forEach(function (i) { %>
+              <div class="integrante-row">
+                <input type="text" name="integrante_nombre" placeholder="Nombre y apellido" value="<%= i.nombre %>">
+                <input type="text" name="integrante_dni" placeholder="DNI" value="<%= i.dni %>">
+                <input type="text" name="integrante_cargo" placeholder="Cargo" value="<%= i.cargo || '' %>">
+                <button type="button" class="btn-remove-row" aria-label="Quitar integrante">×</button>
+              </div>
+            <% }) %>
+          </div>
+          <button type="button" id="btn-add-integrante" class="btn btn-sm btn-ghost" style="color:var(--accent); padding-left:0">+ Agregar integrante</button>
+        </section>
+
+        <section class="form-section">
+          <h2>Observaciones</h2>
+          <div class="form-group"><textarea name="observaciones"><%= comision.observaciones || '' %></textarea></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/comisiones/<%= comision.id %>" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/comisiones-editar.js"></script>
+<%- include('../partials/scripts') %>

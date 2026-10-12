@@ -10,6 +10,8 @@ const alertaMockService = require("../services/alertaMockService");
 const usuarioMockService = require("../services/usuarioMockService");
 const auditoriaMockService = require("../services/auditoriaMockService");
 const documentoMockService = require("../services/documentoMockService");
+const comisionMockService = require("../services/comisionMockService");
+const memoMockService = require("../services/memoMockService");
 const { LOCALIDADES } = require("../services/catalogos");
 
 const usuarioSesion = {
@@ -26,6 +28,14 @@ router.use((req, res, next) => {
 });
 
 router.get("/", (req, res) => res.redirect("/vehiculos"));
+
+function comisionActivaDeVehiculo(patente) {
+  const memo = memoMockService.memoActivoDeVehiculo(patente);
+  if (!memo) return null;
+  const comision = comisionMockService.obtenerPorId(memo.comisionId);
+  if (!comision) return null;
+  return { memo, comision, estadoInfo: memoMockService.ESTADO_INFO[memoMockService.calcularEstado(memo)] };
+}
 
 // ===================== VEHÍCULOS =====================
 
@@ -44,6 +54,7 @@ router.get("/vehiculos", (req, res) => {
     vehiculos,
     vehiculo: primero,
     documentos,
+    comisionActiva: comisionActivaDeVehiculo(primero.patente),
     mostrarDetalle: false,
   });
 });
@@ -252,6 +263,7 @@ router.get("/vehiculos/:patente", (req, res, next) => {
     vehiculos,
     vehiculo,
     documentos,
+    comisionActiva: comisionActivaDeVehiculo(vehiculo.patente),
     mostrarDetalle: true,
   });
 });
@@ -449,6 +461,146 @@ router.get("/siniestros/:id", (req, res, next) => {
   const siniestro = siniestroMockService.obtenerPorId(req.params.id);
   if (!siniestro) return next();
   res.render("siniestros/detalle", { siniestro, activeItem: "siniestros-listado" });
+});
+
+// ===================== COMISIONES =====================
+
+function datosComision(comision) {
+  const memos = memoMockService.listarPorComision(comision.id).map((m) => ({
+    memo: m,
+    estadoInfo: memoMockService.ESTADO_INFO[memoMockService.calcularEstado(m)],
+    fechaSalidaFmt: documentoMockService.formatoFecha(m.fechaSalida),
+    fechaRegresoFmt: documentoMockService.formatoFecha(m.fechaRegreso),
+    vehiculo: vehiculoMockService.obtenerPorPatente(m.vehiculoPatente),
+    chofer: choferMockService.obtenerPorId ? choferMockService.obtenerPorId(m.choferId) : null,
+  }));
+  return { comision, memos };
+}
+
+router.get("/comisiones", (req, res) => {
+  const comisiones = comisionMockService.listar();
+  const primera = comisiones[0];
+  res.render("comisiones/ficha", Object.assign({ titulo: "Comisiones", comisiones, mostrarDetalle: false, activeItem: "comisiones-listado" }, datosComision(primera)));
+});
+
+router.get("/comisiones/nueva", (req, res) => {
+  res.render("comisiones/nueva", { titulo: "Nueva Comisión", activeItem: "comisiones-nueva" });
+});
+
+router.post("/comisiones/nueva", (req, res) => {
+  const b = req.body;
+  const integrantes = [];
+  const nombres = Array.isArray(b.integrante_nombre) ? b.integrante_nombre : b.integrante_nombre ? [b.integrante_nombre] : [];
+  const dnis = Array.isArray(b.integrante_dni) ? b.integrante_dni : b.integrante_dni ? [b.integrante_dni] : [];
+  const cargos = Array.isArray(b.integrante_cargo) ? b.integrante_cargo : b.integrante_cargo ? [b.integrante_cargo] : [];
+  nombres.forEach((nombre, i) => {
+    if (!nombre) return;
+    integrantes.push({ nombre, dni: dnis[i] || "", cargo: cargos[i] || "" });
+  });
+  const comision = comisionMockService.crear({
+    nombre: b.nombre,
+    area: b.area,
+    comisionado: { nombre: b.comisionado_nombre, dni: b.comisionado_dni, cargo: b.comisionado_cargo, telefono: b.comisionado_telefono },
+    integrantes,
+    observaciones: b.observaciones,
+  });
+  res.redirect("/comisiones/" + comision.id);
+});
+
+router.get("/comisiones/:id/editar", (req, res, next) => {
+  const comision = comisionMockService.obtenerPorId(req.params.id);
+  if (!comision) return next();
+  res.render("comisiones/editar", { titulo: "Editar Comisión", comision, activeItem: "comisiones-listado" });
+});
+
+router.post("/comisiones/:id/editar", (req, res, next) => {
+  const comision = comisionMockService.obtenerPorId(req.params.id);
+  if (!comision) return next();
+  const b = req.body;
+  const integrantes = [];
+  const nombres = Array.isArray(b.integrante_nombre) ? b.integrante_nombre : b.integrante_nombre ? [b.integrante_nombre] : [];
+  const dnis = Array.isArray(b.integrante_dni) ? b.integrante_dni : b.integrante_dni ? [b.integrante_dni] : [];
+  const cargos = Array.isArray(b.integrante_cargo) ? b.integrante_cargo : b.integrante_cargo ? [b.integrante_cargo] : [];
+  nombres.forEach((nombre, i) => {
+    if (!nombre) return;
+    integrantes.push({ nombre, dni: dnis[i] || "", cargo: cargos[i] || "" });
+  });
+  comisionMockService.actualizar(comision.id, {
+    nombre: b.nombre,
+    area: b.area,
+    comisionado: { nombre: b.comisionado_nombre, dni: b.comisionado_dni, cargo: b.comisionado_cargo, telefono: b.comisionado_telefono },
+    integrantes,
+    observaciones: b.observaciones,
+  });
+  res.redirect("/comisiones/" + comision.id);
+});
+
+router.get("/comisiones/:id/memos/nuevo", (req, res, next) => {
+  const comision = comisionMockService.obtenerPorId(req.params.id);
+  if (!comision) return next();
+  res.render("comisiones/memo-nuevo", {
+    titulo: "Reservar Vehículo",
+    comision,
+    vehiculos: vehiculoMockService.listar().filter((v) => v.estado !== "BAJA"),
+    choferes: choferMockService.listar().filter((c) => c.estado === "Activo"),
+    conflicto: req.query.error === "conflicto",
+    activeItem: "comisiones-listado",
+  });
+});
+
+router.post("/comisiones/:id/memos", (req, res, next) => {
+  const comision = comisionMockService.obtenerPorId(req.params.id);
+  if (!comision) return next();
+  const b = req.body;
+
+  if (memoMockService.hayConflicto(b.vehiculo, b.fecha_salida, b.fecha_regreso)) {
+    return res.redirect("/comisiones/" + comision.id + "/memos/nuevo?error=conflicto");
+  }
+
+  const dnis = Array.isArray(b.integrante_dni) ? b.integrante_dni : b.integrante_dni ? [b.integrante_dni] : [];
+  const integrantes = comision.integrantes.filter((i) => dnis.includes(i.dni));
+
+  const memo = memoMockService.crear({
+    comisionId: comision.id,
+    vehiculoPatente: b.vehiculo,
+    choferId: Number(b.chofer) || null,
+    integrantes: integrantes.length ? integrantes : comision.integrantes,
+    destino: b.destino,
+    motivo: b.motivo,
+    fechaSalida: b.fecha_salida,
+    fechaRegreso: b.fecha_regreso,
+  });
+  res.redirect("/memos/" + memo.id);
+});
+
+router.get("/comisiones/:id", (req, res, next) => {
+  const comisiones = comisionMockService.listar();
+  const comision = comisionMockService.obtenerPorId(req.params.id);
+  if (!comision) return next();
+  res.render("comisiones/ficha", Object.assign({ titulo: comision.nombre, comisiones, mostrarDetalle: true, activeItem: "comisiones-listado" }, datosComision(comision)));
+});
+
+router.get("/memos/:id", (req, res, next) => {
+  const memo = memoMockService.obtenerPorId(req.params.id);
+  if (!memo) return next();
+  const comision = comisionMockService.obtenerPorId(memo.comisionId);
+  const vehiculo = vehiculoMockService.obtenerPorPatente(memo.vehiculoPatente);
+  const chofer = choferMockService.obtenerPorId(memo.choferId);
+  res.render("memos/ver", {
+    titulo: "Memo · " + comision.nombre,
+    memo,
+    comision,
+    vehiculo,
+    chofer,
+    estadoInfo: memoMockService.ESTADO_INFO[memoMockService.calcularEstado(memo)],
+    formatoFecha: documentoMockService.formatoFecha,
+  });
+});
+
+router.post("/memos/:id/finalizar", (req, res, next) => {
+  const memo = memoMockService.finalizar(req.params.id, { fechaRegresoReal: req.body.fecha_regreso_real, detalle: req.body.detalle });
+  if (!memo) return next();
+  res.redirect("/memos/" + memo.id);
 });
 
 // ===================== ALERTAS =====================
