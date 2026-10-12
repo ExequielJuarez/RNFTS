@@ -8,8 +8,14 @@ const ESTADOS = {
   Cancelado: "danger",
 };
 
+let nextId = 5;
+
 function crearOrden(datos) {
-  return Object.assign({ estadoClase: ESTADOS[datos.estado] || "info" }, datos);
+  return Object.assign(
+    { proveedor: "", lugarService: "Externo", pagado: false, numeroExpediente: "" },
+    datos,
+    { estadoClase: ESTADOS[datos.estado] || "info" },
+  );
 }
 
 const ordenes = [
@@ -27,6 +33,10 @@ const ordenes = [
     costoRepuestos: 45000,
     manoObra: 20000,
     costoTotal: 65000,
+    proveedor: "Taller Propio",
+    lugarService: "Propio",
+    pagado: true,
+    numeroExpediente: "EXP-2026-00412",
   }),
   crearOrden({
     id: 2,
@@ -42,6 +52,10 @@ const ordenes = [
     costoRepuestos: 0,
     manoObra: 18000,
     costoTotal: 18000,
+    proveedor: "Gomería San Cayetano",
+    lugarService: "Externo",
+    pagado: true,
+    numeroExpediente: "EXP-2026-00388",
   }),
   crearOrden({
     id: 3,
@@ -57,6 +71,10 @@ const ordenes = [
     costoRepuestos: 68000,
     manoObra: 27000,
     costoTotal: 95000,
+    proveedor: "Mecánica Integral del Norte",
+    lugarService: "Externo",
+    pagado: false,
+    numeroExpediente: "EXP-2026-00455",
   }),
   crearOrden({
     id: 4,
@@ -72,6 +90,10 @@ const ordenes = [
     costoRepuestos: 0,
     manoObra: 0,
     costoTotal: 0,
+    proveedor: "Taller Scania Oficial",
+    lugarService: "Externo",
+    pagado: false,
+    numeroExpediente: "",
   }),
 ];
 
@@ -96,4 +118,47 @@ function listarRepuestos() {
   return repuestos;
 }
 
-module.exports = { listar, obtenerPorId, listarRepuestos };
+function proveedores() {
+  return Array.from(new Set(ordenes.map((o) => o.proveedor).filter(Boolean))).sort();
+}
+
+function crear(datos) {
+  const orden = crearOrden({
+    id: nextId++,
+    patente: datos.patente,
+    vehiculo: datos.vehiculo,
+    fecha: datos.fecha,
+    tipoServicio: datos.tipoServicio,
+    estado: datos.estado || "Pendiente",
+    kmServicio: datos.kmServicio,
+    proximoServicioKm: datos.proximoServicioKm,
+    descripcion: datos.descripcion,
+    observaciones: datos.observaciones,
+    costoRepuestos: datos.costoRepuestos || 0,
+    manoObra: datos.manoObra || 0,
+    costoTotal: datos.costoTotal || 0,
+    proveedor: datos.proveedor || "",
+    lugarService: datos.lugarService || "Externo",
+    pagado: Boolean(datos.pagado),
+    numeroExpediente: datos.numeroExpediente || "",
+  });
+  ordenes.push(orden);
+  return orden;
+}
+
+function actualizarEstado(id, estado) {
+  const orden = obtenerPorId(id);
+  if (!orden) return null;
+  orden.estado = estado;
+  orden.estadoClase = ESTADOS[estado] || "info";
+  return orden;
+}
+
+function marcarPagado(id, pagado) {
+  const orden = obtenerPorId(id);
+  if (!orden) return null;
+  orden.pagado = pagado;
+  return orden;
+}
+
+module.exports = { listar, obtenerPorId, listarRepuestos, proveedores, crear, actualizarEstado, marcarPagado };

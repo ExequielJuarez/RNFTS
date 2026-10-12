@@ -24,6 +24,11 @@
           El vehículo seleccionado ya tiene una reserva que se superpone con esas fechas. Elegí otro vehículo u otro rango de fechas.
         </div>
       <% } %>
+      <% if (conflictoService) { %>
+        <div class="form-notice is-error" style="margin-bottom:var(--space-5)">
+          El vehículo seleccionado tiene un turno de service programado dentro de los <%= diasResguardo %> días cercanos a esas fechas. No se puede reservar para viaje hasta pasado ese resguardo. Elegí otro vehículo u otro rango de fechas.
+        </div>
+      <% } %>
 
       <form action="/comisiones/<%= comision.id %>/memos" method="post" id="form-memo">
         <section class="form-section">

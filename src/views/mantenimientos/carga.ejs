@@ -87,6 +87,32 @@
           <input type="hidden" name="costo_repuestos" id="costo_repuestos" value="0">
         </section>
 
+        <section class="form-section">
+          <h2>5. Proveedor y Administración</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Proveedor / Taller</label>
+              <input type="text" name="proveedor" list="lista-proveedores" placeholder="Ej: Taller Central">
+              <datalist id="lista-proveedores">
+                <% proveedores.forEach(function (p) { %><option value="<%= p %>"><% }) %>
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label>Lugar del Service</label>
+              <select name="lugar_service">
+                <option value="Externo">Taller Externo</option>
+                <option value="Propio">Taller Propio</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>N° de Expediente</label><input type="text" name="numero_expediente" placeholder="Ej: EXP-2026-00123"></div>
+            <div class="form-group" style="display:flex; align-items:flex-end; padding-bottom:10px">
+              <label class="permiso-chip"><input type="checkbox" name="pagado">Marcar como pagado</label>
+            </div>
+          </div>
+        </section>
+
         <div class="form-actions">
           <a href="/mantenimientos" class="btn btn-outline">Cancelar</a>
           <button type="submit" class="btn btn-accent">Guardar Orden</button>

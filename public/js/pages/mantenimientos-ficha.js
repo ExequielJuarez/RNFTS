@@ -126,3 +126,28 @@
     });
   });
 })();
+
+(function () {
+  var filtroProveedor = document.getElementById('filtroProveedor');
+  var filtroPagado = document.getElementById('filtroPagado');
+  var buscarInput = document.querySelector('[data-list-search="#listaMantenimientos"]');
+  var items = document.querySelectorAll('#listaMantenimientos [data-search]');
+  if (!filtroProveedor || !filtroPagado) return;
+
+  function aplicarFiltros() {
+    var texto = (buscarInput && buscarInput.value.trim().toLowerCase()) || '';
+    var proveedor = filtroProveedor.value;
+    var pagado = filtroPagado.value;
+    items.forEach(function (item) {
+      var ok = true;
+      if (texto && item.getAttribute('data-search').toLowerCase().indexOf(texto) === -1) ok = false;
+      if (proveedor && item.getAttribute('data-proveedor') !== proveedor) ok = false;
+      if (pagado && item.getAttribute('data-pagado') !== pagado) ok = false;
+      item.style.display = ok ? '' : 'none';
+    });
+  }
+
+  filtroProveedor.addEventListener('change', aplicarFiltros);
+  filtroPagado.addEventListener('change', aplicarFiltros);
+  if (buscarInput) buscarInput.addEventListener('input', aplicarFiltros);
+})();

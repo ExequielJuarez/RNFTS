@@ -1,0 +1,64 @@
+<%- include('../partials/head', { titulo: 'Turnos de Service', hojaEstilo: 'mantenimientos-turnos' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'mantenimientos', activeItem: activeItem }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Turnos de Service</h1>
+          <p>Service programados por vehículo. Un vehículo con turno programado no puede reservarse para viajes dentro de los <%= 14 %> días cercanos a la fecha del turno.</p>
+        </div>
+        <div class="page-header-actions">
+          <a href="/mantenimientos/turnos/nuevo" class="btn btn-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Programar Turno
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" style="min-width:760px">
+            <thead>
+              <tr><th>Vehículo</th><th>Fecha Programada</th><th>Tipo de Servicio</th><th>Taller</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% if (turnos.length) { %>
+                <% turnos.forEach(function (t) { %>
+                  <tr>
+                    <td class="is-primary"><a href="/vehiculos/<%= t.vehiculoPatente %>"><%= t.vehiculoPatente %></a></td>
+                    <td><%= new Date(t.fechaProgramada).toLocaleDateString('es-AR') %></td>
+                    <td><%= t.tipoServicio %></td>
+                    <td><%= t.taller || '—' %></td>
+                    <td><span class="badge badge-<%= t.estadoClase %>"><%= t.estado %></span></td>
+                    <td>
+                      <% if (t.estado === 'Programado') { %>
+                        <div style="display:flex; gap:var(--space-2); justify-content:flex-end">
+                          <form action="/mantenimientos/turnos/<%= t.id %>/realizado" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline" style="color:var(--success); border-color:var(--success-border);">✓ Realizado</button>
+                          </form>
+                          <form action="/mantenimientos/turnos/<%= t.id %>/cancelar" method="post" onsubmit="return confirm('¿Cancelar este turno de service?')">
+                            <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Cancelar</button>
+                          </form>
+                        </div>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr><td colspan="6" class="table-empty">No hay turnos de service programados.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/mantenimientos-turnos.js"></script>
+<%- include('../partials/scripts') %>

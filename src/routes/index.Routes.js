@@ -12,6 +12,7 @@ const auditoriaMockService = require("../services/auditoriaMockService");
 const documentoMockService = require("../services/documentoMockService");
 const comisionMockService = require("../services/comisionMockService");
 const memoMockService = require("../services/memoMockService");
+const turnoServiceMockService = require("../services/turnoServiceMockService");
 const { LOCALIDADES } = require("../services/catalogos");
 
 const usuarioSesion = {
@@ -55,6 +56,7 @@ router.get("/vehiculos", (req, res) => {
     vehiculo: primero,
     documentos,
     comisionActiva: comisionActivaDeVehiculo(primero.patente),
+    proximoTurno: turnoServiceMockService.proximoTurno(primero.patente),
     mostrarDetalle: false,
   });
 });
@@ -264,6 +266,7 @@ router.get("/vehiculos/:patente", (req, res, next) => {
     vehiculo,
     documentos,
     comisionActiva: comisionActivaDeVehiculo(vehiculo.patente),
+    proximoTurno: turnoServiceMockService.proximoTurno(vehiculo.patente),
     mostrarDetalle: true,
   });
 });
@@ -319,7 +322,13 @@ router.get("/choferes/:id", (req, res, next) => {
 
 router.get("/mantenimientos", (req, res) => {
   const ordenes = mantenimientoMockService.listar();
-  res.render("mantenimientos/ficha", { ordenes, orden: ordenes[0], mostrarDetalle: false, activeItem: "mantenimientos-listado" });
+  res.render("mantenimientos/ficha", {
+    ordenes,
+    orden: ordenes[0],
+    proveedores: mantenimientoMockService.proveedores(),
+    mostrarDetalle: false,
+    activeItem: "mantenimientos-listado",
+  });
 });
 
 router.get("/mantenimientos/nuevo", (req, res) => {
@@ -327,26 +336,102 @@ router.get("/mantenimientos/nuevo", (req, res) => {
     titulo: "Registrar Mantenimiento",
     vehiculos: vehiculoMockService.listar(),
     repuestos: mantenimientoMockService.listarRepuestos(),
+    proveedores: mantenimientoMockService.proveedores(),
     patenteSeleccionada: req.query.patente || "",
     activeItem: "mantenimientos-nuevo",
   });
 });
 
 router.post("/mantenimientos/nuevo", (req, res) => {
-  res.redirect("/mantenimientos");
+  const b = req.body;
+  const vehiculo = vehiculoMockService.obtenerPorPatente(b.patente);
+  const costoRepuestos = Number(b.costo_repuestos) || 0;
+  const manoObra = Number(b.mano_obra) || 0;
+  const orden = mantenimientoMockService.crear({
+    patente: b.patente,
+    vehiculo: vehiculo ? vehiculo.marca + " " + vehiculo.modelo : b.patente,
+    fecha: b.fecha,
+    tipoServicio: b.tipo_servicio,
+    estado: b.estado || "Pendiente",
+    kmServicio: Number(b.km_servicio) || 0,
+    proximoServicioKm: b.proximo_servicio_km ? Number(b.proximo_servicio_km) : null,
+    descripcion: b.descripcion,
+    observaciones: b.observaciones,
+    costoRepuestos,
+    manoObra,
+    costoTotal: costoRepuestos + manoObra,
+    proveedor: b.proveedor || "",
+    lugarService: b.lugar_service || "Externo",
+    pagado: b.pagado === "on" || b.pagado === "true",
+    numeroExpediente: b.numero_expediente || "",
+  });
+  res.redirect("/mantenimientos/" + orden.id);
 });
 
 router.post("/mantenimientos/:id/estado", (req, res, next) => {
-  const orden = mantenimientoMockService.obtenerPorId(req.params.id);
+  const orden = mantenimientoMockService.actualizarEstado(req.params.id, "Realizado");
   if (!orden) return next();
   res.redirect("/mantenimientos/" + orden.id);
+});
+
+router.post("/mantenimientos/:id/pagado", (req, res, next) => {
+  const existente = mantenimientoMockService.obtenerPorId(req.params.id);
+  if (!existente) return next();
+  const orden = mantenimientoMockService.marcarPagado(req.params.id, !existente.pagado);
+  res.redirect("/mantenimientos/" + orden.id);
+});
+
+router.get("/mantenimientos/turnos", (req, res) => {
+  res.render("mantenimientos/turnos", {
+    titulo: "Turnos de Service",
+    turnos: turnoServiceMockService.listar(),
+    activeItem: "mantenimientos-turnos",
+  });
+});
+
+router.get("/mantenimientos/turnos/nuevo", (req, res) => {
+  res.render("mantenimientos/turno-nuevo", {
+    titulo: "Programar Turno de Service",
+    vehiculos: vehiculoMockService.listar(),
+    activeItem: "mantenimientos-turnos",
+  });
+});
+
+router.post("/mantenimientos/turnos/nuevo", (req, res) => {
+  const b = req.body;
+  turnoServiceMockService.crear({
+    vehiculoPatente: b.vehiculo,
+    fechaProgramada: b.fecha_programada,
+    tipoServicio: b.tipo_servicio,
+    taller: b.taller,
+    observaciones: b.observaciones,
+  });
+  res.redirect("/mantenimientos/turnos");
+});
+
+router.post("/mantenimientos/turnos/:id/realizado", (req, res, next) => {
+  const turno = turnoServiceMockService.cambiarEstado(req.params.id, "Realizado");
+  if (!turno) return next();
+  res.redirect("/mantenimientos/turnos");
+});
+
+router.post("/mantenimientos/turnos/:id/cancelar", (req, res, next) => {
+  const turno = turnoServiceMockService.cambiarEstado(req.params.id, "Cancelado");
+  if (!turno) return next();
+  res.redirect("/mantenimientos/turnos");
 });
 
 router.get("/mantenimientos/:id", (req, res, next) => {
   const ordenes = mantenimientoMockService.listar();
   const orden = mantenimientoMockService.obtenerPorId(req.params.id);
   if (!orden) return next();
-  res.render("mantenimientos/ficha", { ordenes, orden, mostrarDetalle: true, activeItem: "mantenimientos-listado" });
+  res.render("mantenimientos/ficha", {
+    ordenes,
+    orden,
+    proveedores: mantenimientoMockService.proveedores(),
+    mostrarDetalle: true,
+    activeItem: "mantenimientos-listado",
+  });
 });
 
 // ===================== HERRAMIENTAS =====================
@@ -544,6 +629,8 @@ router.get("/comisiones/:id/memos/nuevo", (req, res, next) => {
     vehiculos: vehiculoMockService.listar().filter((v) => v.estado !== "BAJA"),
     choferes: choferMockService.listar().filter((c) => c.estado === "Activo"),
     conflicto: req.query.error === "conflicto",
+    conflictoService: req.query.error === "service",
+    diasResguardo: turnoServiceMockService.DIAS_RESGUARDO,
     activeItem: "comisiones-listado",
   });
 });
@@ -555,6 +642,9 @@ router.post("/comisiones/:id/memos", (req, res, next) => {
 
   if (memoMockService.hayConflicto(b.vehiculo, b.fecha_salida, b.fecha_regreso)) {
     return res.redirect("/comisiones/" + comision.id + "/memos/nuevo?error=conflicto");
+  }
+  if (turnoServiceMockService.hayConflictoConViaje(b.vehiculo, b.fecha_salida, b.fecha_regreso)) {
+    return res.redirect("/comisiones/" + comision.id + "/memos/nuevo?error=service");
   }
 
   const dnis = Array.isArray(b.integrante_dni) ? b.integrante_dni : b.integrante_dni ? [b.integrante_dni] : [];

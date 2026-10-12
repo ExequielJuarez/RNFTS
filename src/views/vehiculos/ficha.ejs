@@ -151,6 +151,12 @@
                     <span class="badge badge-<%= comisionActiva.estadoInfo.clase %>" style="margin-left:6px"><%= comisionActiva.estadoInfo.label %></span>
                   <% } else { %>Sin comisión asignada<% } %>
                 </span></div>
+                <div><span class="field-label">Próximo Service</span><span class="field-value">
+                  <% if (proximoTurno) { %>
+                    <%= new Date(proximoTurno.fechaProgramada).toLocaleDateString('es-AR') %> · <%= proximoTurno.tipoServicio %>
+                    <span class="badge badge-warning" style="margin-left:6px">Programado</span>
+                  <% } else { %>Sin turno programado<% } %>
+                </span></div>
                 <div><span class="field-label">Km Actual</span><span class="field-value"><%= vehiculo.km.toLocaleString('es-AR') %> km</span></div>
                 <div><span class="field-label">Combustible</span><span class="field-value"><%= vehiculo.combustible %></span></div>
               </div>

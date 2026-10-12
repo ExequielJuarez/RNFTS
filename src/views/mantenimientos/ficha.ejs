@@ -20,6 +20,18 @@
           <a href="/mantenimientos/nuevo" class="btn btn-sm btn-accent" style="flex-shrink:0; margin-top:2px;">+ Nuevo</a>
         </div>
 
+        <div style="display:flex; gap:var(--space-2); padding:0 0 var(--space-3)">
+          <select id="filtroProveedor" style="flex:1; height:34px; font-size:12.5px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); padding:0 var(--space-2)">
+            <option value="">Todos los proveedores</option>
+            <% proveedores.forEach(function (p) { %><option value="<%= p %>"><%= p %></option><% }) %>
+          </select>
+          <select id="filtroPagado" style="flex:1; height:34px; font-size:12.5px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); padding:0 var(--space-2)">
+            <option value="">Pagados y pendientes</option>
+            <option value="si">Solo pagados</option>
+            <option value="no">Solo pendientes de pago</option>
+          </select>
+        </div>
+
         <div class="vehicle-list scrollbar-thin" id="listaMantenimientos">
           <% ordenes.forEach(function (o) { %>
             <a
@@ -27,6 +39,8 @@
               class="vehicle-card <%= String(o.id) === String(orden.id) ? 'is-active' : '' %>"
               data-open-detail
               data-search="<%= (o.patente + ' ' + o.tipoServicio + ' ' + o.estado).toLowerCase() %>"
+              data-proveedor="<%= o.proveedor %>"
+              data-pagado="<%= o.pagado ? 'si' : 'no' %>"
             >
               <span class="vehicle-card-body">
                 <span class="vehicle-card-top">
@@ -37,6 +51,10 @@
                 <span class="vehicle-card-top">
                   <span class="vehicle-km"><%= new Date(o.fecha).toLocaleDateString('es-AR') %></span>
                   <span class="vehicle-km" style="font-weight:700; color:var(--text-primary)">$<%= o.costoTotal.toLocaleString('es-AR') %></span>
+                </span>
+                <span style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <% if (o.proveedor) { %><span class="badge badge-neutral"><%= o.proveedor %></span><% } %>
+                  <span class="badge badge-<%= o.pagado ? 'success' : 'warning' %>"><%= o.pagado ? 'Pagado' : 'Pendiente de pago' %></span>
                 </span>
               </span>
             </a>
@@ -73,7 +91,26 @@
                 <div><span class="field-label">Patente</span><span class="field-value"><a href="/vehiculos/<%= orden.patente %>"><%= orden.patente %></a></span></div>
                 <div><span class="field-label">Km al Realizar Servicio</span><span class="field-value"><%= orden.kmServicio.toLocaleString('es-AR') %> km</span></div>
                 <div><span class="field-label">Próximo Servicio Sugerido</span><span class="field-value" style="color:var(--warning)"><%= orden.proximoServicioKm ? 'A los ' + orden.proximoServicioKm.toLocaleString('es-AR') + ' km' : 'No especificado' %></span></div>
+                <div><span class="field-label">Proveedor / Taller</span><span class="field-value">
+                  <%= orden.lugarService === 'Propio' ? (orden.proveedor || 'Taller Propio') : (orden.proveedor || '—') %>
+                  <% if (orden.lugarService === 'Externo') { %><span class="tag-muted">Externo</span><% } %>
+                </span></div>
+                <div><span class="field-label">N° de Expediente</span><span class="field-value"><%= orden.numeroExpediente || '—' %></span></div>
               </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Estado de Pago</span>
+              <span class="badge badge-<%= orden.pagado ? 'success' : 'warning' %>"><%= orden.pagado ? 'Pagado' : 'Pendiente de pago' %></span>
+            </div>
+            <div class="card-body">
+              <form action="/mantenimientos/<%= orden.id %>/pagado" method="post">
+                <button type="submit" class="btn btn-sm <%= orden.pagado ? 'btn-outline' : 'btn-accent' %>">
+                  <%= orden.pagado ? 'Marcar como pendiente de pago' : '✓ Marcar como pagado' %>
+                </button>
+              </form>
             </div>
           </div>
 
