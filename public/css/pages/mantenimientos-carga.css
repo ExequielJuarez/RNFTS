@@ -208,7 +208,8 @@ svg {
 */
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
   grid-template-rows: var(--topbar-h) 1fr;
@@ -1527,6 +1528,7 @@ svg {
 }
 .form-notice.is-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 .form-notice.is-error { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.form-notice.is-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
 
 /* Grilla de permisos (checkboxes como chips) */
 .permisos-grid {
