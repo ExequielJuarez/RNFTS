@@ -827,41 +827,37 @@ svg {
   gap: var(--space-5);
 }
 
-/* Donut en CSS puro (sin dependencias externas) */
+/* Gráficos con Chart.js (canvas) */
+.chart-canvas-wrap {
+  position: relative;
+  height: 240px;
+}
 .donut-row {
   display: flex;
   align-items: center;
   gap: var(--space-6);
   flex-wrap: wrap;
 }
-.donut {
+.chart-donut-wrap {
   position: relative;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
+  width: 180px;
+  height: 180px;
   flex-shrink: 0;
 }
-.donut::after {
-  content: "";
-  position: absolute;
-  inset: 20px;
-  border-radius: 50%;
-  background: var(--bg-surface);
-}
-.donut-total {
+.chart-donut-wrap .donut-center {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  z-index: 1;
+  pointer-events: none;
 }
-.donut-total strong {
+.chart-donut-wrap .donut-center strong {
   font-size: 22px;
   color: var(--text-primary);
 }
-.donut-total span {
+.chart-donut-wrap .donut-center span {
   font-size: 10.5px;
   color: var(--text-muted);
   text-transform: uppercase;

@@ -130,18 +130,182 @@
 (function () {
   "use strict";
 
-  document.querySelectorAll('.donut').forEach(function (donut) {
-    var values = donut.dataset.values.split(',').map(Number);
-    var colors = donut.dataset.colors.split(',');
-    var total = values.reduce(function (a, b) { return a + b; }, 0) || 1;
-    var acc = 0;
-    var stops = values.map(function (v, i) {
-      var start = (acc / total) * 360;
-      acc += v;
-      var end = (acc / total) * 360;
-      return colors[i] + ' ' + start + 'deg ' + end + 'deg';
-    });
-    donut.style.background = 'conic-gradient(' + stops.join(', ') + ')';
-  });
+  if (typeof Chart === "undefined") return;
 
+  var dataEl = document.getElementById("reportes-chart-data");
+  if (!dataEl) return;
+  var datos;
+  try {
+    datos = JSON.parse(dataEl.textContent);
+  } catch (e) {
+    return;
+  }
+
+  var raiz = getComputedStyle(document.documentElement);
+  var colorAccent = (raiz.getPropertyValue("--accent") || "").trim() || "#0e7c6b";
+  var colorDanger = (raiz.getPropertyValue("--danger") || "").trim() || "#b3261e";
+  var colorGrid = (raiz.getPropertyValue("--border-subtle") || "").trim() || "#e3e7ed";
+  var colorAxis = (raiz.getPropertyValue("--text-muted") || "").trim() || "#8994a3";
+  var colorInk = (raiz.getPropertyValue("--text-secondary") || "").trim() || "#4b5768";
+
+  var formatoARS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+
+  Chart.defaults.font.family = "-apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif";
+  Chart.defaults.font.size = 12;
+  Chart.defaults.color = colorAxis;
+  Chart.defaults.plugins.legend.display = false;
+  Chart.defaults.plugins.tooltip.backgroundColor = "#101828";
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  Chart.defaults.plugins.tooltip.displayColors = false;
+
+  function ejeNumerico(callback, enteros, maxValor) {
+    return {
+      beginAtZero: true,
+      suggestedMax: enteros ? Math.max(2, Math.ceil(maxValor * 1.3)) : undefined,
+      grid: { color: colorGrid, drawTicks: false },
+      border: { display: false },
+      ticks: { color: colorAxis, callback: callback, precision: enteros ? 0 : undefined },
+    };
+  }
+
+  function ejeCategoria() {
+    return {
+      grid: { display: false },
+      border: { display: false },
+      ticks: { color: colorInk, font: { weight: "600" } },
+    };
+  }
+
+  function barraVertical(id, labels, valores, color, formatoMoneda) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    new Chart(el, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: valores,
+            backgroundColor: color,
+            borderRadius: 4,
+            borderSkipped: false,
+            maxBarThickness: 46,
+            categoryPercentage: 0.55,
+            barPercentage: 0.9,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: ejeCategoria(),
+          y: ejeNumerico(formatoMoneda ? function (v) { return formatoARS.format(v); } : undefined, !formatoMoneda, Math.max.apply(null, valores)),
+        },
+        plugins: {
+          tooltip: {
+            callbacks: formatoMoneda ? { label: function (ctx) { return formatoARS.format(ctx.parsed.y); } } : {},
+          },
+        },
+      },
+    });
+  }
+
+  function barraHorizontal(id, labels, valores, color) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    new Chart(el, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: valores,
+            backgroundColor: color,
+            borderRadius: 4,
+            borderSkipped: false,
+            maxBarThickness: 22,
+            categoryPercentage: 0.55,
+            barPercentage: 0.9,
+          },
+        ],
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: ejeNumerico(undefined, true, Math.max.apply(null, valores)),
+          y: ejeCategoria(),
+        },
+      },
+    });
+  }
+
+  function dona(id, valores, colores) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    new Chart(el, {
+      type: "doughnut",
+      data: {
+        datasets: [
+          {
+            data: valores,
+            backgroundColor: colores,
+            borderWidth: 2,
+            borderColor: "#ffffff",
+            hoverOffset: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "68%",
+        plugins: { legend: { display: false } },
+      },
+    });
+  }
+
+  if (datos.topVehiculos.length) {
+    barraVertical(
+      "chartTopVehiculos",
+      datos.topVehiculos.map(function (v) { return v.patente; }),
+      datos.topVehiculos.map(function (v) { return v.total; }),
+      colorDanger,
+      true
+    );
+  }
+  if (datos.porLocalidad.length) {
+    dona("chartLocalidad", datos.porLocalidad.map(function (d) { return d.cantidad; }), datos.coloresLocalidad);
+  }
+  if (datos.porTipoServicio.length) {
+    barraHorizontal(
+      "chartTipoServicio",
+      datos.porTipoServicio.map(function (t) { return t.tipo; }),
+      datos.porTipoServicio.map(function (t) { return t.cantidad; }),
+      colorAccent
+    );
+  }
+  if (datos.siniestrosPorVehiculo.length) {
+    barraVertical(
+      "chartSiniestros",
+      datos.siniestrosPorVehiculo.map(function (s) { return s.patente; }),
+      datos.siniestrosPorVehiculo.map(function (s) { return s.cantidad; }),
+      colorDanger,
+      false
+    );
+  }
+  if (datos.choferesConMasViajes.length) {
+    barraHorizontal(
+      "chartChoferes",
+      datos.choferesConMasViajes.map(function (c) { return c.nombre; }),
+      datos.choferesConMasViajes.map(function (c) { return c.cantidad; }),
+      colorAccent
+    );
+  }
+  if (datos.destinosMasFrecuentes.length) {
+    dona("chartDestinos", datos.destinosMasFrecuentes.map(function (d) { return d.cantidad; }), datos.coloresDestinos);
+  }
 })();

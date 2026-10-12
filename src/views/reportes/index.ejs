@@ -43,22 +43,20 @@
         <div class="card">
           <div class="card-header"><span class="card-title">Top Vehículos con Mayor Gasto</span></div>
           <div class="card-body">
-            <div class="bar-list">
-              <% estadisticas.topVehiculos.forEach(function (v) { %>
-                <div>
-                  <div class="bar-row-head"><span><%= v.patente %></span><span><%= v.totalFormateado %></span></div>
-                  <div class="bar-track"><div class="bar-fill" style="width:<%= (v.total / estadisticas.maxGastoVehiculo * 100).toFixed(0) %>%; background:var(--danger)"></div></div>
-                </div>
-              <% }) %>
-            </div>
+            <% if (estadisticas.topVehiculos.length) { %>
+              <div class="chart-canvas-wrap"><canvas id="chartTopVehiculos"></canvas></div>
+            <% } else { %>
+              <p class="table-empty">Sin mantenimientos registrados en el período.</p>
+            <% } %>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header"><span class="card-title">Vehículos por Localidad</span></div>
           <div class="card-body donut-row">
-            <div class="donut" data-values="<%= estadisticas.porLocalidad.map(function(d){return d.cantidad}).join(',') %>" data-colors="<%= estadisticas.coloresLocalidad.join(',') %>">
-              <div class="donut-total"><strong><%= estadisticas.totalVehiculos %></strong><span>Total</span></div>
+            <div class="chart-donut-wrap">
+              <canvas id="chartLocalidad"></canvas>
+              <div class="donut-center"><strong><%= estadisticas.totalVehiculos %></strong><span>Total</span></div>
             </div>
             <div class="donut-legend">
               <% estadisticas.porLocalidad.forEach(function (d, i) { %>
@@ -71,14 +69,7 @@
         <div class="card" style="grid-column:1/-1">
           <div class="card-header"><span class="card-title">Frecuencia de Tipos de Servicio en Taller</span></div>
           <div class="card-body">
-            <div class="bar-list">
-              <% estadisticas.porTipoServicio.forEach(function (t) { %>
-                <div>
-                  <div class="bar-row-head"><span><%= t.tipo %></span><span><%= t.cantidad %></span></div>
-                  <div class="bar-track"><div class="bar-fill" style="width:<%= (t.cantidad / estadisticas.maxTipoServicio * 100).toFixed(0) %>%"></div></div>
-                </div>
-              <% }) %>
-            </div>
+            <div class="chart-canvas-wrap" style="height:<%= Math.max(180, estadisticas.porTipoServicio.length * 46) %>px"><canvas id="chartTipoServicio"></canvas></div>
           </div>
         </div>
 
@@ -86,14 +77,7 @@
           <div class="card-header"><span class="card-title">Siniestros por Vehículo</span></div>
           <div class="card-body">
             <% if (estadisticas.siniestrosPorVehiculo.length) { %>
-              <div class="bar-list">
-                <% estadisticas.siniestrosPorVehiculo.forEach(function (s) { %>
-                  <div>
-                    <div class="bar-row-head"><span><a href="/vehiculos/<%= s.patente %>"><%= s.patente %></a></span><span><%= s.cantidad %></span></div>
-                    <div class="bar-track"><div class="bar-fill" style="width:<%= (s.cantidad / estadisticas.maxSiniestrosVehiculo * 100).toFixed(0) %>%; background:var(--danger)"></div></div>
-                  </div>
-                <% }) %>
-              </div>
+              <div class="chart-canvas-wrap"><canvas id="chartSiniestros"></canvas></div>
             <% } else { %>
               <p class="table-empty">Sin siniestros registrados en el período.</p>
             <% } %>
@@ -104,14 +88,7 @@
           <div class="card-header"><span class="card-title">Choferes con Más Viajes de Comisión</span></div>
           <div class="card-body">
             <% if (estadisticas.choferesConMasViajes.length) { %>
-              <div class="bar-list">
-                <% estadisticas.choferesConMasViajes.forEach(function (c) { %>
-                  <div>
-                    <div class="bar-row-head"><span><%= c.nombre %></span><span><%= c.cantidad %></span></div>
-                    <div class="bar-track"><div class="bar-fill" style="width:<%= (c.cantidad / estadisticas.maxViajesChofer * 100).toFixed(0) %>%"></div></div>
-                  </div>
-                <% }) %>
-              </div>
+              <div class="chart-canvas-wrap" style="height:<%= Math.max(180, estadisticas.choferesConMasViajes.length * 40) %>px"><canvas id="chartChoferes"></canvas></div>
             <% } else { %>
               <p class="table-empty">Sin viajes de comisión registrados todavía.</p>
             <% } %>
@@ -120,14 +97,15 @@
 
         <div class="card" style="grid-column:1/-1">
           <div class="card-header"><span class="card-title">Destinos Más Viajados</span></div>
-          <div class="card-body">
+          <div class="card-body donut-row">
             <% if (estadisticas.destinosMasFrecuentes.length) { %>
-              <div class="bar-list">
-                <% estadisticas.destinosMasFrecuentes.forEach(function (d) { %>
-                  <div>
-                    <div class="bar-row-head"><span><%= d.destino %></span><span><%= d.cantidad %></span></div>
-                    <div class="bar-track"><div class="bar-fill" style="width:<%= (d.cantidad / estadisticas.maxDestino * 100).toFixed(0) %>%; background:var(--accent)"></div></div>
-                  </div>
+              <div class="chart-donut-wrap">
+                <canvas id="chartDestinos"></canvas>
+                <div class="donut-center"><strong><%= datosGraficos.totalViajes %></strong><span>Viajes</span></div>
+              </div>
+              <div class="donut-legend">
+                <% estadisticas.destinosMasFrecuentes.forEach(function (d, i) { %>
+                  <div class="donut-legend-item"><span class="donut-legend-dot" style="background:<%= datosGraficos.coloresDestinos[i] %>"></span><%= d.destino %><span class="donut-legend-value"><%= d.cantidad %></span></div>
                 <% }) %>
               </div>
             <% } else { %>
@@ -140,5 +118,7 @@
   </main>
 </div>
 
+<script type="application/json" id="reportes-chart-data"><%- JSON.stringify(datosGraficos).replace(/</g, '\\u003c') %></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="/js/pages/reportes-index.js"></script>
 <%- include('../partials/scripts') %>

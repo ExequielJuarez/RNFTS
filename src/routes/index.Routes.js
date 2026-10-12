@@ -1073,7 +1073,8 @@ const formatoFechaCorta = (iso) => {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
-const PALETA_LOCALIDADES = ["#0e7c6b", "#1d5fbf", "#a3630f", "#b3261e", "#667085", "#8a3ffc", "#c2410c"];
+// Paleta categórica validada (orden fijo: separación CVD-segura entre colores adyacentes).
+const PALETA_LOCALIDADES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6"];
 
 router.get("/reportes", (req, res) => {
   const hoy = new Date().toISOString().slice(0, 10);
@@ -1143,11 +1144,27 @@ router.get("/reportes", (req, res) => {
     .sort((a, b) => b.cantidad - a.cantidad)
     .slice(0, 6);
   const maxDestino = Math.max(1, ...destinosMasFrecuentes.map((d) => d.cantidad));
+  const coloresDestinos = destinosMasFrecuentes.map((_, i) => PALETA_LOCALIDADES[i % PALETA_LOCALIDADES.length]);
+  const totalViajes = memoMockService.listar().length;
+
+  const datosGraficos = {
+    topVehiculos: topVehiculos.map((v) => ({ patente: v.patente, total: v.total })),
+    porLocalidad,
+    coloresLocalidad,
+    totalVehiculos: vehiculos.length,
+    porTipoServicio,
+    siniestrosPorVehiculo,
+    choferesConMasViajes,
+    destinosMasFrecuentes,
+    coloresDestinos,
+    totalViajes,
+  };
 
   res.render("reportes/index", {
     fechaDesde,
     fechaHasta,
     periodoFormateado: `${formatoFechaCorta(fechaDesde)} al ${formatoFechaCorta(fechaHasta)}`,
+    datosGraficos,
     estadisticas: {
       costoTotal,
       costoTotalFormateado: formatoARS(costoTotal),
