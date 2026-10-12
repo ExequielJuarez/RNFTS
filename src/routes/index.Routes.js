@@ -16,6 +16,7 @@ const turnoServiceMockService = require("../services/turnoServiceMockService");
 const pedidoRetiroMockService = require("../services/pedidoRetiroMockService");
 const { uploadChoferes, rutasDeArchivos } = require("../middleware/upload");
 const { LOCALIDADES } = require("../services/catalogos");
+const documentoPdfService = require("../services/documentoPdfService");
 
 const usuarioSesion = {
   nombre: "Administrador Sistema",
@@ -246,12 +247,12 @@ router.post("/vehiculos/:patente/documentos", (req, res, next) => {
 
 router.get("/documentos", (req, res) => {
   const filtroPatente = (req.query.patente || "").trim();
+  if (!filtroPatente) return res.redirect("/vehiculos");
   const filtroPatenteLower = filtroPatente.toLowerCase();
 
   const documentos = documentoMockService
     .listar()
     .filter((d) => {
-      if (!filtroPatente) return true;
       return (
         d.vehiculoPatente.toLowerCase() === filtroPatenteLower ||
         (d.bienes || []).some((b) => (b.dominio || "").toLowerCase() === filtroPatenteLower)
@@ -270,12 +271,12 @@ router.get("/documentos", (req, res) => {
     }));
 
   res.render("documentos/listado", {
-    titulo: filtroPatente ? `Documentos · ${filtroPatente}` : "Documentos",
+    titulo: `Documentos · ${filtroPatente}`,
     documentos,
     tipos: documentoMockService.TIPOS,
     activeItem: "vehiculos-documentos",
     filtroPatente,
-    vehiculoFiltro: filtroPatente ? vehiculoMockService.obtenerPorPatente(filtroPatente) : null,
+    vehiculoFiltro: vehiculoMockService.obtenerPorPatente(filtroPatente),
   });
 });
 
@@ -293,6 +294,20 @@ router.get("/documentos/:id", (req, res, next) => {
   });
 });
 
+router.get("/documentos/:id/descargar", (req, res, next) => {
+  const documento = documentoMockService.obtenerPorId(req.params.id);
+  if (!documento) return next();
+  const vehiculo = vehiculoMockService.obtenerPorPatente(documento.vehiculoPatente);
+  const tipoInfo = documentoMockService.TIPOS[documento.tipo] || documentoMockService.TIPOS.otro;
+
+  const pdf = documentoPdfService.generarDocumentoPdf(documento, tipoInfo, vehiculo, documentoMockService.formatoFecha);
+  const nombreArchivo = documento.numero.replace(/[^\w.-]+/g, "_") + ".pdf";
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${nombreArchivo}"`);
+  pdf.pipe(res);
+  pdf.end();
+});
+
 router.post("/documentos/:id/renovar", (req, res, next) => {
   const documento = documentoMockService.renovar(req.params.id, {
     fechaRenovacion: req.body.fecha_renovacion,
@@ -306,6 +321,9 @@ router.post("/documentos/:id/renovar", (req, res, next) => {
 router.post("/documentos/:id/firmar", (req, res, next) => {
   const documento = documentoMockService.firmar(req.params.id, req.body.slot, req.body.firma, req.body.nombre);
   if (!documento) return next();
+  if (req.get("Accept") === "application/json") {
+    return res.json({ ok: true, firma: documento.firmas[req.body.slot] });
+  }
   res.redirect("/documentos/" + documento.id + "#firmas");
 });
 
@@ -604,9 +622,8 @@ router.post("/mantenimientos/:id/estado", (req, res, next) => {
 });
 
 router.post("/mantenimientos/:id/pagado", (req, res, next) => {
-  const existente = mantenimientoMockService.obtenerPorId(req.params.id);
-  if (!existente) return next();
-  const orden = mantenimientoMockService.marcarPagado(req.params.id, !existente.pagado);
+  const orden = mantenimientoMockService.marcarPagado(req.params.id);
+  if (!orden) return next();
   res.redirect("/mantenimientos/" + orden.id);
 });
 
@@ -954,6 +971,9 @@ router.post("/memos/:id/finalizar", (req, res, next) => {
 router.post("/memos/:id/firmar", (req, res, next) => {
   const memo = memoMockService.firmar(req.params.id, req.body.slot, req.body.firma, req.body.nombre);
   if (!memo) return next();
+  if (req.get("Accept") === "application/json") {
+    return res.json({ ok: true, firma: memo.firmas[req.body.slot] });
+  }
   res.redirect("/memos/" + memo.id + "#firmas");
 });
 

@@ -189,12 +189,54 @@
       });
     }
 
+    function construirFirmaGuardada(slotDiv, etiqueta, nombre, fecha, dataUrl) {
+      slotDiv.innerHTML = '';
+      var etiquetaEl = document.createElement('span');
+      etiquetaEl.className = 'firma-etiqueta';
+      etiquetaEl.textContent = etiqueta;
+      var img = document.createElement('img');
+      img.className = 'firma-img';
+      img.src = dataUrl;
+      img.alt = 'Firma de ' + nombre;
+      var strong = document.createElement('strong');
+      strong.textContent = nombre;
+      var fechaEl = document.createElement('span');
+      fechaEl.className = 'firma-fecha';
+      fechaEl.textContent = 'Firmado el ' + fecha;
+      slotDiv.appendChild(etiquetaEl);
+      slotDiv.appendChild(img);
+      slotDiv.appendChild(strong);
+      slotDiv.appendChild(fechaEl);
+    }
+
     form.addEventListener('submit', function (e) {
-      if (!tieneTrazo) {
-        e.preventDefault();
-        return;
-      }
+      e.preventDefault();
+      if (!tieneTrazo) return;
       input.value = canvas.toDataURL('image/png');
+      if (btnGuardar) btnGuardar.disabled = true;
+
+      // Se guarda por fetch (en vez de un submit normal) para no recargar la página
+      // entera: así una firma pendiente en el otro recuadro no se pierde al guardar esta.
+      fetch(form.getAttribute('action'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+        body: new URLSearchParams(new FormData(form)).toString(),
+      })
+        .then(function (r) {
+          if (!r.ok) throw new Error('No se pudo guardar la firma');
+          return r.json();
+        })
+        .then(function (data) {
+          var slotDiv = wrap.closest('.firma-slot');
+          var etiqueta = slotDiv.dataset.etiqueta;
+          var nombreFirma = (data.firma && data.firma.nombre) || slotDiv.dataset.nombre;
+          var fechaFirma = new Date(data.firma.fecha + 'T00:00:00').toLocaleDateString('es-AR');
+          construirFirmaGuardada(slotDiv, etiqueta, nombreFirma, fechaFirma, data.firma.dataUrl);
+        })
+        .catch(function () {
+          if (btnGuardar) btnGuardar.disabled = false;
+          alert('No se pudo guardar la firma. Probá de nuevo.');
+        });
     });
   });
 })();

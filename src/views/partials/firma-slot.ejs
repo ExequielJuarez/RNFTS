@@ -1,7 +1,7 @@
 <%
   var firma = (registro.firmas || {})[slot];
 %>
-<div class="firma-slot">
+<div class="firma-slot" id="firma-slot-<%= slot %>" data-slot="<%= slot %>" data-nombre="<%= nombre %>" data-etiqueta="<%= etiqueta %>">
   <span class="firma-etiqueta"><%= etiqueta %></span>
   <% if (firma) { %>
     <img class="firma-img" src="<%= firma.dataUrl %>" alt="Firma de <%= firma.nombre || nombre %>">

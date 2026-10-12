@@ -2076,6 +2076,10 @@ svg {
   .btn-hamburger {
     display: none !important;
   }
+  .app-shell {
+    height: auto !important;
+    overflow: visible !important;
+  }
   .app-main {
     overflow: visible !important;
   }

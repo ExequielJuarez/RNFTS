@@ -45,7 +45,7 @@
       <section class="md-detail">
         <div class="detail-wrap">
 
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); flex-wrap:wrap;">
+          <div class="no-print" style="display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); flex-wrap:wrap;">
             <button class="btn btn-sm btn-ghost btn-back-list" data-back-to-list>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
               Volver al listado
@@ -67,7 +67,7 @@
                   <span class="badge badge-<%= herramienta.estadoClase %>"><%= herramienta.estado %></span>
                 </span>
               </div>
-              <div style="display:flex; gap:var(--space-2)">
+              <div class="no-print" style="display:flex; gap:var(--space-2)">
                 <button class="btn btn-sm btn-outline" onclick="window.print()">Imprimir</button>
                 <a href="/herramientas/<%= herramienta.id %>/editar" class="btn btn-sm btn-outline">Editar</a>
                 <form action="/herramientas/<%= herramienta.id %>/eliminar" method="post" onsubmit="return confirm('¿Eliminar permanentemente esta herramienta?')">

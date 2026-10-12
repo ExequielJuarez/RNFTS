@@ -9,20 +9,12 @@
 
       <div class="page-header-row">
         <div>
-          <% if (filtroPatente) { %>
-            <h1>Documentos de <%= filtroPatente %><% if (vehiculoFiltro) { %> · <%= vehiculoFiltro.marca %> <%= vehiculoFiltro.modelo %><% } %></h1>
-            <p>Comodatos, actas y documentos generados para este vehículo.</p>
-          <% } else { %>
-            <h1>Documentos</h1>
-            <p>Todos los comodatos, actas y documentos generados, de todos los vehículos.</p>
-          <% } %>
+          <h1>Documentos de <%= filtroPatente %><% if (vehiculoFiltro) { %> · <%= vehiculoFiltro.marca %> <%= vehiculoFiltro.modelo %><% } %></h1>
+          <p>Comodatos, actas y documentos generados para este vehículo.</p>
         </div>
-        <% if (filtroPatente) { %>
-          <div class="page-header-actions">
-            <a href="/vehiculos/<%= filtroPatente %>" class="btn btn-sm btn-outline">← Volver a la ficha</a>
-            <a href="/documentos" class="btn btn-sm btn-ghost">Ver todos los documentos</a>
-          </div>
-        <% } %>
+        <div class="page-header-actions">
+          <a href="/vehiculos/<%= filtroPatente %>" class="btn btn-sm btn-outline">← Volver a la ficha</a>
+        </div>
       </div>
 
       <div class="card">

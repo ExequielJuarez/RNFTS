@@ -66,7 +66,7 @@
       <section class="md-detail">
         <div class="detail-wrap">
 
-          <button class="btn btn-sm btn-ghost btn-back-list" data-back-to-list style="align-self:flex-start">
+          <button class="btn btn-sm btn-ghost btn-back-list no-print" data-back-to-list style="align-self:flex-start">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             Volver al listado
           </button>
@@ -81,7 +81,7 @@
                 </span>
                 <p style="font-size:13px; color:var(--text-secondary)">Fecha de ingreso: <%= new Date(orden.fecha).toLocaleDateString('es-AR') %></p>
               </div>
-              <button class="btn btn-sm btn-outline" onclick="window.print()">
+              <button class="btn btn-sm btn-outline no-print" onclick="window.print()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
                 Imprimir Remito
               </button>
@@ -101,17 +101,21 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card no-print">
             <div class="card-header">
               <span class="card-title">Estado de Pago</span>
               <span class="badge badge-<%= orden.pagado ? 'success' : 'warning' %>"><%= orden.pagado ? 'Pagado' : 'Pendiente de pago' %></span>
             </div>
             <div class="card-body">
-              <form action="/mantenimientos/<%= orden.id %>/pagado" method="post">
-                <button type="submit" class="btn btn-sm <%= orden.pagado ? 'btn-outline' : 'btn-accent' %>">
-                  <%= orden.pagado ? 'Marcar como pendiente de pago' : '✓ Marcar como pagado' %>
-                </button>
-              </form>
+              <% if (orden.pagado) { %>
+                <p style="font-size:13px; color:var(--text-secondary)">
+                  Pagado<% if (orden.fechaPago) { %> el <%= new Date(orden.fechaPago).toLocaleDateString('es-AR') %><% } %>. Una vez marcada como pagada, la orden no puede volver a ponerse como pendiente de pago.
+                </p>
+              <% } else { %>
+                <form action="/mantenimientos/<%= orden.id %>/pagado" method="post" onsubmit="return confirm('¿Confirmás que esta orden ya fue pagada? Esta acción no se puede deshacer.')">
+                  <button type="submit" class="btn btn-sm btn-accent">✓ Marcar como pagado</button>
+                </form>
+              <% } %>
             </div>
           </div>
 
@@ -140,7 +144,7 @@
               </div>
 
               <% if (orden.estado === 'En proceso') { %>
-                <div class="card">
+                <div class="card no-print">
                   <div class="card-header"><span class="card-title">Finalizar Orden</span></div>
                   <div class="card-body">
                     <form action="/mantenimientos/<%= orden.id %>/estado" method="post">

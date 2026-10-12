@@ -1707,3 +1707,26 @@ svg {
     width: 100%;
   }
 }
+
+/* Impresión: sólo la ficha de la orden (sin topbar, sidebar ni listado) */
+@media print {
+  .no-print,
+  .app-topbar,
+  .app-sidebar,
+  .btn-hamburger,
+  .md-list,
+  .btn-back-list {
+    display: none !important;
+  }
+  .app-shell {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .app-main,
+  .master-detail,
+  .md-detail {
+    overflow: visible !important;
+    display: block !important;
+    height: auto !important;
+  }
+}

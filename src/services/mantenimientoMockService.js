@@ -11,7 +11,7 @@ let nextId = 5;
 
 function crearOrden(datos) {
   return Object.assign(
-    { proveedor: "", lugarService: "Externo", pagado: false, numeroExpediente: "", origenTurnoId: null },
+    { proveedor: "", lugarService: "Externo", pagado: false, fechaPago: null, numeroExpediente: "", origenTurnoId: null },
     datos,
     { estadoClase: ESTADOS[datos.estado] || "info" },
   );
@@ -172,6 +172,7 @@ function crear(datos) {
     proveedor: datos.proveedor || "",
     lugarService: datos.lugarService || "Externo",
     pagado: Boolean(datos.pagado),
+    fechaPago: datos.pagado ? new Date().toISOString().slice(0, 10) : null,
     numeroExpediente: datos.numeroExpediente || "",
     origenTurnoId: datos.origenTurnoId || null,
   });
@@ -187,10 +188,11 @@ function actualizarEstado(id, estado) {
   return orden;
 }
 
-function marcarPagado(id, pagado) {
+function marcarPagado(id) {
   const orden = obtenerPorId(id);
-  if (!orden) return null;
-  orden.pagado = pagado;
+  if (!orden || orden.pagado) return orden || null;
+  orden.pagado = true;
+  orden.fechaPago = new Date().toISOString().slice(0, 10);
   return orden;
 }
 
