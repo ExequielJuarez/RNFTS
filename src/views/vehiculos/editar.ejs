@@ -66,6 +66,7 @@
               <select name="estado">
                 <option value="DISPONIBLE" <%= vehiculo.estado === 'DISPONIBLE' ? 'selected' : '' %>>Disponible</option>
                 <option value="EN_USO" <%= vehiculo.estado === 'EN_USO' ? 'selected' : '' %>>En uso</option>
+                <option value="PARA_BAJA" <%= vehiculo.estado === 'PARA_BAJA' ? 'selected' : '' %>>Para Baja</option>
                 <option value="BAJA" <%= vehiculo.estado === 'BAJA' ? 'selected' : '' %>>Baja</option>
               </select>
             </div>

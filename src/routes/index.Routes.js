@@ -13,6 +13,7 @@ const documentoMockService = require("../services/documentoMockService");
 const comisionMockService = require("../services/comisionMockService");
 const memoMockService = require("../services/memoMockService");
 const turnoServiceMockService = require("../services/turnoServiceMockService");
+const pedidoRetiroMockService = require("../services/pedidoRetiroMockService");
 const { LOCALIDADES } = require("../services/catalogos");
 
 const usuarioSesion = {
@@ -244,6 +245,59 @@ router.post("/documentos/:id/renovar", (req, res, next) => {
     detalle: req.body.detalle,
   });
   if (!documento) return next();
+  res.redirect("/documentos/" + documento.id);
+});
+
+router.get("/vehiculos/para-baja", (req, res) => {
+  res.render("vehiculos/para-baja", {
+    titulo: "Vehículos para Baja",
+    vehiculos: vehiculoMockService.listarParaBaja(),
+    activeItem: "vehiculos-para-baja",
+  });
+});
+
+router.get("/vehiculos/para-baja/documento", (req, res) => {
+  const seleccionadas = req.query.patentes ? String(req.query.patentes).split(",") : [];
+  res.render("vehiculos/para-baja-documento", {
+    titulo: "Generar Acta de Baja",
+    vehiculos: vehiculoMockService.listarParaBaja(),
+    seleccionadas,
+    sinSeleccion: req.query.error === "sin-seleccion",
+    activeItem: "vehiculos-para-baja",
+  });
+});
+
+router.post("/vehiculos/para-baja/documento", (req, res) => {
+  const b = req.body;
+  const patentes = Array.isArray(b.patentes) ? b.patentes : b.patentes ? [b.patentes] : [];
+  if (!patentes.length) {
+    return res.redirect("/vehiculos/para-baja/documento?error=sin-seleccion");
+  }
+
+  const bienes = patentes.map((patente) => {
+    const v = vehiculoMockService.obtenerPorPatente(patente);
+    return { cantidad: 1, tipo: v ? v.tipo : "", marca: v ? v.marca : "", modelo: v ? v.modelo : "", dominio: patente };
+  });
+
+  const documento = documentoMockService.crear({
+    vehiculoPatente: patentes[0],
+    tipo: "baja",
+    fechaEmision: b.fecha_recepcion,
+    taller: b.taller,
+    fechaRecepcion: b.fecha_recepcion,
+    observaciones: b.observaciones,
+    bienes,
+    comodante: {
+      nombre: "Gobierno de la Provincia de Santiago del Estero",
+      cargo: "Ministro de Producción, Recursos Naturales, Forestación, Tierras y Medio Ambiente",
+      representante: "",
+      dni: "",
+      domicilio: "",
+    },
+    comodatario: { nombre: b.taller || "Taller Receptor", representante: "", dni: "", domicilio: "" },
+  });
+
+  vehiculoMockService.confirmarBaja(patentes);
   res.redirect("/documentos/" + documento.id);
 });
 
@@ -521,15 +575,50 @@ router.get("/herramientas/repuestos", (req, res) => {
   res.render("herramientas/repuestos", {
     titulo: "Catálogo de Repuestos",
     repuestos: mantenimientoMockService.listarRepuestos(),
+    pedidos: pedidoRetiroMockService.listar(),
     activeItem: "herramientas-repuestos",
   });
 });
 
 router.post("/herramientas/repuestos", (req, res) => {
+  mantenimientoMockService.agregarRepuesto({
+    nombre: req.body.nombre,
+    stock: req.body.stock,
+    costoUnitario: req.body.costo_unitario,
+  });
   res.redirect("/herramientas/repuestos");
 });
 
 router.post("/herramientas/repuestos/:id/eliminar", (req, res) => {
+  mantenimientoMockService.eliminarRepuesto(req.params.id);
+  res.redirect("/herramientas/repuestos");
+});
+
+router.get("/herramientas/repuestos/pedido", (req, res) => {
+  res.render("herramientas/repuestos-pedido", {
+    titulo: "Pedido de Entrega de Repuestos",
+    repuestos: mantenimientoMockService.listarRepuestos(),
+    vehiculos: vehiculoMockService.listar(),
+    sinStock: req.query.error === "stock",
+    activeItem: "herramientas-repuestos",
+  });
+});
+
+router.post("/herramientas/repuestos/pedido", (req, res) => {
+  const b = req.body;
+  const cantidad = Number(b.cantidad) || 0;
+  const repuesto = mantenimientoMockService.retirarStock(b.repuesto, cantidad);
+  if (!repuesto) {
+    return res.redirect("/herramientas/repuestos/pedido?error=stock");
+  }
+  pedidoRetiroMockService.crear({
+    repuestoId: repuesto.id,
+    repuestoNombre: repuesto.nombre,
+    cantidad,
+    motivo: b.motivo,
+    vehiculoPatente: b.vehiculo || "",
+    autorizadoPor: usuarioSesion.nombre,
+  });
   res.redirect("/herramientas/repuestos");
 });
 

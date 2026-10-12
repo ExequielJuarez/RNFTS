@@ -9,10 +9,17 @@
 
       <div class="page-header-row no-print">
         <div>
-          <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-sm btn-outline" style="margin-bottom:var(--space-3)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            Volver a <%= vehiculo.patente %>
-          </a>
+          <% if (documento.tipo === 'baja') { %>
+            <a href="/vehiculos/para-baja" class="btn btn-sm btn-outline" style="margin-bottom:var(--space-3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              Volver a Vehículos para Baja
+            </a>
+          <% } else { %>
+            <a href="/vehiculos/<%= vehiculo.patente %>" class="btn btn-sm btn-outline" style="margin-bottom:var(--space-3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              Volver a <%= vehiculo.patente %>
+            </a>
+          <% } %>
           <div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap;">
             <h1 style="margin:0"><%= tipoInfo.label %></h1>
             <span class="badge badge-<%= estado.clase %>"><%= estado.label %></span>
@@ -74,6 +81,27 @@
               <div><span>Firma COMODATARIO</span><strong><%= documento.comodatario.representante %></strong></div>
             </div>
 
+          <% } else if (documento.tipo === 'baja') { %>
+            <h2 class="doc-titulo">ACTA DE BAJA DE VEHÍCULOS</h2>
+            <p class="doc-parrafo">
+              En <%= documento.taller || documento.localidad || 'Santiago del Estero' %>, con fecha <%= formatoFecha(documento.fechaRecepcion || documento.fechaEmision) %>,
+              se deja constancia de la recepción de los siguientes vehículos propuestos para su baja del patrimonio, sin que medie reconocimiento de monto, valuación
+              o compensación alguna por el presente acto.
+            </p>
+            <div class="info-grid" style="margin:var(--space-5) 0">
+              <div><span class="field-label">Taller / Depósito Receptor</span><span class="field-value"><%= documento.taller || '—' %></span></div>
+              <div><span class="field-label">Fecha de Recepción</span><span class="field-value"><%= formatoFecha(documento.fechaRecepcion || documento.fechaEmision) %></span></div>
+            </div>
+            <p class="doc-clausula"><strong>Vehículos incluidos en esta baja:</strong></p>
+            <ol class="doc-lista-bienes">
+              <% documento.bienes.forEach(function (b) { %>
+                <li>Un (1) <%= (b.tipo || '').toUpperCase() %> Marca <%= b.marca %> Modelo <%= b.modelo %>, dominio <strong><%= b.dominio %></strong>;</li>
+              <% }) %>
+            </ol>
+            <div class="doc-firmas">
+              <div><span>Entrega</span><strong>Administración de Flota</strong></div>
+              <div><span>Recibe</span><strong><%= documento.taller || 'Taller Receptor' %></strong></div>
+            </div>
           <% } else { %>
             <h2 class="doc-titulo"><%= tipoInfo.label.toUpperCase() %></h2>
             <p class="doc-parrafo">

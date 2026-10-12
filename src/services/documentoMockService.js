@@ -6,9 +6,12 @@ const TIPOS = {
   acta_entrega: { id: "acta_entrega", label: "Acta de Entrega", prefijo: "AE", vigenciaMeses: null },
   acta_recepcion: { id: "acta_recepcion", label: "Acta de Recepción", prefijo: "AR", vigenciaMeses: null },
   otro: { id: "otro", label: "Otro Documento", prefijo: "DOC", vigenciaMeses: null },
+  baja: { id: "baja", label: "Acta de Baja de Vehículos", prefijo: "BAJA", vigenciaMeses: null },
 };
 
-const TIPOS_LISTA = Object.values(TIPOS);
+// La generada desde la ficha de un vehículo individual; "baja" sólo se genera
+// en lote desde la sección "Para Baja".
+const TIPOS_LISTA = Object.values(TIPOS).filter((t) => t.id !== "baja");
 
 function formatoFecha(iso) {
   if (!iso) return "—";
@@ -91,8 +94,9 @@ function listar() {
 }
 
 function listarPorVehiculo(patente) {
+  const p = String(patente).toLowerCase();
   return documentos
-    .filter((d) => d.vehiculoPatente.toLowerCase() === String(patente).toLowerCase())
+    .filter((d) => d.vehiculoPatente.toLowerCase() === p || (d.bienes || []).some((b) => (b.dominio || "").toLowerCase() === p))
     .sort((a, b) => (a.fechaEmision < b.fechaEmision ? 1 : -1));
 }
 
@@ -122,6 +126,8 @@ function crear(datos) {
     comodatario: datos.comodatario || null,
     localidad: datos.localidad || "",
     bienes: datos.bienes || [],
+    taller: datos.taller || "",
+    fechaRecepcion: datos.fechaRecepcion || null,
     observaciones: datos.observaciones || "",
     historial: [{ fecha: fechaEmision, accion: "Documento generado", detalle: "Emisión inicial." }],
   };

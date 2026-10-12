@@ -1,0 +1,52 @@
+<%- include('../partials/head', { titulo: 'Vehículos para Baja', hojaEstilo: 'vehiculos-para-baja' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: activeItem }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <h1>Vehículos para Baja</h1>
+          <p>Unidades propuestas para dar de baja. Agrupalas y generá una sola Acta de Baja para varias a la vez.</p>
+        </div>
+        <div class="page-header-actions">
+          <a href="/vehiculos/para-baja/documento" class="btn btn-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l5 5v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 13h6M9 17h4"/></svg>
+            Generar Acta de Baja
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" style="min-width:720px">
+            <thead>
+              <tr><th>Patente</th><th>Marca / Modelo</th><th>Km</th><th>Localidad</th><th>Observaciones</th></tr>
+            </thead>
+            <tbody>
+              <% if (vehiculos.length) { %>
+                <% vehiculos.forEach(function (v) { %>
+                  <tr>
+                    <td class="is-primary"><a href="/vehiculos/<%= v.patente %>"><%= v.patente %></a></td>
+                    <td><%= v.marca %> <%= v.modelo %></td>
+                    <td><%= v.km.toLocaleString('es-AR') %> km</td>
+                    <td><%= v.localidad %></td>
+                    <td style="max-width:320px"><%= v.observaciones || '—' %></td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr><td colspan="5" class="table-empty">No hay vehículos marcados para baja. Marcalos desde "Editar Vehículo" → Estado.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/vehiculos-para-baja.js"></script>
+<%- include('../partials/scripts') %>

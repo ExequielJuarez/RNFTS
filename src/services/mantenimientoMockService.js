@@ -118,6 +118,32 @@ function listarRepuestos() {
   return repuestos;
 }
 
+let nextRepuestoId = 7;
+
+function obtenerRepuestoPorId(id) {
+  return repuestos.find((r) => String(r.id) === String(id));
+}
+
+function agregarRepuesto(datos) {
+  const repuesto = { id: nextRepuestoId++, nombre: datos.nombre, costoUnitario: Number(datos.costoUnitario) || 0, stock: Number(datos.stock) || 0 };
+  repuestos.push(repuesto);
+  return repuesto;
+}
+
+function eliminarRepuesto(id) {
+  const i = repuestos.findIndex((r) => String(r.id) === String(id));
+  if (i === -1) return false;
+  repuestos.splice(i, 1);
+  return true;
+}
+
+function retirarStock(id, cantidad) {
+  const repuesto = obtenerRepuestoPorId(id);
+  if (!repuesto || cantidad <= 0 || repuesto.stock < cantidad) return null;
+  repuesto.stock -= cantidad;
+  return repuesto;
+}
+
 function proveedores() {
   return Array.from(new Set(ordenes.map((o) => o.proveedor).filter(Boolean))).sort();
 }
@@ -161,4 +187,16 @@ function marcarPagado(id, pagado) {
   return orden;
 }
 
-module.exports = { listar, obtenerPorId, listarRepuestos, proveedores, crear, actualizarEstado, marcarPagado };
+module.exports = {
+  listar,
+  obtenerPorId,
+  listarRepuestos,
+  obtenerRepuestoPorId,
+  agregarRepuesto,
+  eliminarRepuesto,
+  retirarStock,
+  proveedores,
+  crear,
+  actualizarEstado,
+  marcarPagado,
+};

@@ -1,0 +1,62 @@
+<%- include('../partials/head', { titulo: 'Generar Acta de Baja', hojaEstilo: 'vehiculos-para-baja-documento' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'vehiculos', activeItem: activeItem }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/vehiculos/para-baja" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Vehículos para Baja
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Generar Acta de Baja</h1>
+          <p>Seleccioná las patentes que se incluyen en esta acta. No lleva montos: es un acta de recepción en taller, sin costos.</p>
+        </div>
+      </div>
+
+      <% if (sinSeleccion) { %>
+        <div class="form-notice is-error" style="margin-bottom:var(--space-5)">Seleccioná al menos un vehículo para generar el acta.</div>
+      <% } %>
+
+      <% if (!vehiculos.length) { %>
+        <div class="form-notice is-error">No hay vehículos marcados para baja. Volvé al listado y marcalos primero.</div>
+      <% } else { %>
+        <form action="/vehiculos/para-baja/documento" method="post">
+          <section class="form-section">
+            <h2>Vehículos Incluidos</h2>
+            <div class="permisos-grid">
+              <% vehiculos.forEach(function (v) { %>
+                <label class="permiso-chip">
+                  <input type="checkbox" name="patentes" value="<%= v.patente %>" <%= seleccionadas.includes(v.patente) || !seleccionadas.length ? 'checked' : '' %>>
+                  <%= v.patente %> — <%= v.marca %> <%= v.modelo %>
+                </label>
+              <% }) %>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2>Recepción en Taller</h2>
+            <div class="form-row">
+              <div class="form-group"><label>Taller <span class="req">*</span></label><input type="text" name="taller" placeholder="Ej: Taller Central / Depósito Municipal" required></div>
+              <div class="form-group"><label>Fecha de Recepción <span class="req">*</span></label><input type="date" name="fecha_recepcion" required></div>
+            </div>
+            <div class="form-group"><label>Observaciones</label><textarea name="observaciones" placeholder="Motivo de la baja, estado de los vehículos recibidos..."></textarea></div>
+          </section>
+
+          <div class="form-actions">
+            <a href="/vehiculos/para-baja" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-accent">Generar Acta y Dar de Baja</button>
+          </div>
+        </form>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/vehiculos-para-baja-documento.js"></script>
+<%- include('../partials/scripts') %>

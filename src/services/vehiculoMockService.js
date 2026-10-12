@@ -4,6 +4,7 @@
 const ESTADOS = {
   EN_USO: { clase: "info", label: "En Uso" },
   DISPONIBLE: { clase: "success", label: "Disponible" },
+  PARA_BAJA: { clase: "neutral", label: "Para Baja" },
   BAJA: { clase: "danger", label: "Baja" },
 };
 
@@ -126,7 +127,8 @@ const vehiculos = [
     transmision: "Manual",
     combustible: "Diesel",
     km: 198000,
-    estado: "DISPONIBLE",
+    estado: "PARA_BAJA",
+    observaciones: "Costo de reparación elevado respecto del valor del vehículo. Propuesto para baja.",
     documentacion: {
       cedula: "CED-004",
       titular: "Municipalidad Capital",
@@ -151,7 +153,8 @@ const vehiculos = [
     transmision: "Manual",
     combustible: "Diesel",
     km: 315000,
-    estado: "DISPONIBLE",
+    estado: "PARA_BAJA",
+    observaciones: "Unidad con mayor kilometraje de la flota y antigüedad superior a 10 años.",
     documentacion: {
       cedula: "CED-005",
       titular: "Municipalidad Capital",
@@ -239,8 +242,23 @@ function listar() {
   return vehiculos;
 }
 
+function listarParaBaja() {
+  return vehiculos.filter((v) => v.estado === "PARA_BAJA");
+}
+
 function obtenerPorPatente(patente) {
   return vehiculos.find((v) => v.patente.toLowerCase() === String(patente).toLowerCase());
+}
+
+function confirmarBaja(patentes) {
+  patentes.forEach((patente) => {
+    const vehiculo = obtenerPorPatente(patente);
+    if (vehiculo) {
+      vehiculo.estado = "BAJA";
+      vehiculo.estadoClase = ESTADOS.BAJA.clase;
+      vehiculo.estadoLabel = ESTADOS.BAJA.label;
+    }
+  });
 }
 
 function actualizar(patente, cambios) {
@@ -260,4 +278,4 @@ function crear(datos) {
   return vehiculo;
 }
 
-module.exports = { listar, obtenerPorPatente, actualizar, crear };
+module.exports = { listar, listarParaBaja, obtenerPorPatente, actualizar, crear, confirmarBaja };

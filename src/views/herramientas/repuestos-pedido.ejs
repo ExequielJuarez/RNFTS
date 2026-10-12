@@ -1,0 +1,70 @@
+<%- include('../partials/head', { titulo: 'Pedido de Entrega de Repuestos', hojaEstilo: 'herramientas-repuestos-pedido' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'herramientas' }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/herramientas/repuestos" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver al Catálogo de Repuestos
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Pedido de Entrega / Autorización de Retiro</h1>
+          <p>Autorizá el retiro de insumos del stock del taller propio. La cantidad se descuenta automáticamente del inventario.</p>
+        </div>
+      </div>
+
+      <% if (sinStock) { %>
+        <div class="form-notice is-error" style="margin-bottom:var(--space-5)">
+          No hay stock suficiente para esa cantidad. Revisá el inventario disponible antes de autorizar el retiro.
+        </div>
+      <% } %>
+
+      <form action="/herramientas/repuestos/pedido" method="post">
+        <section class="form-section">
+          <h2>Insumo a Retirar</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Repuesto / Insumo <span class="req">*</span></label>
+              <select name="repuesto" id="select-repuesto" required>
+                <option value="">Seleccione un insumo</option>
+                <% repuestos.forEach(function (r) { %>
+                  <option value="<%= r.id %>" data-stock="<%= r.stock %>"><%= r.nombre %> (stock: <%= r.stock %>)</option>
+                <% }) %>
+              </select>
+              <span class="field-hint" id="hint-stock"></span>
+            </div>
+            <div class="form-group"><label>Cantidad a Retirar <span class="req">*</span></label><input type="number" name="cantidad" id="input-cantidad" min="1" placeholder="Ej: 20" required></div>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>Destino y Autorización</h2>
+          <div class="form-group">
+            <label>Vehículo / Service relacionado</label>
+            <select name="vehiculo">
+              <option value="">No corresponde a un vehículo específico</option>
+              <% vehiculos.forEach(function (v) { %>
+                <option value="<%= v.patente %>"><%= v.patente %> - <%= v.marca %> <%= v.modelo %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Motivo de la Entrega <span class="req">*</span></label><input type="text" name="motivo" placeholder="Ej: Cambio de aceite en taller propio" required></div>
+        </section>
+
+        <div class="form-actions">
+          <a href="/herramientas/repuestos" class="btn btn-outline">Cancelar</a>
+          <button type="submit" class="btn btn-accent">Autorizar Retiro</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/herramientas-repuestos-pedido.js"></script>
+<%- include('../partials/scripts') %>
