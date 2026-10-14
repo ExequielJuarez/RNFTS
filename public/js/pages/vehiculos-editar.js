@@ -126,3 +126,19 @@
     });
   });
 })();
+
+(function () {
+  var select = document.getElementById('select-estado-vehiculo');
+  var grupoMotivo = document.getElementById('grupo-motivo-baja');
+  if (!select || !grupoMotivo) return;
+
+  function actualizar() {
+    var opcion = select.options[select.selectedIndex];
+    var esBaja = opcion && opcion.getAttribute('data-baja') === 'si';
+    grupoMotivo.style.display = esBaja ? '' : 'none';
+    if (!esBaja) grupoMotivo.querySelector('textarea').value = '';
+  }
+
+  select.addEventListener('change', actualizar);
+  actualizar();
+})();

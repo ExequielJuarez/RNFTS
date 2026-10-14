@@ -16,6 +16,7 @@ function crearVehiculo(datos) {
       choferAsignado: null,
       choferId: null,
       observaciones: "",
+      motivoBaja: "",
       siniestros: [],
       alertas: [],
     },

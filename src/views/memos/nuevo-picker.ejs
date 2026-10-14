@@ -1,0 +1,52 @@
+<%- include('../partials/head', { titulo: 'Nuevo Memo de Viaje', hojaEstilo: 'memos-nuevo-picker' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones-viaje', activeItem: activeItem }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="form-page">
+
+      <a href="/memos" class="btn btn-sm btn-ghost btn-page-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Volver a Comisiones de Viaje
+      </a>
+
+      <div class="form-page-header">
+        <div>
+          <h1>Nuevo Memo de Viaje</h1>
+          <p>Elegí la comisión para la que vas a reservar el vehículo. Los datos del comisionado y el formulario de reserva se cargan en el siguiente paso.</p>
+        </div>
+      </div>
+
+      <% if (!comisiones.length) { %>
+        <div class="form-notice is-error">No hay comisiones cargadas todavía. Creá una comisión primero.</div>
+        <div class="form-actions" style="margin-top:var(--space-5)">
+          <a href="/comisiones/nueva" class="btn btn-accent">+ Nueva Comisión</a>
+        </div>
+      <% } else { %>
+        <section class="form-section">
+          <h2>Comisión</h2>
+          <form id="form-elegir-comision">
+            <div class="form-group">
+              <label>Comisión <span class="req">*</span></label>
+              <select id="select-comision" required>
+                <option value="">— Elegí una comisión —</option>
+                <% comisiones.forEach(function (c) { %>
+                  <option value="<%= c.id %>"><%= c.nombre %> · <%= c.area %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-actions">
+              <a href="/memos" class="btn btn-outline">Cancelar</a>
+              <button type="submit" class="btn btn-accent">Continuar</button>
+            </div>
+          </form>
+        </section>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/memos-nuevo-picker.js"></script>
+<%- include('../partials/scripts') %>

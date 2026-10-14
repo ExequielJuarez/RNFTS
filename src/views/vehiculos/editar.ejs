@@ -63,11 +63,11 @@
           <div class="form-row">
             <div class="form-group">
               <label>Estado <span class="req">*</span></label>
-              <select name="estado">
-                <option value="DISPONIBLE" <%= vehiculo.estado === 'DISPONIBLE' ? 'selected' : '' %>>Disponible</option>
-                <option value="EN_USO" <%= vehiculo.estado === 'EN_USO' ? 'selected' : '' %>>En uso</option>
-                <option value="PARA_BAJA" <%= vehiculo.estado === 'PARA_BAJA' ? 'selected' : '' %>>Para Baja</option>
-                <option value="BAJA" <%= vehiculo.estado === 'BAJA' ? 'selected' : '' %>>Baja</option>
+              <select name="estado" id="select-estado-vehiculo">
+                <option value="DISPONIBLE" data-baja="no" <%= vehiculo.estado === 'DISPONIBLE' ? 'selected' : '' %>>Disponible</option>
+                <option value="EN_USO" data-baja="no" <%= vehiculo.estado === 'EN_USO' ? 'selected' : '' %>>En uso</option>
+                <option value="PARA_BAJA" data-baja="si" <%= vehiculo.estado === 'PARA_BAJA' ? 'selected' : '' %>>Para Baja</option>
+                <option value="BAJA" data-baja="si" <%= vehiculo.estado === 'BAJA' ? 'selected' : '' %>>Baja</option>
               </select>
             </div>
             <div class="form-group"><label>Kilometraje <span class="req">*</span></label><input name="km" type="number" min="0" value="<%= vehiculo.km %>"></div>
@@ -79,6 +79,10 @@
                 <option value="<%= loc %>" <%= vehiculo.localidad === loc ? 'selected' : '' %>><%= loc %></option>
               <% }) %>
             </select>
+          </div>
+          <div class="form-group" id="grupo-motivo-baja" style="display:none">
+            <label>Motivo / Observación de la Baja <span class="req">*</span></label>
+            <textarea name="motivo_baja" placeholder="Por qué se propone/da de baja el vehículo, estado en que queda, destino..."><%= vehiculo.motivoBaja || '' %></textarea>
           </div>
           <div class="form-group"><label>Observaciones</label><textarea name="observaciones" placeholder="Notas sobre el estado, uso o seguimiento del vehículo..."><%= vehiculo.observaciones || '' %></textarea></div>
         </section>

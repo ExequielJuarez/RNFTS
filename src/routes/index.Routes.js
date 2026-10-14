@@ -175,11 +175,14 @@ router.post("/vehiculos/:patente/editar", (req, res, next) => {
   const vehiculo = vehiculoMockService.obtenerPorPatente(req.params.patente);
   if (!vehiculo) return next();
   const b = req.body;
+  const estadoNuevo = b.estado || vehiculo.estado;
+  const esBaja = estadoNuevo === "PARA_BAJA" || estadoNuevo === "BAJA";
   vehiculoMockService.actualizar(vehiculo.patente, {
-    estado: b.estado || vehiculo.estado,
+    estado: estadoNuevo,
     km: b.km !== undefined && b.km !== "" ? Number(b.km) : vehiculo.km,
     localidad: b.localidad !== undefined ? b.localidad : vehiculo.localidad,
     observaciones: b.observaciones !== undefined ? b.observaciones : vehiculo.observaciones,
+    motivoBaja: esBaja ? b.motivo_baja || "" : "",
     documentacion: Object.assign({}, vehiculo.documentacion, {
       cedula: b.cedula_numero || vehiculo.documentacion.cedula,
       titular: b.cedula_titular || vehiculo.documentacion.titular,
@@ -341,6 +344,7 @@ router.get("/vehiculos/para-baja/documento", (req, res) => {
     titulo: "Generar Acta de Baja",
     vehiculos: vehiculoMockService.listarParaBaja(),
     seleccionadas,
+    talleres: mantenimientoMockService.proveedores(),
     sinSeleccion: req.query.error === "sin-seleccion",
     activeItem: "vehiculos-para-baja",
   });
@@ -906,7 +910,7 @@ router.get("/comisiones/:id/memos/nuevo", (req, res, next) => {
     conflicto: req.query.error === "conflicto",
     conflictoService: req.query.error === "service",
     diasResguardo: turnoServiceMockService.DIAS_RESGUARDO,
-    activeItem: "comisiones-listado",
+    activeItem: "memos-nuevo",
   });
 });
 
@@ -943,6 +947,42 @@ router.get("/comisiones/:id", (req, res, next) => {
   const comision = comisionMockService.obtenerPorId(req.params.id);
   if (!comision) return next();
   res.render("comisiones/ficha", Object.assign({ titulo: comision.nombre, comisiones, mostrarDetalle: true, activeItem: "comisiones-listado" }, datosComision(comision)));
+});
+
+// ===================== COMISIONES DE VIAJE (MEMOS) =====================
+
+router.get("/memos", (req, res) => {
+  const filtroComisionId = (req.query.comision || "").trim();
+
+  const memos = memoMockService
+    .listar()
+    .filter((m) => !filtroComisionId || String(m.comisionId) === filtroComisionId)
+    .sort((a, b) => (a.fechaSalida < b.fechaSalida ? 1 : -1))
+    .map((m) => ({
+      memo: m,
+      comision: comisionMockService.obtenerPorId(m.comisionId),
+      estadoId: memoMockService.calcularEstado(m),
+      estadoInfo: memoMockService.ESTADO_INFO[memoMockService.calcularEstado(m)],
+      fechaSalidaFmt: documentoMockService.formatoFecha(m.fechaSalida),
+      fechaRegresoFmt: documentoMockService.formatoFecha(m.fechaRegreso),
+      vehiculo: vehiculoMockService.obtenerPorPatente(m.vehiculoPatente),
+      chofer: choferMockService.obtenerPorId(m.choferId),
+    }));
+
+  res.render("memos/listado", {
+    titulo: "Comisiones de Viaje",
+    memos,
+    comisionFiltro: filtroComisionId ? comisionMockService.obtenerPorId(filtroComisionId) : null,
+    activeItem: "memos-listado",
+  });
+});
+
+router.get("/memos/nuevo", (req, res) => {
+  res.render("memos/nuevo-picker", {
+    titulo: "Nuevo Memo de Viaje",
+    comisiones: comisionMockService.listar(),
+    activeItem: "memos-nuevo",
+  });
 });
 
 router.get("/memos/:id", (req, res, next) => {

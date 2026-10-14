@@ -68,7 +68,7 @@
               </div>
               <div class="hero-actions">
                 <a href="/comisiones/<%= comision.id %>/editar" class="btn btn-sm btn-outline">Editar</a>
-                <a href="/comisiones/<%= comision.id %>/memos/nuevo" class="btn btn-sm btn-accent">+ Reservar Vehículo</a>
+                <a href="/memos?comision=<%= comision.id %>" class="btn btn-sm btn-accent">Ver Viajes de Comisión</a>
               </div>
             </div>
           </div>
@@ -106,39 +106,6 @@
               </div>
             <% } else { %>
               <p class="table-empty">Sin integrantes registrados.</p>
-            <% } %>
-          </div>
-
-          <!-- Historial de memos -->
-          <div class="card">
-            <div class="card-header">
-              <span class="card-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l5 5v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 13h6M9 17h4"/></svg>
-                Historial de Memos (Reservas de Vehículo)
-              </span>
-              <a href="/comisiones/<%= comision.id %>/memos/nuevo" class="btn btn-sm btn-ghost">+ Nuevo Memo</a>
-            </div>
-            <% if (memos.length) { %>
-              <div class="table-scroll">
-                <table class="table" style="min-width:640px">
-                  <thead><tr><th>Vehículo</th><th>Chofer</th><th>Salida</th><th>Regreso</th><th>Destino</th><th>Estado</th><th></th></tr></thead>
-                  <tbody>
-                    <% memos.forEach(function (m) { %>
-                      <tr>
-                        <td class="is-primary"><%= m.vehiculo ? m.vehiculo.patente : m.memo.vehiculoPatente %></td>
-                        <td><%= m.chofer ? (m.chofer.nombre + ' ' + m.chofer.apellido) : '—' %></td>
-                        <td><%= m.fechaSalidaFmt %></td>
-                        <td><%= m.fechaRegresoFmt %></td>
-                        <td><%= m.memo.destino %></td>
-                        <td><span class="badge badge-<%= m.estadoInfo.clase %>"><%= m.estadoInfo.label %></span></td>
-                        <td style="text-align:right"><a href="/memos/<%= m.memo.id %>" class="btn btn-sm btn-outline">Ver</a></td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-              </div>
-            <% } else { %>
-              <p class="table-empty">Esta comisión todavía no tiene memos de viaje registrados.</p>
             <% } %>
           </div>
 

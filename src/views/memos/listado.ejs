@@ -1,0 +1,83 @@
+<%- include('../partials/head', { titulo: 'Comisiones de Viaje', hojaEstilo: 'memos-listado' }) %>
+
+<div class="app-shell" id="appShell">
+  <%- include('../partials/topbar', { usuario: usuario, notificaciones: notificaciones }) %>
+  <%- include('../partials/sidebar', { activeModulo: 'comisiones-viaje', activeItem: activeItem }) %>
+
+  <main class="app-main" style="overflow-y:auto">
+    <div class="page-wrap">
+
+      <div class="page-header-row">
+        <div>
+          <% if (comisionFiltro) { %>
+            <h1>Viajes de <%= comisionFiltro.nombre %></h1>
+            <p>Memos de reserva de vehículo generados para esta comisión.</p>
+          <% } else { %>
+            <h1>Comisiones de Viaje</h1>
+            <p>Memos de reserva de vehículo: quién viaja, con qué vehículo y chofer, y a dónde.</p>
+          <% } %>
+        </div>
+        <div class="page-header-actions">
+          <% if (comisionFiltro) { %>
+            <a href="/comisiones/<%= comisionFiltro.id %>" class="btn btn-sm btn-outline">← Volver a la comisión</a>
+          <% } %>
+          <a href="/memos/nuevo" class="btn btn-sm btn-accent">+ Nuevo Memo</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body filter-bar">
+          <div class="form-group span-2-filter"><label>Buscar</label><input type="text" id="filtro-texto" placeholder="Comisión, vehículo, chofer, destino..."></div>
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="filtro-estado">
+              <option value="">Todos</option>
+              <option value="reservado">Reservado</option>
+              <option value="en_curso">En curso</option>
+              <option value="finalizado">Finalizado</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Salida desde</label><input type="date" id="filtro-desde"></div>
+          <div class="form-group"><label>Salida hasta</label><input type="date" id="filtro-hasta"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table class="table" id="tabla-memos" style="min-width:860px">
+            <thead>
+              <tr><th>Comisión</th><th>Vehículo</th><th>Chofer</th><th>Salida</th><th>Regreso</th><th>Destino</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+              <% if (memos.length) { %>
+                <% memos.forEach(function (m) { %>
+                  <tr
+                    class="fila-memo"
+                    data-estado="<%= m.estadoId %>"
+                    data-fecha="<%= m.memo.fechaSalida %>"
+                    data-buscar="<%= ((m.comision ? m.comision.nombre : '') + ' ' + m.memo.vehiculoPatente + ' ' + (m.chofer ? m.chofer.nombre + ' ' + m.chofer.apellido : '') + ' ' + m.memo.destino).toLowerCase() %>"
+                  >
+                    <td class="is-primary"><% if (m.comision) { %><a href="/comisiones/<%= m.comision.id %>"><%= m.comision.nombre %></a><% } else { %>—<% } %></td>
+                    <td><% if (m.vehiculo) { %><a href="/vehiculos/<%= m.vehiculo.patente %>"><%= m.vehiculo.patente %></a><% } else { %><%= m.memo.vehiculoPatente %><% } %></td>
+                    <td><%= m.chofer ? (m.chofer.nombre + ' ' + m.chofer.apellido) : '—' %></td>
+                    <td><%= m.fechaSalidaFmt %></td>
+                    <td><%= m.fechaRegresoFmt %></td>
+                    <td><%= m.memo.destino %></td>
+                    <td><span class="badge badge-<%= m.estadoInfo.clase %>"><%= m.estadoInfo.label %></span></td>
+                    <td style="text-align:right"><a href="/memos/<%= m.memo.id %>" class="btn btn-sm btn-outline">Ver</a></td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr><td colspan="8" class="table-empty">No hay memos de viaje generados todavía.</td></tr>
+              <% } %>
+            </tbody>
+          </table>
+          <p class="table-empty" id="sin-resultados" style="display:none">No hay memos que coincidan con los filtros aplicados.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/pages/memos-listado.js"></script>
+<%- include('../partials/scripts') %>
