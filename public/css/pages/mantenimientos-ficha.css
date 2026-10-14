@@ -155,6 +155,10 @@ img {
   display: block;
 }
 
+canvas {
+  max-width: 100%;
+}
+
 svg {
   display: block;
   flex-shrink: 0;
@@ -505,6 +509,12 @@ svg {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+@media (max-width: 860px) {
+  .card-header {
+    flex-wrap: wrap;
+  }
+}
+
 .card-title {
   display: flex;
   align-items: center;
@@ -763,6 +773,15 @@ svg {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--space-4);
+}
+
+.span-2-filter {
+  grid-column: span 2;
+}
+@media (max-width: 480px) {
+  .span-2-filter {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1201,6 +1220,14 @@ svg {
   color: var(--accent);
 }
 
+/* En celulares muy angostos (~320-360px), ocultar el texto de marca
+   evita que la campana/avatar del usuario queden cortados fuera de pantalla. */
+@media (max-width: 400px) {
+  .topbar-brand .brand-text {
+    display: none;
+  }
+}
+
 .topbar-spacer {
   flex: 1;
 }
@@ -1314,6 +1341,12 @@ svg {
 .list-header h1 {
   font-size: 15px;
   margin-bottom: var(--space-3);
+}
+
+@media (max-width: 400px) {
+  .list-header {
+    flex-wrap: wrap;
+  }
 }
 
 .vehicle-list {

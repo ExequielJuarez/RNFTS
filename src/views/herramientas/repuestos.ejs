@@ -22,23 +22,25 @@
 
       <div class="card">
         <div class="card-header"><span class="card-title">Inventario Actual</span></div>
-        <table class="table">
-          <thead><tr><th>Nombre / Descripción</th><th>Stock Disponible</th><th>Costo Unit. Referencia</th><th></th></tr></thead>
-          <tbody>
-            <% repuestos.forEach(function (r) { %>
-              <tr>
-                <td class="is-primary"><%= r.nombre %></td>
-                <td><span class="badge badge-info"><%= r.stock %> un.</span></td>
-                <td>$<%= r.costoUnitario.toLocaleString('es-AR', {minimumFractionDigits:2}) %></td>
-                <td style="text-align:right">
-                  <form action="/herramientas/repuestos/<%= r.id %>/eliminar" method="post" onsubmit="return confirm('¿Eliminar este repuesto?')">
-                    <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Eliminar</button>
-                  </form>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
+        <div class="table-scroll">
+          <table class="table" style="min-width:560px">
+            <thead><tr><th>Nombre / Descripción</th><th>Stock Disponible</th><th>Costo Unit. Referencia</th><th></th></tr></thead>
+            <tbody>
+              <% repuestos.forEach(function (r) { %>
+                <tr>
+                  <td class="is-primary"><%= r.nombre %></td>
+                  <td><span class="badge badge-info"><%= r.stock %> un.</span></td>
+                  <td>$<%= r.costoUnitario.toLocaleString('es-AR', {minimumFractionDigits:2}) %></td>
+                  <td style="text-align:right">
+                    <form action="/herramientas/repuestos/<%= r.id %>/eliminar" method="post" onsubmit="return confirm('¿Eliminar este repuesto?')">
+                      <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Eliminar</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
         <div class="card-body">
           <h3 style="font-size:14px; margin-bottom:var(--space-3)">Agregar Nuevo Repuesto</h3>
           <form action="/herramientas/repuestos" method="post" style="display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:flex-end; background:var(--bg-surface-alt); padding:var(--space-4); border-radius:var(--radius-md); border:1px dashed var(--border-strong)">
@@ -53,21 +55,23 @@
       <div class="card">
         <div class="card-header"><span class="card-title">Historial de Pedidos de Entrega</span></div>
         <% if (pedidos.length) { %>
-          <table class="table">
-            <thead><tr><th>Fecha</th><th>Repuesto</th><th>Cantidad</th><th>Vehículo</th><th>Motivo</th><th>Autorizado por</th></tr></thead>
-            <tbody>
-              <% pedidos.forEach(function (p) { %>
-                <tr>
-                  <td class="is-primary"><%= new Date(p.fecha).toLocaleDateString('es-AR') %></td>
-                  <td><%= p.repuestoNombre %></td>
-                  <td><span class="badge badge-info"><%= p.cantidad %></span></td>
-                  <td><% if (p.vehiculoPatente) { %><a href="/vehiculos/<%= p.vehiculoPatente %>"><%= p.vehiculoPatente %></a><% } else { %>—<% } %></td>
-                  <td style="max-width:260px"><%= p.motivo || '—' %></td>
-                  <td><%= p.autorizadoPor %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="table" style="min-width:640px">
+              <thead><tr><th>Fecha</th><th>Repuesto</th><th>Cantidad</th><th>Vehículo</th><th>Motivo</th><th>Autorizado por</th></tr></thead>
+              <tbody>
+                <% pedidos.forEach(function (p) { %>
+                  <tr>
+                    <td class="is-primary"><%= new Date(p.fecha).toLocaleDateString('es-AR') %></td>
+                    <td><%= p.repuestoNombre %></td>
+                    <td><span class="badge badge-info"><%= p.cantidad %></span></td>
+                    <td><% if (p.vehiculoPatente) { %><a href="/vehiculos/<%= p.vehiculoPatente %>"><%= p.vehiculoPatente %></a><% } else { %>—<% } %></td>
+                    <td style="max-width:260px"><%= p.motivo || '—' %></td>
+                    <td><%= p.autorizadoPor %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
         <% } else { %>
           <p class="table-empty">Sin pedidos de entrega registrados.</p>
         <% } %>

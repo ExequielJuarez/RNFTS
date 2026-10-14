@@ -20,12 +20,12 @@
           <a href="/mantenimientos/nuevo" class="btn btn-sm btn-accent" style="flex-shrink:0; margin-top:2px;">+ Nuevo</a>
         </div>
 
-        <div style="display:flex; gap:var(--space-2); padding:0 0 var(--space-3)">
-          <select id="filtroProveedor" style="flex:1; height:34px; font-size:12.5px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); padding:0 var(--space-2)">
+        <div style="display:flex; flex-wrap:wrap; gap:var(--space-2); padding:0 0 var(--space-3)">
+          <select id="filtroProveedor" style="flex:1; min-width:140px; height:34px; font-size:12.5px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); padding:0 var(--space-2)">
             <option value="">Todos los proveedores</option>
             <% proveedores.forEach(function (p) { %><option value="<%= p %>"><%= p %></option><% }) %>
           </select>
-          <select id="filtroPagado" style="flex:1; height:34px; font-size:12.5px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); padding:0 var(--space-2)">
+          <select id="filtroPagado" style="flex:1; min-width:140px; height:34px; font-size:12.5px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); padding:0 var(--space-2)">
             <option value="">Pagados y pendientes</option>
             <option value="si">Solo pagados</option>
             <option value="no">Solo pendientes de pago</option>

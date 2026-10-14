@@ -100,24 +100,26 @@
           <span class="card-title">Asignaciones en Curso</span>
         </div>
         <% if (asignaciones.length) { %>
-          <table class="table">
-            <thead><tr><th>Vehículo</th><th>Chofer</th><th>Desde</th><th>Destino</th><th></th></tr></thead>
-            <tbody>
-              <% asignaciones.forEach(function (a) { %>
-                <tr>
-                  <td class="is-primary"><%= a.vehiculo.patente %><div style="font-weight:400; font-size:12px; color:var(--text-muted)"><%= a.vehiculo.marca %></div></td>
-                  <td><%= a.chofer.apellido %>, <%= a.chofer.nombre %></td>
-                  <td><%= a.fechaDesde %></td>
-                  <td><%= a.destino %></td>
-                  <td>
-                    <form action="/vehiculos/asignaciones/<%= a.id %>/finalizar" method="post" onsubmit="return confirm('¿Finalizar esta asignación?')">
-                      <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Terminar Uso</button>
-                    </form>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="table" style="min-width:520px">
+              <thead><tr><th>Vehículo</th><th>Chofer</th><th>Desde</th><th>Destino</th><th></th></tr></thead>
+              <tbody>
+                <% asignaciones.forEach(function (a) { %>
+                  <tr>
+                    <td class="is-primary"><%= a.vehiculo.patente %><div style="font-weight:400; font-size:12px; color:var(--text-muted)"><%= a.vehiculo.marca %></div></td>
+                    <td><%= a.chofer.apellido %>, <%= a.chofer.nombre %></td>
+                    <td><%= a.fechaDesde %></td>
+                    <td><%= a.destino %></td>
+                    <td>
+                      <form action="/vehiculos/asignaciones/<%= a.id %>/finalizar" method="post" onsubmit="return confirm('¿Finalizar esta asignación?')">
+                        <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger-border);">Terminar Uso</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
         <% } else { %>
           <p class="table-empty">No hay asignaciones activas en este momento.</p>
         <% } %>

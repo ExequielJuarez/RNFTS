@@ -94,14 +94,16 @@
           <div class="card">
             <div class="card-header"><span class="card-title">Integrantes de la Comisión</span></div>
             <% if (comision.integrantes.length) { %>
-              <table class="table">
-                <thead><tr><th>Nombre</th><th>DNI</th><th>Cargo</th></tr></thead>
-                <tbody>
-                  <% comision.integrantes.forEach(function (i) { %>
-                    <tr><td class="is-primary"><%= i.nombre %></td><td><%= i.dni %></td><td><%= i.cargo || '—' %></td></tr>
-                  <% }) %>
-                </tbody>
-              </table>
+              <div class="table-scroll">
+                <table class="table" style="min-width:420px">
+                  <thead><tr><th>Nombre</th><th>DNI</th><th>Cargo</th></tr></thead>
+                  <tbody>
+                    <% comision.integrantes.forEach(function (i) { %>
+                      <tr><td class="is-primary"><%= i.nombre %></td><td><%= i.dni %></td><td><%= i.cargo || '—' %></td></tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
             <% } else { %>
               <p class="table-empty">Sin integrantes registrados.</p>
             <% } %>
@@ -117,22 +119,24 @@
               <a href="/comisiones/<%= comision.id %>/memos/nuevo" class="btn btn-sm btn-ghost">+ Nuevo Memo</a>
             </div>
             <% if (memos.length) { %>
-              <table class="table">
-                <thead><tr><th>Vehículo</th><th>Chofer</th><th>Salida</th><th>Regreso</th><th>Destino</th><th>Estado</th><th></th></tr></thead>
-                <tbody>
-                  <% memos.forEach(function (m) { %>
-                    <tr>
-                      <td class="is-primary"><%= m.vehiculo ? m.vehiculo.patente : m.memo.vehiculoPatente %></td>
-                      <td><%= m.chofer ? (m.chofer.nombre + ' ' + m.chofer.apellido) : '—' %></td>
-                      <td><%= m.fechaSalidaFmt %></td>
-                      <td><%= m.fechaRegresoFmt %></td>
-                      <td><%= m.memo.destino %></td>
-                      <td><span class="badge badge-<%= m.estadoInfo.clase %>"><%= m.estadoInfo.label %></span></td>
-                      <td style="text-align:right"><a href="/memos/<%= m.memo.id %>" class="btn btn-sm btn-outline">Ver</a></td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
+              <div class="table-scroll">
+                <table class="table" style="min-width:640px">
+                  <thead><tr><th>Vehículo</th><th>Chofer</th><th>Salida</th><th>Regreso</th><th>Destino</th><th>Estado</th><th></th></tr></thead>
+                  <tbody>
+                    <% memos.forEach(function (m) { %>
+                      <tr>
+                        <td class="is-primary"><%= m.vehiculo ? m.vehiculo.patente : m.memo.vehiculoPatente %></td>
+                        <td><%= m.chofer ? (m.chofer.nombre + ' ' + m.chofer.apellido) : '—' %></td>
+                        <td><%= m.fechaSalidaFmt %></td>
+                        <td><%= m.fechaRegresoFmt %></td>
+                        <td><%= m.memo.destino %></td>
+                        <td><span class="badge badge-<%= m.estadoInfo.clase %>"><%= m.estadoInfo.label %></span></td>
+                        <td style="text-align:right"><a href="/memos/<%= m.memo.id %>" class="btn btn-sm btn-outline">Ver</a></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
             <% } else { %>
               <p class="table-empty">Esta comisión todavía no tiene memos de viaje registrados.</p>
             <% } %>

@@ -96,20 +96,22 @@
               <div class="card">
                 <div class="card-header"><span class="card-title">Últimos Préstamos Registrados</span></div>
                 <% if (herramienta.prestamos.length) { %>
-                  <table class="table">
-                    <thead><tr><th>Salida</th><th>Devolución</th><th>Operario</th><th>Destino</th><th>Estado</th></tr></thead>
-                    <tbody>
-                      <% herramienta.prestamos.slice(0, 5).forEach(function (p) { %>
-                        <tr>
-                          <td class="is-primary"><%= new Date(p.fechaSalida).toLocaleDateString('es-AR') %></td>
-                          <td><%= p.fechaDevolucionReal ? new Date(p.fechaDevolucionReal).toLocaleDateString('es-AR') : (p.fechaDevolucionEstimada ? new Date(p.fechaDevolucionEstimada).toLocaleDateString('es-AR') : '—') %></td>
-                          <td class="is-primary"><%= p.nombreOperario %></td>
-                          <td><%= p.sectorDestino %></td>
-                          <td><span class="badge badge-<%= p.estadoPrestamo === 'Activo' ? 'warning' : 'success' %>"><%= p.estadoPrestamo %></span></td>
-                        </tr>
-                      <% }) %>
-                    </tbody>
-                  </table>
+                  <div class="table-scroll">
+                    <table class="table" style="min-width:520px">
+                      <thead><tr><th>Salida</th><th>Devolución</th><th>Operario</th><th>Destino</th><th>Estado</th></tr></thead>
+                      <tbody>
+                        <% herramienta.prestamos.slice(0, 5).forEach(function (p) { %>
+                          <tr>
+                            <td class="is-primary"><%= new Date(p.fechaSalida).toLocaleDateString('es-AR') %></td>
+                            <td><%= p.fechaDevolucionReal ? new Date(p.fechaDevolucionReal).toLocaleDateString('es-AR') : (p.fechaDevolucionEstimada ? new Date(p.fechaDevolucionEstimada).toLocaleDateString('es-AR') : '—') %></td>
+                            <td class="is-primary"><%= p.nombreOperario %></td>
+                            <td><%= p.sectorDestino %></td>
+                            <td><span class="badge badge-<%= p.estadoPrestamo === 'Activo' ? 'warning' : 'success' %>"><%= p.estadoPrestamo %></span></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
                 <% } else { %>
                   <p class="table-empty">No hay historial de préstamos para este activo.</p>
                 <% } %>

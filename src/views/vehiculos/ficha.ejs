@@ -205,28 +205,30 @@
             </div>
             <div class="card-body">
               <% if (documentos && documentos.length) { %>
-                <table class="table">
-                  <thead><tr><th>Tipo</th><th>N°</th><th>Emisión</th><th>Vencimiento</th><th>Estado</th><th></th></tr></thead>
-                  <tbody>
-                    <% documentos.forEach(function (d) { %>
-                      <tr>
-                        <td class="is-primary"><%= d.tipoLabel %></td>
-                        <td><%= d.documento.numero %></td>
-                        <td><%= d.fechaEmisionFmt %></td>
-                        <td><%= d.fechaVencimientoFmt %></td>
-                        <td><span class="badge badge-<%= d.estado.clase %>"><%= d.estado.label %></span></td>
-                        <td style="text-align:right">
-                          <div style="display:flex; gap:var(--space-2); justify-content:flex-end">
-                            <a href="/documentos/<%= d.documento.id %>" class="btn btn-sm btn-outline">Ver</a>
-                            <% if (d.estado.clase === 'danger' || d.estado.clase === 'warning') { %>
-                              <a href="/documentos/<%= d.documento.id %>#renovar" class="btn btn-sm btn-accent">Renovar</a>
-                            <% } %>
-                          </div>
-                        </td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
+                <div class="table-scroll">
+                  <table class="table" style="min-width:560px">
+                    <thead><tr><th>Tipo</th><th>N°</th><th>Emisión</th><th>Vencimiento</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>
+                      <% documentos.forEach(function (d) { %>
+                        <tr>
+                          <td class="is-primary"><%= d.tipoLabel %></td>
+                          <td><%= d.documento.numero %></td>
+                          <td><%= d.fechaEmisionFmt %></td>
+                          <td><%= d.fechaVencimientoFmt %></td>
+                          <td><span class="badge badge-<%= d.estado.clase %>"><%= d.estado.label %></span></td>
+                          <td style="text-align:right">
+                            <div style="display:flex; gap:var(--space-2); justify-content:flex-end">
+                              <a href="/documentos/<%= d.documento.id %>" class="btn btn-sm btn-outline">Ver</a>
+                              <% if (d.estado.clase === 'danger' || d.estado.clase === 'warning') { %>
+                                <a href="/documentos/<%= d.documento.id %>#renovar" class="btn btn-sm btn-accent">Renovar</a>
+                              <% } %>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
               <% } else { %>
                 <div class="comodato-empty">
                   <div>
@@ -251,23 +253,25 @@
                   <a href="/mantenimientos?patente=<%= vehiculo.patente %>" class="btn btn-sm btn-ghost">Ver todos</a>
                 </div>
                 <% if (mantenimientosRecientes && mantenimientosRecientes.length) { %>
-                  <table class="table">
-                    <thead>
-                      <tr><th>Fecha</th><th>Servicio</th><th>Costo</th></tr>
-                    </thead>
-                    <tbody>
-                      <% mantenimientosRecientes.forEach(function (m) { %>
-                        <tr>
-                          <td class="is-primary"><a href="/mantenimientos/<%= m.id %>"><%= new Date(m.fecha).toLocaleDateString('es-AR') %></a></td>
-                          <td>
-                            <%= m.tipoServicio %>
-                            <span class="badge badge-<%= m.estadoClase %>" style="margin-left:6px"><%= m.estado %></span>
-                          </td>
-                          <td class="is-primary">$<%= m.costoTotal.toLocaleString('es-AR') %></td>
-                        </tr>
-                      <% }) %>
-                    </tbody>
-                  </table>
+                  <div class="table-scroll">
+                    <table class="table" style="min-width:320px">
+                      <thead>
+                        <tr><th>Fecha</th><th>Servicio</th><th>Costo</th></tr>
+                      </thead>
+                      <tbody>
+                        <% mantenimientosRecientes.forEach(function (m) { %>
+                          <tr>
+                            <td class="is-primary"><a href="/mantenimientos/<%= m.id %>"><%= new Date(m.fecha).toLocaleDateString('es-AR') %></a></td>
+                            <td>
+                              <%= m.tipoServicio %>
+                              <span class="badge badge-<%= m.estadoClase %>" style="margin-left:6px"><%= m.estado %></span>
+                            </td>
+                            <td class="is-primary">$<%= m.costoTotal.toLocaleString('es-AR') %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
                 <% } else { %>
                   <p class="table-empty">Sin mantenimientos registrados</p>
                 <% } %>
@@ -282,20 +286,22 @@
                   </span>
                 </div>
                 <% if (vehiculo.siniestros.length) { %>
-                  <table class="table">
-                    <thead>
-                      <tr><th>Fecha</th><th>Ubicación</th><th>Estado</th></tr>
-                    </thead>
-                    <tbody>
-                      <% vehiculo.siniestros.forEach(function (s) { %>
-                        <tr>
-                          <td class="is-primary"><%= s.fecha %></td>
-                          <td><%= s.ubicacion %></td>
-                          <td><span class="badge badge-<%= s.estadoClase %>"><%= s.estadoLabel %></span></td>
-                        </tr>
-                      <% }) %>
-                    </tbody>
-                  </table>
+                  <div class="table-scroll">
+                    <table class="table" style="min-width:320px">
+                      <thead>
+                        <tr><th>Fecha</th><th>Ubicación</th><th>Estado</th></tr>
+                      </thead>
+                      <tbody>
+                        <% vehiculo.siniestros.forEach(function (s) { %>
+                          <tr>
+                            <td class="is-primary"><%= s.fecha %></td>
+                            <td><%= s.ubicacion %></td>
+                            <td><span class="badge badge-<%= s.estadoClase %>"><%= s.estadoLabel %></span></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
                 <% } else { %>
                   <p class="table-empty">Sin siniestros reportados</p>
                 <% } %>
